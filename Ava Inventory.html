@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f4f6fb;
+      color: #222;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: 100vh;
+    }
+
+    aside {
+      background: #1e1b4b;
+      color: white;
+      padding: 25px 18px;
+    }
+
+    aside h1 {
+      font-size: 22px;
+      margin-bottom: 35px;
+    }
+
+    aside a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      padding: 13px 15px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    aside a:hover,
+    aside a.active {
+      background: #4f46e5;
+    }
+
+    main {
+      padding: 30px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .topbar h2 {
+      font-size: 30px;
+      color: #1e1b4b;
+    }
+
+    .btn {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+
+  transition: all .25s ease;
+  transform: scale(1);
+  box-shadow: 0 6px 16px rgba(0,0,0,.15);
+}
+
+.btn:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0,0,0,.25);
+}
+
+    .btn.red {
+      background: #ef4444;
+    }
+
+    .btn.green {
+      background: #22c55e;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 18px;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      background: white;
+      padding: 22px;
+      border-radius: 18px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    }
+
+    .card p {
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .card h3 {
+      font-size: 30px;
+      color: #1e1b4b;
+    }
+
+    .panel {
+      background: white;
+      padding: 22px;
+      border-radius: 18px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+      margin-bottom: 25px;
+    }
+
+    .panel h3 {
+      margin-bottom: 18px;
+      color: #1e1b4b;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 14px;
+    }
+
+    th,
+    td {
+      padding: 14px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background: #eef2ff;
+      color: #1e1b4b;
+    }
+
+    .status {
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .ok {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .low {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .out {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    @media (max-width: 800px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      aside a {
+        display: inline-block;
+        margin-right: 5px;
+      }
+
+      main {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+
+<div id="loginScreen"
+style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#f4f6fb;
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:9999;
+">
+
+<div class="panel" style="width:350px">
+
+<h2>Login</h2>
+
+<input
+id="username"
+placeholder="Username"
+style="margin:10px 0"
+/>
+
+<input
+id="password"
+type="password"
+placeholder="Password"
+style="margin:10px 0"
+/>
+
+<button
+class="btn"
+onclick="loginUser()">
+Login
+</button>
+
+</div>
+
+</div>
+
+<body>
+
+  <div class="layout">
+    <aside>
+      <h1>Inventory System</h1>
+      <a href="#" class="active">Dashboard</a>
+      <a href="#products">Products</a>
+      <a href="#add-stock">Add Stock</a>
+      <a href="#sales">Sales / Out</a>
+      <a href="#reports">Reports</a>
+    </aside>
+
+    <main>
+      <div class="topbar">
+        <h2>Dashboard</h2>
+
+        <div>
+      <button class="btn" onclick="loadProducts()">
+      Refresh Data
+        </button>
+
+      <button
+      class="btn red"
+      onclick="logoutUser()">
+      Logout
+    </button>
+      </div>
+
+        </div>
+
+      <div class="cards">
+        <div class="card">
+          <p>Total Products</p>
+          <h3 id="totalProducts">0</h3>
+        </div>
+        <div class="card">
+          <p>Total Stock</p>
+          <h3 id="totalStock">0</h3>
+        </div>
+        <div class="card">
+          <p>Low Stock</p>
+          <h3 id="lowStock">0</h3>
+        </div>
+        <div class="card">
+          <p>Out of Stock</p>
+          <h3 id="outStock">0</h3>
+        </div>
+      </div>
+
+      <section class="panel" id="add-stock">
+        <h3>Add / Update Product</h3>
+        <div class="form-grid">
+          <input id="barcode" type="text" placeholder="Barcode" />
+          <input id="product" type="text" placeholder="Product Name" />
+          <select id="category">
+            <option value="">Category</option>
+            <option value="2026 Collection">2026 Collection</option>
+            <option value="Camille Collection">Camille Collection</option>
+            <option value="Pants">Pants</option>
+            <option value="Jacket">Jacket</option>
+          </select>
+          <input id="color" type="text" placeholder="Color" />
+          <input id="size" type="text" placeholder="Size" />
+          <input id="stock" type="number" placeholder="Quantity" />
+          <input id="price" type="number" placeholder="Price" />
+          <button class="btn green" onclick="saveProduct()">Save Stock</button>
+        </div>
+      </section>
+
+      <section class="panel" id="products">
+        <h3>Product List</h3>
+        <input
+    id="searchInput"
+    type="text"
+    placeholder="Search barcode, product, color, size..."
+    oninput="filterProducts()"
+
+    
+    style="margin-bottom:15px; max-width:350px;"
+  />
+        <table>
+          <thead>
+            <tr>
+              <th>Barcode</th>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Color</th>
+              <th>Size</th>
+              <th>Stock</th>
+              <th>Price</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="productTable">
+            <tr>
+              <td colspan="7">Click Refresh Data.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel" id="sales">
+        <h3>Sales / Stock Out</h3>
+        <div class="form-grid">
+          <input id="outBarcode" type="text" placeholder="Scan Barcode" />
+          <input id="outQty" type="number" placeholder="Quantity Out" />
+          <button class="btn red" onclick="stockOut()">Deduct Stock</button>
+        </div>
+      </section>
+
+      <section class="panel" id="reports">
+        <h3>Reports</h3>
+        <p>Ang data ay manggagaling sa Google Sheets database gamit ang Apps Script Web App.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Palitan ito ng Apps Script Web App URL mo
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6K3N58inD_aZdmVA6yilTyxSSEE34ng_GXNviFvDTBLdXocmhBppWeCv4U9bcKr-3/exec";
+
+async function apiRequest(action, payload = {}) {
+  const response = await fetch(WEB_APP_URL, {
+    method: "POST",
+    body: JSON.stringify({ action, ...payload })
+  });
+
+  return await response.json();
+}
+
+async function saveProduct() {
+  const data = {
+    barcode: document.getElementById("barcode").value.trim(),
+    product: document.getElementById("product").value.trim(),
+    category: document.getElementById("category").value,
+    color: document.getElementById("color").value.trim(),
+    size: document.getElementById("size").value.trim(),
+    stock: Number(document.getElementById("stock").value),
+    price: Number(document.getElementById("price").value)
+  };
+
+  if (!data.barcode || !data.product || !data.stock) {
+    alert("Pakilagay ang barcode, product name, at quantity.");
+    return;
+  }
+
+  const result = await apiRequest("saveProduct", data);
+  alert(result.message || "Saved!");
+  loadProducts();
+}
+
+async function loadProducts() {
+  const result = await apiRequest("getProducts");
+  const products = result.products || [];
+  const table = document.getElementById("productTable");
+
+  table.innerHTML = "";
+
+  let totalStock = 0;
+  let lowStock = 0;
+  let outStock = 0;
+
+  if (products.length === 0) {
+    table.innerHTML = "<tr><td colspan='8'>Wala pang products sa database.</td></tr>";
+  }
+
+  products.forEach(item => {
+    const stock = Number(item.stock) || 0;
+    totalStock += stock;
+
+    let statusText = "In Stock";
+    let statusClass = "ok";
+
+    if (stock === 0) {
+      statusText = "Out";
+      statusClass = "out";
+      outStock++;
+    } else if (stock <= 5) {
+      statusText = "Low Stock";
+      statusClass = "low";
+      lowStock++;
+    }
+
+    table.innerHTML += `
+      <tr>
+        <td>${item.barcode}</td>
+        <td>${item.product}</td>
+        <td>${item.category}</td>
+        <td>${item.color}</td>
+        <td>${item.size}</td>
+        <td>${item.stock}</td>
+        <td>₱${item.price}</td>
+        <td><span class="status ${statusClass}">${statusText}</span></td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("totalProducts").textContent = products.length;
+  document.getElementById("totalStock").textContent = totalStock;
+  document.getElementById("lowStock").textContent = lowStock;
+  document.getElementById("outStock").textContent = outStock;
+
+  filterProducts();
+}
+
+async function stockOut() {
+  const barcode = document.getElementById("outBarcode").value.trim();
+  const qty = Number(document.getElementById("outQty").value);
+
+  if (!barcode || !qty) {
+    alert("Pakilagay ang barcode at quantity out.");
+    return;
+  }
+
+  const result = await apiRequest("stockOut", { barcode, qty });
+  alert(result.message || "Stock deducted!");
+  loadProducts();
+}
+
+function filterProducts() {
+  const searchInput = document.getElementById("searchInput");
+  if (!searchInput) return;
+
+  const keyword = searchInput.value.toLowerCase();
+  const rows = document.querySelectorAll("#productTable tr");
+
+  let found = false;
+
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+
+    if (text.includes(keyword)) {
+      row.style.display = "";
+      found = true;
+    } else {
+      row.style.display = "none";
+    }
+  });
+
+  // alisin muna lumang message
+  const oldMsg = document.getElementById("noResultRow");
+  if (oldMsg) oldMsg.remove();
+
+  // kapag walang nahanap
+  if (!found && keyword !== "") {
+    const table = document.getElementById("productTable");
+
+    table.innerHTML += `
+      <tr id="noResultRow">
+        <td colspan="8"
+        style="text-align:center;color:#888;padding:20px;">
+          ❌ Product not found
+        </td>
+      </tr>
+    `;
+  }
+}
+
+async function loginUser(){
+
+const username=
+document.getElementById("username").value;
+
+const password=
+document.getElementById("password").value;
+
+const result=
+await apiRequest(
+"login",
+{
+username,
+password
+}
+);
+
+if(result.success){
+
+document
+.getElementById(
+"loginScreen"
+)
+.style.display="none";
+
+}
+else{
+
+alert(
+"Wrong username or password"
+);
+
+}
+
+}
+
+function logoutUser() {
+
+  const confirmLogout =
+  confirm("Are you sure you want to log out?");
+
+  if (!confirmLogout) {
+    return;
+  }
+
+  document.getElementById(
+    "loginScreen"
+  ).style.display = "flex";
+
+  document.getElementById(
+    "username"
+  ).value = "";
+
+  document.getElementById(
+    "password"
+  ).value = "";
+
+}
+
+  </script>
+
+</body>
+</html>
