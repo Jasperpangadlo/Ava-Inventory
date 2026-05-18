@@ -266,6 +266,29 @@ async function loadHistory() {
   });
 }
 
+function showTab(tabId){
+
+const tabs=
+document.querySelectorAll(".tab-content");
+
+tabs.forEach(tab=>{
+tab.style.display="none";
+});
+
+document.getElementById(tabId)
+.style.display="block";
+
+}
+
+window.onload=()=>{
+
+loadProducts();
+loadHistory();
+
+showTab("dashboard");
+
+};
+
 async function loginUser() {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
