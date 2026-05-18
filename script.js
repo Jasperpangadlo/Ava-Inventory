@@ -187,9 +187,10 @@ function filterProducts() {
 function autoFillProduct() {
   const barcode = document.getElementById("barcode").value.trim();
 
+  // kapag walang barcode, i-clear lahat
   if (barcode === "") {
     document.getElementById("product").value = "";
-    document.getElementById("category").value = "";
+    document.getElementById("category").selectedIndex = 0;
     document.getElementById("color").value = "";
     document.getElementById("size").value = "";
     document.getElementById("stock").value = "";
