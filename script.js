@@ -32,6 +32,8 @@ async function saveProduct() {
   const result = await apiRequest("saveProduct", data);
   alert(result.message || "Saved!");
   loadProducts();
+  document.getElementById("barcode").focus();
+  
 }
 
 async function loadProducts() {
