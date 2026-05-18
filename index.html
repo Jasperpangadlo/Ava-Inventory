@@ -57,14 +57,13 @@ Login
   <div class="layout">
     <aside>
       <h1>Inventory System</h1>
-      <a href="#" class="active">Dashboard</a>
-      <a href="#products">Products</a>
-      <a href="#add-stock">Add Stock</a>
-      <a href="#sales">Sales / Out</a>
-      <a href="#history">History</a>
-      <a href="#reports">Reports</a>
+      <a href="#" onclick="showTab('dashboard')" class="active">Dashboard</a>
+      <a href="#" onclick="showTab('products')">Products</a>
+      <a href="#" onclick="showTab('add-stock')">Add Stock</a>
+      <a href="#" onclick="showTab('sales')">Sales / Out</a>
+      <a href="#" onclick="showTab('history')">History</a>
+      <a href="#" onclick="showTab('reports')">Reports</a>
     </aside>
-
     <main>
       <div class="topbar">
         <h2>Dashboard</h2>
@@ -82,7 +81,7 @@ Login
       </div>
 
         </div>
-
+<section class="tab-content" id="dashboard">
       <div class="cards">
         <div class="card">
           <p>Total Products</p>
@@ -102,7 +101,7 @@ Login
         </div>
       </div>
 
-      <section class="panel" id="add-stock">
+      <section class="panel tab-content" id="add-stock">
         <h3>Add / Update Product</h3>
         <div class="form-grid">
           <input id="barcode" type="text" placeholder="Barcode" oninput="autoFillProduct()" />
@@ -122,7 +121,7 @@ Login
         </div>
       </section>
 
-      <section class="panel" id="products">
+      <section class="panel tab-content" id="products">
         <h3>Product List</h3>
         <input
     id="searchInput"
@@ -154,7 +153,7 @@ Login
         </table>
       </section>
 
-      <section class="panel" id="sales">
+      <section class="panel tab-content" id="sales">
         <h3>Sales / Stock Out</h3>
         <div class="form-grid">
           <input id="outBarcode" type="text" placeholder="Scan Barcode" />
@@ -163,7 +162,7 @@ Login
         </div>
       </section>
 
-      <section class="panel" id="history">
+      <section class="panel tab-content" id="history">
   <h3>Stock Out History</h3>
 
   <table>
