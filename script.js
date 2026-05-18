@@ -279,13 +279,8 @@ window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
   loadHistory();
+
   showTab("dashboard");
-  showTab("products");
-  showTab("add-stock");
-  showTab("sales");
-  showTab("history");
-  showTab("reports");
-  
 };
 
 
