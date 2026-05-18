@@ -212,6 +212,10 @@ function autoFillProduct() {
   document.getElementById("price").value = found.price;
 }
 
+window.onload = () => {
+  document.getElementById("barcode").focus();
+};
+
 async function loginUser() {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
