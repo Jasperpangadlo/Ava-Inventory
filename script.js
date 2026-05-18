@@ -25,12 +25,21 @@ async function saveProduct() {
   };
 
   if (!data.barcode || !data.product || !data.stock) {
-    alert("Pakilagay ang barcode, product name, at quantity.");
+    alert("Please input barcode, product name, at quantity.");
     return;
   }
 
   const result = await apiRequest("saveProduct", data);
   alert(result.message || "Saved!");
+
+document.getElementById("barcode").value = "";
+document.getElementById("product").value = "";
+document.getElementById("category").selectedIndex = 0;
+document.getElementById("color").value = "";
+document.getElementById("size").value = "";
+document.getElementById("stock").value = "";
+document.getElementById("price").value = "";
+  
   loadProducts();
   document.getElementById("barcode").focus();
   
