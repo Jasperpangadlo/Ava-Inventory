@@ -275,10 +275,56 @@ document.getElementById(tabId)
 
 }
 
+async function loadStoreProducts() {
+
+const result =
+await apiRequest("getProducts");
+
+const products =
+result.products || [];
+
+const table =
+document.getElementById("storeTable");
+
+table.innerHTML="";
+
+const storeItems=
+products.filter(item=>
+item.location &&
+item.location!=="Warehouse"
+);
+
+if(storeItems.length===0){
+
+table.innerHTML=
+"<tr><td colspan='6'>No store products yet.</td></tr>";
+
+return;
+}
+
+storeItems.forEach(item=>{
+
+table.innerHTML += `
+<tr>
+<td>${item.barcode}</td>
+<td>${item.product}</td>
+<td>${item.color}</td>
+<td>${item.size}</td>
+<td>${item.stock}</td>
+<td>${item.location}</td>
+</tr>
+`;
+
+});
+
+}
+
+
 window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
   loadHistory();
+  loadStoreProducts();
 
   showTab("dashboard");
 };
