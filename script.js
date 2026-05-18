@@ -212,7 +212,7 @@ async function loginUser() {
   });
 
   // console.log("LOGIN RESULT:", result);
-  alert(JSON.stringify(result));
+  // alert(JSON.stringify(result));
 
   if (result.success) {
     document.getElementById("loginScreen").style.display = "none";
