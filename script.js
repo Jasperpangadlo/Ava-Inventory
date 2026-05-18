@@ -1,5 +1,7 @@
 let stockChart = null;
 
+let allProducts = [];
+
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6K3N58inD_aZdmVA6yilTyxSSEE34ng_GXNviFvDTBLdXocmhBppWeCv4U9bcKr-3/exec";
 
 async function apiRequest(action, payload = {}) {
@@ -35,6 +37,7 @@ async function saveProduct() {
 async function loadProducts() {
   const result = await apiRequest("getProducts");
   const products = result.products || [];
+  allProducts = products;
   const table = document.getElementById("productTable");
 
   table.innerHTML = "";
