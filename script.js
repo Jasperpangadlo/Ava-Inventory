@@ -200,40 +200,23 @@ function autoFillProduct() {
   document.getElementById("stock").value = found.stock;
   document.getElementById("price").value = found.price;
 
-async function loginUser(){
+async function loginUser() {
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-const username=
-document.getElementById("username").value;
+  const result = await apiRequest("login", {
+    username,
+    password
+  });
 
-const password=
-document.getElementById("password").value;
+  console.log("LOGIN RESULT:", result);
+  alert(JSON.stringify(result));
 
-const result=
-await apiRequest(
-"login",
-{
-username,
-password
-}
-);
-
-if(result.success){
-
-document
-.getElementById(
-"loginScreen"
-)
-.style.display="none";
-
-}
-else{
-
-alert(
-"Wrong username or password"
-);
-
-}
-
+  if (result.success) {
+    document.getElementById("loginScreen").style.display = "none";
+  } else {
+    alert("Wrong username or password");
+  }
 }
 
 function logoutUser() {
