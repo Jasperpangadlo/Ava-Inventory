@@ -200,6 +200,8 @@ function autoFillProduct() {
   document.getElementById("stock").value = found.stock;
   document.getElementById("price").value = found.price;
 
+}
+
 async function loginUser() {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
