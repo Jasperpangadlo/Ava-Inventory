@@ -184,6 +184,22 @@ function filterProducts() {
   }
 }
 
+function autoFillProduct() {
+  const barcode = document.getElementById("barcode").value.trim();
+
+  const found = allProducts.find(item =>
+    String(item.barcode).trim() === barcode
+  );
+
+  if (!found) return;
+
+  document.getElementById("product").value = found.product;
+  document.getElementById("category").value = found.category;
+  document.getElementById("color").value = found.color;
+  document.getElementById("size").value = found.size;
+  document.getElementById("stock").value = found.stock;
+  document.getElementById("price").value = found.price;
+
 async function loginUser(){
 
 const username=
