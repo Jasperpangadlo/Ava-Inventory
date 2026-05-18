@@ -149,11 +149,16 @@ async function stockOut() {
   const qty = Number(document.getElementById("outQty").value);
 
   if (!barcode || !qty) {
-    alert("Pakilagay ang barcode at quantity out.");
-    loadHistory();
+    alert("Please input barcode and quantity out.");
     return;
-    
   }
+
+  const result = await apiRequest("stockOut", { barcode, qty });
+  alert(result.message || "Stock deducted!");
+
+  loadProducts();
+  loadHistory();
+}
 
   const result = await apiRequest("stockOut", { barcode, qty });
   alert(result.message || "Stock deducted!");
