@@ -1,8 +1,6 @@
-
-    
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6K3N58inD_aZdmVA6yilTyxSSEE34ng_GXNviFvDTBLdXocmhBppWeCv4U9bcKr-3/exec";
-
 let stockChart = null;
+
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6K3N58inD_aZdmVA6yilTyxSSEE34ng_GXNviFvDTBLdXocmhBppWeCv4U9bcKr-3/exec";
 
 async function apiRequest(action, payload = {}) {
   const response = await fetch(WEB_APP_URL, {
