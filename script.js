@@ -187,6 +187,16 @@ function filterProducts() {
 function autoFillProduct() {
   const barcode = document.getElementById("barcode").value.trim();
 
+  if (barcode === "") {
+    document.getElementById("product").value = "";
+    document.getElementById("category").value = "";
+    document.getElementById("color").value = "";
+    document.getElementById("size").value = "";
+    document.getElementById("stock").value = "";
+    document.getElementById("price").value = "";
+    return;
+  }
+
   const found = allProducts.find(item =>
     String(item.barcode).trim() === barcode
   );
@@ -199,7 +209,6 @@ function autoFillProduct() {
   document.getElementById("size").value = found.size;
   document.getElementById("stock").value = found.stock;
   document.getElementById("price").value = found.price;
-
 }
 
 async function loginUser() {
