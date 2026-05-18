@@ -211,7 +211,7 @@ async function loginUser() {
     password
   });
 
-  console.log("LOGIN RESULT:", result);
+  // console.log("LOGIN RESULT:", result);
   alert(JSON.stringify(result));
 
   if (result.success) {
