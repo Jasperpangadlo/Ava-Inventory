@@ -319,6 +319,59 @@ table.innerHTML += `
 
 }
 
+async function sendToStore(){
+
+const barcode=
+document.getElementById(
+"transferBarcode"
+).value.trim();
+
+const store=
+document.getElementById(
+"toStore"
+).value;
+
+const qty=
+Number(
+document.getElementById(
+"transferQty"
+).value
+);
+
+if(!barcode || !qty){
+
+alert(
+"Please input barcode and quantity"
+);
+
+return;
+}
+
+const result=
+await apiRequest(
+"sendToStore",
+{
+barcode,
+store,
+qty
+}
+);
+
+alert(result.message);
+
+document.getElementById(
+"transferBarcode"
+).value="";
+
+document.getElementById(
+"transferQty"
+).value="";
+
+loadProducts();
+loadStoreProducts();
+
+}
+
 
 window.onload = () => {
   document.getElementById("barcode").focus();
