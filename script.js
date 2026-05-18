@@ -235,6 +235,7 @@ window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
   loadHistory();
+  showTab("dashboard");
 };
 
 async function loadHistory() {
@@ -280,14 +281,6 @@ document.getElementById(tabId)
 
 }
 
-window.onload=()=>{
-
-loadProducts();
-loadHistory();
-
-showTab("dashboard");
-
-};
 
 async function loginUser() {
   const username = document.getElementById("username").value.trim();
