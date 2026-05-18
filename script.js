@@ -83,46 +83,48 @@ async function loadProducts() {
   document.getElementById("lowStock").textContent = lowStock;
   document.getElementById("outStock").textContent = outStock;
 
-    const labels = products.map(item =>
-  item.product + " " + item.size
-);
+    if (products.length > 0 && document.getElementById("stockChart")) {
+  const labels = products.map(item =>
+    item.product + " " + item.size
+  );
 
-const stockData = products.map(item =>
-  Number(item.stock) || 0
-);
+  const stockData = products.map(item =>
+    Number(item.stock) || 0
+  );
 
-if (stockChart) {
-  stockChart.destroy();
-}
+  if (stockChart) {
+    stockChart.destroy();
+  }
 
-const ctx = document
-  .getElementById("stockChart")
-  .getContext("2d");
+  const ctx = document
+    .getElementById("stockChart")
+    .getContext("2d");
 
-stockChart = new Chart(ctx, {
-  type: "bar",
-  data: {
-    labels: labels,
-    datasets: [{
-      label: "Stock Quantity",
-      data: stockData
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: true
-      }
+  stockChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Stock Quantity",
+        data: stockData
+      }]
     },
-    scales: {
-      y: {
-        beginAtZero: true
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true
+        }
       }
     }
-  }
-});
-
+  });
+}
   filterProducts();
 }
 
