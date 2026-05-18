@@ -104,7 +104,7 @@ Login
       <section class="panel" id="add-stock">
         <h3>Add / Update Product</h3>
         <div class="form-grid">
-          <input id="barcode" type="text" placeholder="Barcode" />
+          <input id="barcode" type="text" placeholder="Barcode" oninput="autoFillProduct()" />
           <input id="product" type="text" placeholder="Product Name" />
           <select id="category">
             <option value="">Category</option>
