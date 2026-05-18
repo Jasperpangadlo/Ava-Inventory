@@ -7,8 +7,12 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6K3N58inD_aZdmVA6
 async function apiRequest(action, payload = {}) {
   const response = await fetch(WEB_APP_URL, {
     method: "POST",
+    mode: "no-cors",
     body: JSON.stringify({ action, ...payload })
   });
+
+  return { message: "Request sent. Please refresh data." };
+}
 
   return await response.json();
 }
