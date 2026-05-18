@@ -1,5 +1,8 @@
 
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6K3N58inD_aZdmVA6yilTyxSSEE34ng_GXNviFvDTBLdXocmhBppWeCv4U9bcKr-3/exec";
+    
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6K3N58inD_aZdmVA6yilTyxSSEE34ng_GXNviFvDTBLdXocmhBppWeCv4U9bcKr-3/exec";
+
+let stockChart = null;
 
 async function apiRequest(action, payload = {}) {
   const response = await fetch(WEB_APP_URL, {
@@ -81,6 +84,46 @@ async function loadProducts() {
   document.getElementById("totalStock").textContent = totalStock;
   document.getElementById("lowStock").textContent = lowStock;
   document.getElementById("outStock").textContent = outStock;
+
+    const labels = products.map(item =>
+  item.product + " " + item.size
+);
+
+const stockData = products.map(item =>
+  Number(item.stock) || 0
+);
+
+if (stockChart) {
+  stockChart.destroy();
+}
+
+const ctx = document
+  .getElementById("stockChart")
+  .getContext("2d");
+
+stockChart = new Chart(ctx, {
+  type: "bar",
+  data: {
+    labels: labels,
+    datasets: [{
+      label: "Stock Quantity",
+      data: stockData
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  }
+});
 
   filterProducts();
 }
