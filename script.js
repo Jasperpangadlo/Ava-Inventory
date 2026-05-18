@@ -231,12 +231,6 @@ function autoFillProduct() {
   document.getElementById("price").value = found.price;
 }
 
-window.onload = () => {
-  document.getElementById("barcode").focus();
-  loadProducts();
-  loadHistory();
-  showTab("dashboard");
-};
 
 async function loadHistory() {
   const result = await apiRequest("getHistory");
@@ -280,6 +274,19 @@ document.getElementById(tabId)
 .style.display="block";
 
 }
+
+window.onload = () => {
+  document.getElementById("barcode").focus();
+  loadProducts();
+  loadHistory();
+  showTab("dashboard");
+  showTab("products");
+  showTab("add-stock");
+  showTab("sales");
+  showTab("history");
+  showTab("reports");
+  
+};
 
 
 async function loginUser() {
