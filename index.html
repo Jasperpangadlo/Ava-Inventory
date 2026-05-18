@@ -6,6 +6,9 @@
   <title>Inventory System</title>
 
   <link rel="stylesheet" href="style.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
 </head>
 
 <div id="loginScreen"
@@ -160,9 +163,10 @@ Login
       </section>
 
       <section class="panel" id="reports">
-        <h3>Reports</h3>
-        <p>Ang data ay manggagaling sa Google Sheets database gamit ang Apps Script Web App.</p>
-      </section>
+  <h3>Reports</h3>
+  <canvas id="stockChart" style="max-height:350px;"></canvas>
+</section>
+      
     </main>
   </div>
 
