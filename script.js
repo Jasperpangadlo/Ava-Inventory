@@ -41,6 +41,8 @@ document.getElementById("stock").value = "";
 document.getElementById("price").value = "";
   
   loadProducts();
+  document.getElementById("barcode").value = "";
+  autoFillProduct();
   document.getElementById("barcode").focus();
   
 }
