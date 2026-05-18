@@ -63,6 +63,7 @@ Login
       <a href="#" onclick="showTab('sales')">Sales / Out</a>
       <a href="#" onclick="showTab('history')">History</a>
       <a href="#" onclick="showTab('reports')">Reports</a>
+      <a href="#" onclick="showTab('store')">Store</a>
     </aside>
     <main>
       <div class="topbar">
@@ -193,6 +194,34 @@ Login
   <div style="height:350px;">
     <canvas id="stockChart"></canvas>
   </div>
+</section>
+
+      <section class="panel tab-content" id="store">
+
+<h3>Store Inventory</h3>
+
+<table>
+<thead>
+<tr>
+<th>Barcode</th>
+<th>Product</th>
+<th>Color</th>
+<th>Size</th>
+<th>Stock</th>
+<th>Location</th>
+</tr>
+</thead>
+
+<tbody id="storeTable">
+<tr>
+<td colspan="6">
+No store products yet.
+</td>
+</tr>
+</tbody>
+
+</table>
+
 </section>
       
     </main>
