@@ -153,7 +153,11 @@ async function stockOut() {
     return;
   }
 
-  const result = await apiRequest("stockOut", { barcode, qty });
+  const result = await apiRequest("stockOut", {
+    barcode,
+    qty
+  });
+
   alert(result.message || "Stock deducted!");
 
   loadProducts();
