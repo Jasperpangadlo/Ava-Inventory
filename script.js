@@ -211,9 +211,6 @@ async function loginUser() {
     password
   });
 
-  // console.log("LOGIN RESULT:", result);
-  // alert(JSON.stringify(result));
-
   if (result.success) {
     document.getElementById("loginScreen").style.display = "none";
   } else {
