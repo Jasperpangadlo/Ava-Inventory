@@ -160,11 +160,6 @@ async function stockOut() {
   loadHistory();
 }
 
-  const result = await apiRequest("stockOut", { barcode, qty });
-  alert(result.message || "Stock deducted!");
-  loadProducts();
-}
-
 function filterProducts() {
   const searchInput = document.getElementById("searchInput");
   if (!searchInput) return;
