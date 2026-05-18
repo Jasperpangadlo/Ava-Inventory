@@ -150,7 +150,9 @@ async function stockOut() {
 
   if (!barcode || !qty) {
     alert("Pakilagay ang barcode at quantity out.");
+    loadHistory();
     return;
+    
   }
 
   const result = await apiRequest("stockOut", { barcode, qty });
@@ -227,7 +229,38 @@ function autoFillProduct() {
 
 window.onload = () => {
   document.getElementById("barcode").focus();
+  loadProducts();
+  loadHistory();
 };
+
+async function loadHistory() {
+  const result = await apiRequest("getHistory");
+  const records = result.records || [];
+  const table = document.getElementById("historyTable");
+
+  table.innerHTML = "";
+
+  if (records.length === 0) {
+    table.innerHTML = "<tr><td colspan='9'>No stock out history yet.</td></tr>";
+    return;
+  }
+
+  records.forEach(item => {
+    table.innerHTML += `
+      <tr>
+        <td>${item.datetime}</td>
+        <td>${item.barcode}</td>
+        <td>${item.product}</td>
+        <td>${item.color}</td>
+        <td>${item.size}</td>
+        <td>${item.qty}</td>
+        <td>₱${item.price}</td>
+        <td>₱${item.total}</td>
+        <td>${item.remarks}</td>
+      </tr>
+    `;
+  });
+}
 
 async function loginUser() {
   const username = document.getElementById("username").value.trim();
