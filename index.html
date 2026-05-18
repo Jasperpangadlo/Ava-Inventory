@@ -155,45 +155,36 @@ Login
       </section>
 
       <section class="panel tab-content" id="sales">
-        <h3>Sales / Stock Out</h3>
-        <h3 style="margin-top:30px;">
-Warehouse → Store Transfer
-</h3>
+  <h3>Warehouse → Store Transfer</h3>
 
-<div class="form-grid">
+  <div class="form-grid">
+    <input id="transferBarcode" type="text" placeholder="Scan Barcode" />
 
-<input
-id="transferBarcode"
-type="text"
-placeholder="Scan Barcode"
-/>
+    <select id="toStore">
+      <option value="Store 1">Store 1</option>
+      <option value="Store 2">Store 2</option>
+    </select>
 
-<select id="toStore">
-<option value="Store 1">Store 1</option>
-<option value="Store 2">Store 2</option>
-</select>
+    <input id="transferQty" type="number" placeholder="Quantity" />
 
-<input
-id="transferQty"
-type="number"
-placeholder="Quantity"
-/>
+    <button class="btn" onclick="sendToStore()">
+      Send To Store
+    </button>
+  </div>
 
-<button
-class="btn"
-onclick="sendToStore()"
-style="background:#4f46e5;"
->
-Send To Store
-</button>
+  <hr style="margin:25px 0; border:none; border-top:1px solid #eee;">
 
-</div>
-        <div class="form-grid">
-          <input id="outBarcode" type="text" placeholder="Scan Barcode" />
-          <input id="outQty" type="number" placeholder="Quantity Out" />
-          <button class="btn red" onclick="stockOut()">Deduct Stock</button>
-        </div>
-      </section>
+  <h3>Sales / Stock Out</h3>
+
+  <div class="form-grid">
+    <input id="outBarcode" type="text" placeholder="Scan Barcode" />
+    <input id="outQty" type="number" placeholder="Quantity Out" />
+
+    <button class="btn red" onclick="stockOut()">
+      Deduct Stock
+    </button>
+  </div>
+</section>
 
       <section class="panel tab-content" id="history">
   <h3>Stock Out History</h3>
