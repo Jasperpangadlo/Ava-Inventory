@@ -323,59 +323,56 @@ table.innerHTML += `
 
 }
 
-async function sendToStore(){
+function sendToStore(sheet, data) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const storeSheet = ss.getSheetByName("Store Inventory");
 
-const barcode=
-document.getElementById(
-"transferBarcode"
-).value.trim();
+  const values = sheet.getDataRange().getDisplayValues();
+  const barcodeToFind = String(data.barcode).trim();
+  const qty = Number(data.qty) || 0;
 
-const store=
-document.getElementById(
-"toStore"
-).value;
+  for (let i = 1; i < values.length; i++) {
+    const barcode = String(values[i][0]).trim();
 
-const qty=
-Number(
-document.getElementById(
-"transferQty"
-).value
-);
+    if (barcode === barcodeToFind) {
+      const warehouseStock = Number(values[i][5]) || 0;
 
-if(!barcode || !qty){
+      if (warehouseStock < qty) {
+        return ContentService
+          .createTextOutput(JSON.stringify({
+            message: "Not enough stock in warehouse."
+          }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
 
-alert(
-"Please input barcode and quantity"
-);
+      sheet.getRange(i + 1, 6).setValue(warehouseStock - qty);
 
-return;
+      storeSheet.appendRow([
+        new Date(),
+        data.store,
+        values[i][0],
+        values[i][1],
+        values[i][2],
+        values[i][3],
+        values[i][4],
+        qty,
+        values[i][6]
+      ]);
+
+      return ContentService
+        .createTextOutput(JSON.stringify({
+          message: "Product sent to store successfully."
+        }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify({
+      message: "Barcode not found in warehouse."
+    }))
+    .setMimeType(ContentService.MimeType.JSON);
 }
-
-const result=
-await apiRequest(
-"sendToStore",
-{
-barcode,
-store,
-qty
-}
-);
-
-alert(result.message);
-
-document.getElementById(
-"transferBarcode"
-).value="";
-
-document.getElementById(
-"transferQty"
-).value="";
-
-loadProducts();
-loadStoreProducts();
-
-}
-
 
 window.onload = () => {
   document.getElementById("barcode").focus();
