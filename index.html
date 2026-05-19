@@ -218,10 +218,18 @@ Login
     <canvas id="stockChart"></canvas>
   </div>
 </section>
-
+      
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       <section class="panel tab-content" id="store">
 
 <h3>Store Inventory</h3>
+ <input
+  id="storeSearchInput"
+  type="text"
+  placeholder="Search store barcode, product, color, size..."
+  oninput="filterStoreProducts()"
+  style="margin-bottom:15px; max-width:350px;"
+/>       
 
 <table>
 <thead>
