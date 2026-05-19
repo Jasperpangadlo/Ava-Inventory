@@ -329,6 +329,16 @@ document.getElementById(
 ).value
 );
 
+if(!barcode || !qty){
+
+alert(
+"Please input barcode and quantity."
+);
+
+return;
+
+}
+
 const result=
 await apiRequest(
 "sendToStore",
@@ -360,7 +370,7 @@ document.getElementById(
 document.getElementById(
 "transferBarcode"
 ).focus();
-  
+
 }
 
 
@@ -451,7 +461,8 @@ document.getElementById(
 
 loadProducts();
 loadStoreProducts();
-
+loadHistory();
+  
 }
 
 async function refreshAllData() {
