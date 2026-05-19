@@ -362,7 +362,47 @@ document.getElementById(
   
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function filterStoreProducts() {
+  const searchInput = document.getElementById("storeSearchInput");
+  if (!searchInput) return;
 
+  const keyword = searchInput.value.toLowerCase();
+  const rows = document.querySelectorAll("#storeTable tr");
+
+  let found = false;
+
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+
+    if (text.includes(keyword)) {
+      row.style.display = "";
+      found = true;
+    } else {
+      row.style.display = "none";
+    }
+  });
+
+  const oldMsg = document.getElementById("noStoreResultRow");
+  if (oldMsg) oldMsg.remove();
+
+  if (!found && keyword !== "") {
+    const table = document.getElementById("storeTable");
+
+    table.innerHTML += `
+      <tr id="noStoreResultRow">
+        <td colspan="6" style="text-align:center;color:#888;padding:20px;">
+          ❌ Store product not found
+        </td>
+      </tr>
+    `;
+  }
+}
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
