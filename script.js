@@ -454,6 +454,12 @@ loadStoreProducts();
 
 }
 
+async function refreshAllData() {
+  await loadProducts();
+  await loadHistory();
+  await loadStoreProducts();
+}
+
 
 window.onload = () => {
   document.getElementById("barcode").focus();
