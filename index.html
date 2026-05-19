@@ -39,7 +39,9 @@ z-index:9999;
 
 <div class="inputBox">
 
-<span>👤</span>
+<span class="icon">
+👤
+</span>
 
 <input
 id="username"
@@ -48,9 +50,12 @@ placeholder="Username"
 
 </div>
 
-<div class="inputBox" style="position:relative;">
 
-<span>🔒</span>
+<div class="inputBox">
+
+<span class="icon">
+🔒
+</span>
 
 <input
 id="password"
@@ -61,18 +66,13 @@ placeholder="Password"
 <span
 id="eyeBtn"
 onclick="togglePassword()"
-style="
-position:absolute;
-right:15px;
-top:50%;
-transform:translateY(-50%);
-cursor:pointer;
-"
+class="eyeIcon"
 >
 🙈
 </span>
 
 </div>
+
 
 <button
 class="btn"
