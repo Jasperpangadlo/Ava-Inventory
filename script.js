@@ -343,6 +343,7 @@ alert(result.message);
 
 loadProducts();
 loadStoreProducts();
+loadHistory();
 
 document.getElementById(
 "transferBarcode"
