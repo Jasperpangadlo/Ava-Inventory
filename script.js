@@ -282,49 +282,33 @@ document.getElementById(tabId)
 
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 async function loadStoreProducts() {
+  const result = await apiRequest("getStoreInventory");
+  const products = result.products || [];
+  const table = document.getElementById("storeTable");
 
-const result =
-await apiRequest("getProducts");
+  table.innerHTML = "";
 
-const products =
-result.products || [];
+  if (products.length === 0) {
+    table.innerHTML = "<tr><td colspan='6'>No store products yet.</td></tr>";
+    return;
+  }
 
-const table =
-document.getElementById("storeTable");
-
-table.innerHTML="";
-
-const storeItems=
-products.filter(item=>
-item.location &&
-item.location!=="Warehouse"
-);
-
-if(storeItems.length===0){
-
-table.innerHTML=
-"<tr><td colspan='6'>No store products yet.</td></tr>";
-
-return;
+  products.forEach(item => {
+    table.innerHTML += `
+      <tr>
+        <td>${item.barcode}</td>
+        <td>${item.product}</td>
+        <td>${item.color}</td>
+        <td>${item.size}</td>
+        <td>${item.stock}</td>
+        <td>${item.location}</td>
+      </tr>
+    `;
+  });
 }
-
-storeItems.forEach(item=>{
-
-table.innerHTML += `
-<tr>
-<td>${item.barcode}</td>
-<td>${item.product}</td>
-<td>${item.color}</td>
-<td>${item.size}</td>
-<td>${item.stock}</td>
-<td>${item.location}</td>
-</tr>
-`;
-
-});
-
-}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async function sendToStore(){
 
