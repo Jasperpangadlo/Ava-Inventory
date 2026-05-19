@@ -473,23 +473,31 @@ async function refreshAllData() {
 
 function togglePassword(){
 
-const password =
+const password=
 document.getElementById(
 "password"
+);
+
+const eye=
+document.getElementById(
+"eyeBtn"
 );
 
 if(password.type==="password"){
 
 password.type="text";
 
+eye.innerHTML="👁️";
+
 }else{
 
 password.type="password";
 
-}
+eye.innerHTML="🙈";
 
 }
 
+}
 
 window.onload = () => {
   document.getElementById("barcode").focus();
