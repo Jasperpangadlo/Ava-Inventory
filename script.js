@@ -14,9 +14,6 @@ async function apiRequest(action, payload = {}) {
   return { message: "Request sent. Please refresh data." };
 }
 
-  return await response.json();
-}
-
 async function saveProduct() {
   const data = {
     barcode: document.getElementById("barcode").value.trim(),
