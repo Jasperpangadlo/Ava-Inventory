@@ -5,10 +5,15 @@
       font-family: Arial, sans-serif;
     }
 
-    body {
-      background: #f4f6fb;
-      color: #222;
-    }
+    body{
+      background:
+      linear-gradient(
+      135deg,
+      #eef2ff,
+      #dbeafe,
+      #e0e7ff
+      );
+      }
 
     .layout {
       display: grid;
