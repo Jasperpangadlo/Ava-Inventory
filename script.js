@@ -399,6 +399,60 @@ function filterStoreProducts() {
   }
 }
 
+async function returnToWarehouse(){
+
+const barcode=
+document.getElementById(
+"returnBarcode"
+).value.trim();
+
+const store=
+document.getElementById(
+"fromStore"
+).value;
+
+const qty=
+Number(
+document.getElementById(
+"returnQty"
+).value
+);
+
+if(!barcode || !qty){
+
+alert(
+"Please input barcode and quantity."
+);
+
+return;
+
+}
+
+const result=
+await apiRequest(
+"returnToWarehouse",
+{
+barcode,
+store,
+qty
+}
+);
+
+alert(result.message);
+
+document.getElementById(
+"returnBarcode"
+).value="";
+
+document.getElementById(
+"returnQty"
+).value="";
+
+loadProducts();
+loadStoreProducts();
+
+}
+
 
 window.onload = () => {
   document.getElementById("barcode").focus();
