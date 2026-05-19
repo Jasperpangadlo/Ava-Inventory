@@ -35,12 +35,30 @@ placeholder="Username"
 style="margin:10px 0"
 />
 
+<div style="position:relative; margin:10px 0;">
+
 <input
 id="password"
 type="password"
 placeholder="Password"
-style="margin:10px 0"
+style="padding-right:50px;"
 />
+
+<span
+onclick="togglePassword()"
+style="
+position:absolute;
+right:15px;
+top:50%;
+transform:translateY(-50%);
+cursor:pointer;
+user-select:none;
+"
+>
+👁️
+</span>
+
+</div>
 
 <button
 class="btn"
