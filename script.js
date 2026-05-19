@@ -323,55 +323,40 @@ table.innerHTML += `
 
 }
 
-function sendToStore(sheet, data) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const storeSheet = ss.getSheetByName("Store Inventory");
+async function sendToStore(){
 
-  const values = sheet.getDataRange().getDisplayValues();
-  const barcodeToFind = String(data.barcode).trim();
-  const qty = Number(data.qty) || 0;
+const barcode=
+document.getElementById(
+"transferBarcode"
+).value.trim();
 
-  for (let i = 1; i < values.length; i++) {
-    const barcode = String(values[i][0]).trim();
+const store=
+document.getElementById(
+"toStore"
+).value;
 
-    if (barcode === barcodeToFind) {
-      const warehouseStock = Number(values[i][5]) || 0;
+const qty=
+Number(
+document.getElementById(
+"transferQty"
+).value
+);
 
-      if (warehouseStock < qty) {
-        return ContentService
-          .createTextOutput(JSON.stringify({
-            message: "Not enough stock in warehouse."
-          }))
-          .setMimeType(ContentService.MimeType.JSON);
-      }
+const result=
+await apiRequest(
+"sendToStore",
+{
+barcode,
+store,
+qty
+}
+);
 
-      sheet.getRange(i + 1, 6).setValue(warehouseStock - qty);
+alert(result.message);
 
-      storeSheet.appendRow([
-        new Date(),
-        data.store,
-        values[i][0],
-        values[i][1],
-        values[i][2],
-        values[i][3],
-        values[i][4],
-        qty,
-        values[i][6]
-      ]);
+loadProducts();
+loadStoreProducts();
 
-      return ContentService
-        .createTextOutput(JSON.stringify({
-          message: "Product sent to store successfully."
-        }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-  }
-
-  return ContentService
-    .createTextOutput(JSON.stringify({
-      message: "Barcode not found in warehouse."
-    }))
-    .setMimeType(ContentService.MimeType.JSON);
 }
 
 window.onload = () => {
