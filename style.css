@@ -200,23 +200,6 @@
       }
     }
 
-      .inputBox{
-      position:relative;
-      margin:15px 0;
-      }
-      
-      .inputBox span:first-child{
-      position:absolute;
-      left:15px;
-      top:50%;
-      transform:translateY(-50%);
-      font-size:18px;
-      }
-      
-      .inputBox input{
-      padding-left:45px;
-      width:100%;
-      }
 
       .inputBox{
       position:relative;
