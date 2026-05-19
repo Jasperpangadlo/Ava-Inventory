@@ -172,6 +172,48 @@ Login
     </button>
   </div>
 
+        <h3 style="margin-top:30px;">
+Store → Warehouse Return
+</h3>
+
+<div class="form-grid">
+
+<input
+id="returnBarcode"
+type="text"
+placeholder="Scan Barcode"
+/>
+
+<select id="fromStore">
+
+<option value="Store 1">
+Store 1
+</option>
+
+<option value="Store 2">
+Store 2
+</option>
+
+</select>
+
+<input
+id="returnQty"
+type="number"
+placeholder="Quantity"
+/>
+
+<button
+class="btn"
+style="background:#10b981"
+onclick="returnToWarehouse()"
+>
+Return To Warehouse
+</button>
+
+</div>
+
+<hr style="margin:25px 0;">
+
   <hr style="margin:25px 0; border:none; border-top:1px solid #eee;">
 
   <h3>Sales / Stock Out</h3>
