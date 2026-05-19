@@ -344,7 +344,24 @@ alert(result.message);
 loadProducts();
 loadStoreProducts();
 
+document.getElementById(
+"transferBarcode"
+).value = "";
+
+document.getElementById(
+"transferQty"
+).value = "";
+
+document.getElementById(
+"toStore"
+).selectedIndex = 0;
+
+document.getElementById(
+"transferBarcode"
+).focus();
+  
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 window.onload = () => {
   document.getElementById("barcode").focus();
