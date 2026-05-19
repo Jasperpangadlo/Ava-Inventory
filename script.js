@@ -471,6 +471,25 @@ async function refreshAllData() {
   await loadStoreProducts();
 }
 
+function togglePassword(){
+
+const password =
+document.getElementById(
+"password"
+);
+
+if(password.type==="password"){
+
+password.type="text";
+
+}else{
+
+password.type="password";
+
+}
+
+}
+
 
 window.onload = () => {
   document.getElementById("barcode").focus();
