@@ -539,25 +539,119 @@ async function loadWeeklyStockChart() {
     weeklyStockChart.destroy();
   }
 
-  weeklyStockChart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: days,
-      datasets: [{
-        label: "Stock Movement",
-        data: totals
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
+const gradient =
+ctx.getContext("2d")
+.createLinearGradient(
+0,0,0,300
+);
+
+gradient.addColorStop(
+0,
+"#6366f1"
+);
+
+gradient.addColorStop(
+1,
+"#4338ca"
+);
+
+weeklyStockChart =
+new Chart(ctx,{
+
+type:"bar",
+
+data:{
+
+labels:days,
+
+datasets:[{
+
+label:"Items Moved",
+
+data:totals,
+
+backgroundColor:
+gradient,
+
+borderRadius:12,
+
+borderSkipped:false,
+
+barThickness:35
+
+}]
+
+},
+
+options:{
+
+responsive:true,
+
+maintainAspectRatio:false,
+
+plugins:{
+
+legend:{
+display:false
+},
+
+tooltip:{
+
+backgroundColor:
+"#1e1b4b",
+
+padding:12,
+
+titleFont:{
+size:14
+},
+
+bodyFont:{
+size:13
+}
+
+}
+
+},
+
+animation:{
+
+duration:1500
+
+},
+
+scales:{
+
+x:{
+
+grid:{
+display:false
+}
+
+},
+
+y:{
+
+beginAtZero:true,
+
+ticks:{
+stepSize:1
+},
+
+grid:{
+
+color:
+"rgba(0,0,0,.05)"
+
+}
+
+}
+
+}
+
+}
+
+});
 }
 
 function updateClock() {
