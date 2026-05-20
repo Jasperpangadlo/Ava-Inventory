@@ -269,17 +269,27 @@ async function loadHistory() {
 }
 
 function showTab(tabId){
+  const tabs = document.querySelectorAll(".tab-content");
 
-const tabs=
-document.querySelectorAll(".tab-content");
+  tabs.forEach(tab=>{
+    tab.style.display="none";
+  });
 
-tabs.forEach(tab=>{
-tab.style.display="none";
-});
+  document.getElementById(tabId).style.display="block";
 
-document.getElementById(tabId)
-.style.display="block";
+  const links = document.querySelectorAll("aside a");
 
+  links.forEach(link=>{
+    link.classList.remove("active");
+  });
+
+  const activeLink = document.querySelector(
+    `aside a[onclick="showTab('${tabId}')"]`
+  );
+
+  if(activeLink){
+    activeLink.classList.add("active");
+  }
 }
 
 
