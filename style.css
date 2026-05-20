@@ -362,4 +362,13 @@ transform:translateY(-5px);
       flex:1;
       }
 
+      .chart-card{
+      background:white;
+      padding:25px;
+      margin-top:25px;
+      border-radius:20px;
+      box-shadow:0 6px 18px rgba(0,0,0,.08);
+      height:350px;
+      }
+
 
