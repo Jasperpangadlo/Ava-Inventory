@@ -342,4 +342,15 @@ transform:translateY(-5px);
       margin-bottom:20px;
       }
 
+      .quick-actions{
+      display:flex;
+      gap:12px;
+      margin-top:20px;
+      margin-bottom:20px;
+      }
+
+      .quick-actions .btn{
+      flex:1;
+      }
+
 
