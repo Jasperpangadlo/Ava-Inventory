@@ -1,0 +1,1 @@
+maintainAspectRatio:false,
