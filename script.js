@@ -558,27 +558,21 @@ gradient.addColorStop(
 weeklyStockChart =
 new Chart(ctx,{
 
-type:"bar",
+type:"line",
 
 data:{
 
 labels:days,
 
 datasets:[{
-
-label:"Items Moved",
-
-data:totals,
-
-backgroundColor:
-gradient,
-
-borderRadius:12,
-
-borderSkipped:false,
-
-barThickness:35
-
+  label:"Items Moved",
+  data:totals,
+  borderColor:"#4f46e5",
+  backgroundColor:"rgba(79,70,229,.12)",
+  fill:true,
+  tension:.4,
+  pointRadius:5,
+  pointHoverRadius:8
 }]
 
 },
