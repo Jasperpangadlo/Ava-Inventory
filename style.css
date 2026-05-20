@@ -270,3 +270,34 @@ aside a.active{
       margin-bottom:25px;
       box-shadow:0 6px 18px rgba(0,0,0,.08);
       }
+
+.dashboard-card:nth-child(1){
+border-top:5px solid #6366f1;
+}
+
+.dashboard-card:nth-child(2){
+border-top:5px solid #10b981;
+}
+
+.dashboard-card:nth-child(3){
+border-top:5px solid #f59e0b;
+}
+
+.dashboard-card:nth-child(4){
+border-top:5px solid #ef4444;
+}
+
+      .cardIcon{
+      font-size:28px;
+      margin-bottom:10px;
+      }
+
+      .dashboard-card{
+transition:.3s;
+}
+
+.dashboard-card:hover{
+transform:translateY(-5px);
+}
+
+
