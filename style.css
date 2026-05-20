@@ -42,6 +42,15 @@
       font-weight: bold;
     }
 
+.date-card{
+  margin-top:20px;
+  background:white;
+  padding:15px 20px;
+  border-radius:15px;
+  width:max-content;
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
+}
+
     aside a:hover,
     aside a.active {
       background: #4f46e5;
