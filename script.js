@@ -558,7 +558,7 @@ gradient.addColorStop(
 weeklyStockChart =
 new Chart(ctx,{
 
-type:"line",
+type:"bar",
 
 data:{
 
