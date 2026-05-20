@@ -1,5 +1,5 @@
 let stockChart = null;
-
+let weeklyStockChart = null;
 let allProducts = [];
 
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6K3N58inD_aZdmVA6yilTyxSSEE34ng_GXNviFvDTBLdXocmhBppWeCv4U9bcKr-3/exec";
@@ -479,6 +479,7 @@ async function refreshAllData() {
   await loadProducts();
   await loadHistory();
   await loadStoreProducts();
+  await loadWeeklyStockChart();
 }
 
 function togglePassword(){
@@ -516,11 +517,55 @@ document.getElementById(
 new Date()
 .toLocaleString();
 
+async function loadWeeklyStockChart() {
+  const result = await apiRequest("getHistory");
+  const records = result.records || [];
+
+  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const totals = [0,0,0,0,0,0,0];
+
+  records.forEach(item => {
+    const date = new Date(item.datetime);
+    const dayIndex = date.getDay();
+
+    totals[dayIndex] += Number(item.qty) || 0;
+  });
+
+  const ctx = document.getElementById("weeklyStockChart");
+
+  if (!ctx) return;
+
+  if (weeklyStockChart) {
+    weeklyStockChart.destroy();
+  }
+
+  weeklyStockChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: days,
+      datasets: [{
+        label: "Stock Movement",
+        data: totals
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
 window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
   loadHistory();
   loadStoreProducts();
+  loadWeeklyStockChart();
 
   showTab("dashboard");
 };
