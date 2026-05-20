@@ -509,6 +509,13 @@ eye.innerHTML="🙈";
 
 }
 
+document.getElementById(
+"todayDate"
+).innerText=
+
+new Date()
+.toLocaleString();
+
 window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
