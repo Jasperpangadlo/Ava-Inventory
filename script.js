@@ -560,6 +560,13 @@ async function loadWeeklyStockChart() {
   });
 }
 
+function updateClock() {
+  const now = new Date();
+
+  document.getElementById("todayDate").textContent =
+    "Today " + now.toLocaleString();
+}
+
 window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
@@ -567,6 +574,9 @@ window.onload = () => {
   loadStoreProducts();
   loadWeeklyStockChart();
 
+  updateClock();
+  setInterval(updateClock, 1000);
+  
   showTab("dashboard");
 };
 
