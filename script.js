@@ -564,16 +564,26 @@ data:{
 
 labels:days,
 
-datasets:[{
-  label:"Items Moved",
+datasets:[
+{
+  type:"bar",
+  label:"Daily Movement",
+  data:totals,
+  backgroundColor:"rgba(79,70,229,.35)",
+  borderRadius:10,
+  borderSkipped:false
+},
+{
+  type:"line",
+  label:"Trend",
   data:totals,
   borderColor:"#4f46e5",
   backgroundColor:"rgba(79,70,229,.12)",
-  fill:true,
   tension:.4,
-  pointRadius:5,
-  pointHoverRadius:8
-}]
+  fill:true,
+  pointRadius:5
+}
+]
 
 },
 
