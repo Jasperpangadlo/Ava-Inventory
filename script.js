@@ -682,6 +682,22 @@ function updateClock() {
       
         document.getElementById("previewStock").innerText =
           "Stock: " + (document.getElementById("stock").value || "-");
+
+        const productName =
+        document.getElementById("product").value
+        .trim()
+        .toLowerCase();
+        
+        const previewImg =
+        document.getElementById("previewImg");
+        
+        if (productName.includes("bella")) {
+          previewImg.src = "images/bella.png";
+        } else if (productName.includes("alessandra")) {
+          previewImg.src = "images/alessandra.png";
+        } else {
+          previewImg.src = "logo.png";
+        }
       }
 
 function resetPreview(){
