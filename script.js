@@ -238,6 +238,9 @@ function autoFillProduct() {
   document.getElementById("size").value = found.size;
   document.getElementById("stock").value = found.stock;
   document.getElementById("price").value = found.price;
+
+  updatePreview();
+  
 }
 
 
