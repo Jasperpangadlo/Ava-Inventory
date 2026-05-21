@@ -51,7 +51,7 @@ document.getElementById("price").value = "";
   
   loadProducts();
   document.getElementById("barcode").value = "";
-  autoFillProduct();
+  
   document.getElementById("barcode").focus();
   
 }
