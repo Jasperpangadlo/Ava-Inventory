@@ -433,6 +433,18 @@ margin-bottom:10px;
 
 }
 
+      .add-stock-layout{
+        display:grid;
+        grid-template-columns:1.3fr .7fr;
+        gap:25px;
+        align-items:start;
+      }
+      
+      .preview-card{
+        margin-top:0;
+        min-height:260px;
+      }
+
 
 
 
