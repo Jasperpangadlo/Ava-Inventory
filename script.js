@@ -46,7 +46,8 @@ document.getElementById("color").value = "";
 document.getElementById("size").value = "";
 document.getElementById("stock").value = "";
 document.getElementById("price").value = "";
-  
+
+  updatePreview();
   loadProducts();
   document.getElementById("barcode").value = "";
   autoFillProduct();
