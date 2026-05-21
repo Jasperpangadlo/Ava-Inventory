@@ -445,20 +445,22 @@ margin-bottom:10px;
         min-height:260px;
       }
 
-.preview-badge{
-  background:#eef2ff;
-  color:#4f46e5;
-  padding:6px 12px;
-  border-radius:20px;
-  font-size:13px;
-  font-weight:bold;
-}
-
 .preview-card img{
   width:130px;
   height:170px;
   object-fit:cover;
   border-radius:18px;
+}
+
+.preview-badge{
+display:inline-block;
+background:#eef2ff;
+color:#4f46e5;
+padding:6px 12px;
+border-radius:20px;
+font-size:12px;
+font-weight:bold;
+margin-bottom:10px;
 }
 
 
