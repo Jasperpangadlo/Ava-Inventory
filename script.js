@@ -684,6 +684,30 @@ function updateClock() {
           "Stock: " + (document.getElementById("stock").value || "-");
       }
 
+function resetPreview(){
+
+document.getElementById(
+"previewName"
+).innerText="No Product";
+
+document.getElementById(
+"previewColor"
+).innerText="Color: -";
+
+document.getElementById(
+"previewSize"
+).innerText="Size: -";
+
+document.getElementById(
+"previewPrice"
+).innerText="Price: -";
+
+document.getElementById(
+"previewStock"
+).innerText="Stock: -";
+
+}
+
 window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
