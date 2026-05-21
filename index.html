@@ -205,7 +205,7 @@ onclick="showTab('store')">
         <h3>Add / Update Product</h3>
         <div class="form-grid">
           <input id="barcode" type="text" placeholder="Barcode" oninput="autoFillProduct()" />
-          <input id="product" type="text" placeholder="Product Name" />
+          <input id="product" type="text" placeholder="Product Name" oninput="updatePreview()" />
           <select id="category">
             <option value="">Category</option>
             <option value="2026 Collection">2026 Collection</option>
@@ -213,10 +213,25 @@ onclick="showTab('store')">
             <option value="Aina Collection">Pants</option>
             <option value="Old Stock">Jacket</option>
           </select>
-          <input id="color" type="text" placeholder="Color" />
-          <input id="size" type="text" placeholder="Size" />
-          <input id="stock" type="number" placeholder="Quantity" />
-          <input id="price" type="number" placeholder="Price" />
+        <input id="color"
+              type="text"
+              placeholder="Color"
+              oninput="updatePreview()" />
+              
+              <input id="size"
+              type="text"
+              placeholder="Size"
+              oninput="updatePreview()" />
+              
+              <input id="stock"
+              type="number"
+              placeholder="Quantity"
+              oninput="updatePreview()" />
+              
+              <input id="price"
+              type="number"
+              placeholder="Price"
+              oninput="updatePreview()" />
           <button class="btn green" onclick="saveProduct()">Save Stock</button>
         </div>
 
