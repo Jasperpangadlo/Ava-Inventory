@@ -698,8 +698,8 @@ function updateClock() {
           previewImg.src = "images/bella.png";
         } else if (productName.includes("alessandra")) {
           previewImg.src = "images/alessandra.png";
-        }  else if (productName.includes("bella (kids)")) {
-          previewImg.src = "images/bella kids.png";
+        }  else if (productName.includes("bella kids")) {
+          previewImg.src = "images/bella-kids.png";
         } else {
           previewImg.src = "logo.png";
         }
