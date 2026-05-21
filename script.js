@@ -48,6 +48,7 @@ document.getElementById("stock").value = "";
 document.getElementById("price").value = "";
 
   resetPreview();
+  
   loadProducts();
   document.getElementById("barcode").value = "";
   autoFillProduct();
