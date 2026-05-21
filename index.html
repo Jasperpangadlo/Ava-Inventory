@@ -204,7 +204,7 @@ onclick="showTab('store')">
       <section class="panel tab-content" id="add-stock">
         <h3>Add / Update Product</h3>
         <div class="form-grid">
-          <input id="barcode" type="text" placeholder="Barcode" oninput="autoFillProduct()" />
+          <input id="barcode" type="text" placeholder="Barcode" oninput="autoFillProduct();updatePreview()" />
           <input id="product" type="text" placeholder="Product Name" oninput="updatePreview()" />
           <select id="category">
             <option value="">Category</option>
