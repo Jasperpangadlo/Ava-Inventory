@@ -203,76 +203,85 @@ onclick="showTab('store')">
       
       <section class="panel tab-content" id="add-stock">
         <h3>Add / Update Product</h3>
-        <div class="form-grid">
-          <input id="barcode" type="text" placeholder="Barcode" oninput="autoFillProduct();updatePreview()" />
-          <input id="product" type="text" placeholder="Product Name" oninput="updatePreview()" />
-          <select id="category">
-            <option value="">Category</option>
-            <option value="2026 Collection">2026 Collection</option>
-            <option value="Camille Collection">Camille Collection</option>
-            <option value="Aina Collection">Pants</option>
-            <option value="Old Stock">Jacket</option>
-          </select>
-        <input id="color"
-              type="text"
-              placeholder="Color"
-              oninput="updatePreview()" />
-              
-              <input id="size"
-              type="text"
-              placeholder="Size"
-              oninput="updatePreview()" />
-              
-              <input id="stock"
-              type="number"
-              placeholder="Quantity"
-              oninput="updatePreview()" />
-              
-              <input id="price"
-              type="number"
-              placeholder="Price"
-              oninput="updatePreview()" />
-          <button class="btn green" onclick="saveProduct()">Save Stock</button>
-        </div>
 
-        <div class="preview-card">
+<div class="add-stock-layout">
 
-        <h4>📦 Product Preview</h4>
-        
-        <div class="preview-content">
-        
-        <img
-        id="previewImg"
+    <div class="form-grid">
+
+      <input id="barcode" type="text"
+      placeholder="Barcode"
+      oninput="autoFillProduct();updatePreview()" />
+
+      <input id="product"
+      type="text"
+      placeholder="Product Name"
+      oninput="updatePreview()" />
+
+      <select id="category"
+      onchange="updatePreview()">
+
+        <option value="">Category</option>
+        <option value="2026 Collection">2026 Collection</option>
+        <option value="Camille Collection">Camille Collection</option>
+
+      </select>
+
+      <input id="color"
+      type="text"
+      placeholder="Color"
+      oninput="updatePreview()" />
+
+      <input id="size"
+      type="text"
+      placeholder="Size"
+      oninput="updatePreview()" />
+
+      <input id="stock"
+      type="number"
+      placeholder="Quantity"
+      oninput="updatePreview()" />
+
+      <input id="price"
+      type="number"
+      placeholder="Price"
+      oninput="updatePreview()" />
+
+      <button class="btn green"
+      onclick="saveProduct()">
+      Save Stock
+      </button>
+
+    </div>
+
+
+    <div class="preview-card">
+
+      <h4>📦 Product Preview</h4>
+
+      <div class="preview-content">
+
+        <img id="previewImg"
         src="images/bella.png"
         width="100">
-        
+
         <div>
-        
-        <h3 id="previewName">
-        No Product
-        </h3>
-        
-        <p id="previewColor">
-        Color: -
-        </p>
-        
-        <p id="previewSize">
-        Size: -
-        </p>
-        
-        <p id="previewPrice">
-        Price: -
-        </p>
-        
-        <p id="previewStock">
-        Stock: -
-        </p>
-        
+
+          <h3 id="previewName">
+          No Product
+          </h3>
+
+          <p id="previewColor">Color: -</p>
+          <p id="previewSize">Size: -</p>
+          <p id="previewPrice">Price: -</p>
+          <p id="previewStock">Stock: -</p>
+
         </div>
-        
-        </div>
-        
-        </div>
+
+      </div>
+
+    </div>
+
+</div>
         
       </section>
 
