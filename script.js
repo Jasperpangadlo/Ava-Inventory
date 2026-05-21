@@ -665,6 +665,23 @@ function updateClock() {
     "Today " + now.toLocaleString();
 }
 
+      function updatePreview() {
+        document.getElementById("previewName").innerText =
+          document.getElementById("product").value || "No Product";
+      
+        document.getElementById("previewColor").innerText =
+          "Color: " + (document.getElementById("color").value || "-");
+      
+        document.getElementById("previewSize").innerText =
+          "Size: " + (document.getElementById("size").value || "-");
+      
+        document.getElementById("previewPrice").innerText =
+          "Price: ₱" + (document.getElementById("price").value || "-");
+      
+        document.getElementById("previewStock").innerText =
+          "Stock: " + (document.getElementById("stock").value || "-");
+      }
+
 window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
