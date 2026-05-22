@@ -295,6 +295,12 @@ function showTab(tabId){
   if(activeLink){
     activeLink.classList.add("active");
   }
+
+  if(tabId === "add-stock"){
+  setTimeout(() => {
+    document.getElementById("barcode").focus();
+  }, 100);
+}
 }
 
 
@@ -735,6 +741,10 @@ document.getElementById(
 "previewStock"
 ).innerText="Stock: -";
 
+}
+
+function focusBarcode(){
+  document.getElementById("barcode").focus();
 }
 
 window.onload = () => {
