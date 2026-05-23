@@ -66,30 +66,56 @@ body{
     .cart-list{
   margin-top:10px;
 }
+
+    #barcodeSelect,
+#qty {
+
+  text-align:center;
+  height:32px;
+  font-size:16px;
+
+}
+
+    .controls{
+display:flex;
+gap:8px;
+align-items:center;
+margin-bottom:15px;
+flex-wrap:wrap;
+}
+
+    
   </style>
 </head>
 <body>
 
 <div class="controls">
-  <select id="barcodeSelect">
-    <option value="ALE-BR-XS-01|Alessandra Brown XS">Alessandra Brown XS</option>
-    <option value="ALE-BR-S-01|Alessandra Brown S">Alessandra Brown S</option>
-    <option value="ALE-BR-M-01|Alessandra Brown M">Alessandra Brown M</option>
-    <option value="ALE-BR-M-01|Alessandra Brown L">Alessandra Brown L</option>
-    <option value="ALE-BR-M-01|Alessandra Brown XL">Alessandra Brown XL</option>
+  <input
+  id="barcodeSelect"
+  list="products"
+  placeholder="Search product..."
+>
 
-    <option value="BEL-RE-XS-01|Bella Red XS">Bella Red XS</option>
-    <option value="BEL-RE-XS-01|Bella Red S">Bella Red S</option>
-    <option value="BEL-RE-XS-01|Bella Red M">Bella Red M</option>
-    <option value="BEL-RE-XS-01|Bella Red L">Bella Red L</option>
-    <option value="BEL-RE-XS-01|Bella Red XL">Bella Red XL</option>
-            <option value="BEL-BL-XS-01|Bella Blue XS">Bella Blue XS</option>
-            <option value="BEL-BL-XS-01|Bella Blue S">Bella Blue S</option>
-            <option value="BEL-BL-XS-01|Bella Blue M">Bella Blue M</option>
-            <option value="BEL-BL-XS-01|Bella Blue L">Bella Blue L</option>
-            <option value="BEL-BL-XS-01|Bella Blue XL">Bella Blue XL</option>
-  </select>
+<datalist id="products">
+  <option value="ALE-BR-XS-01|Alessandra Brown XS">
+  <option value="ALE-BR-S-01|Alessandra Brown S">
+  <option value="ALE-BR-M-01|Alessandra Brown M">
+  <option value="ALE-BR-L-01|Alessandra Brown L">
+  <option value="ALE-BR-XL-01|Alessandra Brown XL">
 
+  <option value="BEL-RE-XS-01|Bella Red XS">
+  <option value="BEL-RE-S-01|Bella Red S">
+  <option value="BEL-RE-M-01|Bella Red M">
+  <option value="BEL-RE-L-01|Bella Red L">
+  <option value="BEL-RE-XL-01|Bella Red XL">
+
+  <option value="BEL-BL-XS-01|Bella Blue XS">
+  <option value="BEL-BL-S-01|Bella Blue S">
+  <option value="BEL-BL-M-01|Bella Blue M">
+  <option value="BEL-BL-L-01|Bella Blue L">
+  <option value="BEL-BL-XL-01|Bella Blue XL">
+</datalist>
+  
   <input id="qty" type="number" min="1" value="1">
 
   <button onclick="addItem()">Add</button>
