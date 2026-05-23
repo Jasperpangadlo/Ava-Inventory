@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Barcode Labels</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    .labels {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .label {
+      border: 1px solid #ccc;
+      width: 280px;
+      height: 120px;
+      text-align: center;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    .label img {
+      width: 240px;
+      height: 60px;
+      object-fit: contain;
+    }
+
+    .name {
+      font-size: 14px;
+      margin-top: 5px;
+      font-weight: bold;
+    }
+
+    @media print {
+      button {
+        display: none;
+      }
+
+      body {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<button onclick="window.print()">Print Labels</button>
+
+<div class="labels">
+
+  <div class="label">
+    <img src="https://barcode.tec-it.com/barcode.ashx?data=ALE-BR-XS-01&code=Code128&dpi=300&hidehrt=True">
+    <div class="name">Alessandra Brown XS</div>
+  </div>
+
+  <div class="label">
+    <img src="https://barcode.tec-it.com/barcode.ashx?data=ALE-BR-S-01&code=Code128&dpi=300&hidehrt=True">
+    <div class="name">Alessandra Brown S</div>
+  </div>
+
+  <div class="label">
+    <img src="https://barcode.tec-it.com/barcode.ashx?data=ALE-BR-M-01&code=Code128&dpi=300&hidehrt=True">
+    <div class="name">Alessandra Brown M</div>
+  </div>
+
+</div>
+
+</body>
+</html>
