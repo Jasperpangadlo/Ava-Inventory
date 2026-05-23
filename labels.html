@@ -34,10 +34,6 @@
       font-weight: bold;
     }
 
-    .controls {
-  margin-bottom: 15px;
-}
-
    @media print {
 
 .controls{
@@ -77,11 +73,19 @@ body{
 }
 
     .controls{
-display:flex;
+display:grid;
+grid-template-columns: 250px 100px auto auto auto 320px;
 gap:8px;
-align-items:center;
+align-items:start;
 margin-bottom:15px;
-flex-wrap:wrap;
+}
+
+#cart{
+max-height:90px;
+overflow-y:auto;
+border:1px solid #ccc;
+padding:5px;
+font-size:14px;
 }
 
     
