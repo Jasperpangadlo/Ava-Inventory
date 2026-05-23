@@ -34,6 +34,10 @@
       font-weight: bold;
     }
 
+    .controls {
+  margin-bottom: 15px;
+}
+
     @media print {
       button {
         display: none;
@@ -47,26 +51,43 @@
 </head>
 <body>
 
-<button onclick="window.print()">Print Labels</button>
+<div class="controls">
+  <select id="barcodeSelect">
+    <option value="ALE-BR-XS-01|Alessandra Brown XS">Alessandra Brown XS</option>
+    <option value="ALE-BR-S-01|Alessandra Brown S">Alessandra Brown S</option>
+    <option value="ALE-BR-M-01|Alessandra Brown M">Alessandra Brown M</option>
+  </select>
 
-<div class="labels">
+  <input id="qty" type="number" min="1" value="5">
 
-  <div class="label">
-    <img src="https://barcode.tec-it.com/barcode.ashx?data=ALE-BR-XS-01&code=Code128&dpi=300&hidehrt=True">
-    <div class="name">Alessandra Brown XS</div>
-  </div>
-
-  <div class="label">
-    <img src="https://barcode.tec-it.com/barcode.ashx?data=ALE-BR-S-01&code=Code128&dpi=300&hidehrt=True">
-    <div class="name">Alessandra Brown S</div>
-  </div>
-
-  <div class="label">
-    <img src="https://barcode.tec-it.com/barcode.ashx?data=ALE-BR-M-01&code=Code128&dpi=300&hidehrt=True">
-    <div class="name">Alessandra Brown M</div>
-  </div>
-
+  <button onclick="generateLabels()">Generate</button>
+  <button onclick="window.print()">Print Labels</button>
 </div>
 
+<div class="labels" id="labels"></div>
+
+<script>
+function generateLabels() {
+  const selected = document.getElementById("barcodeSelect").value;
+  const qty = Number(document.getElementById("qty").value);
+
+  const [code, name] = selected.split("|");
+  const labels = document.getElementById("labels");
+
+  labels.innerHTML = "";
+
+  for (let i = 0; i < qty; i++) {
+    labels.innerHTML += `
+      <div class="label">
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(code)}&code=Code128&dpi=300&hidehrt=True">
+        <div class="name">${name}</div>
+      </div>
+    `;
+  }
+}
+
+generateLabels();
+</script>
 </body>
+  
 </html>
