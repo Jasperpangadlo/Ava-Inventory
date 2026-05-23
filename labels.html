@@ -40,19 +40,31 @@
 
    @media print {
 
-  .controls,
-  #cart,
-  button,
-  select,
-  input {
-    display:none !important;
-  }
+.controls{
+ display:none !important;
+}
 
-  body{
-    margin:0;
-    padding:0;
-  }
+.cart-list{
+ display:none !important;
+}
 
+body{
+ margin:0;
+ padding:0;
+}
+
+.labels{
+ gap:2px;
+}
+
+.label{
+ border:none;
+}
+
+}
+
+    .cart-list{
+  margin-top:10px;
 }
   </style>
 </head>
@@ -84,7 +96,7 @@
 <button onclick="generateLabels()">Generate</button>
 <button onclick="window.print()">Print</button>
 
-<div id="cart"></div>
+<div id="cart" class="cart-list"></div>
 
 </div>
 
