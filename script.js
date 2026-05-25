@@ -813,6 +813,23 @@ function renderStockCart() {
   });
 }
 
+function autoAddScan(e){
+
+if(e.key !== "Enter") return;
+
+e.preventDefault();
+
+document.getElementById("stock").value = 1;
+
+autoFillProduct();
+
+setTimeout(() => {
+  updatePreview();
+  addStockToCart();
+}, 150);
+
+}
+
 window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
