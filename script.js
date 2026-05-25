@@ -765,7 +765,16 @@ function addStockToCart() {
     return;
   }
 
-  stockCart.push(item);
+  const existingItem = stockCart.find(cartItem =>
+    cartItem.barcode === item.barcode
+  );
+
+  if (existingItem) {
+    existingItem.stock += item.stock;
+  } else {
+    stockCart.push(item);
+  }
+
   renderStockCart();
 
   document.getElementById("barcode").value = "";
@@ -775,8 +784,8 @@ function addStockToCart() {
   document.getElementById("size").value = "";
   document.getElementById("stock").value = "";
   document.getElementById("price").value = "";
-  resetPreview();
 
+  resetPreview();
   document.getElementById("barcode").focus();
 }
 
