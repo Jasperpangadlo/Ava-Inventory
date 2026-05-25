@@ -848,6 +848,28 @@ function cleanDuplicateBarcode(value){
   return value;
 }
 
+async function saveStockCart(){
+
+  if(stockCart.length === 0){
+    alert("Cart is empty.");
+    return;
+  }
+
+  for(const item of stockCart){
+    await apiRequest("saveProduct", item);
+  }
+
+  alert("All stock saved!");
+
+  stockCart = [];
+  renderStockCart();
+
+  loadProducts();
+  loadHistory();
+
+  document.getElementById("barcode").focus();
+}
+
 window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
