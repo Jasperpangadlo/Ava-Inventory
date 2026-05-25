@@ -246,9 +246,19 @@ onclick="showTab('store')">
       placeholder="Price"
       oninput="updatePreview()" />
 
-      <button class="btn green" onclick="addStockToCart()">
+      <div class="stock-buttons">
+
+      <button class="btn green"
+      onclick="addStockToCart()">
       Add to Cart
       </button>
+      
+      <button class="btn blue"
+      onclick="saveStockCart()">
+      Save All Stock
+      </button>
+
+</div>
 
     </div>
 
@@ -302,12 +312,6 @@ onclick="showTab('store')">
 
     <tbody id="stockCartTable"></tbody>
   </table>
-</div>
-        <div class="cart-actions">
-   <button class="btn green"
-   onclick="saveStockCart()">
-   Save All Stock
-   </button>
 </div>
         
 </div>
