@@ -813,20 +813,22 @@ function renderStockCart() {
   });
 }
 
-function autoAddScan(e){
+async function autoAddScan(e){
 
 if(e.key !== "Enter") return;
 
 e.preventDefault();
 
-document.getElementById("stock").value = 1;
+await loadProducts();
 
 autoFillProduct();
+
+document.getElementById("stock").value = 1;
 
 setTimeout(() => {
   updatePreview();
   addStockToCart();
-}, 150);
+}, 300);
 
 }
 
