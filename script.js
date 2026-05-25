@@ -371,7 +371,7 @@ qty
 }
 );
 
-alert(result.message);
+showSuccess(result.message);
 
 loadProducts();
 loadStoreProducts();
@@ -471,7 +471,7 @@ qty
 }
 );
 
-alert(result.message);
+showSuccess(result.message);
 
 document.getElementById(
 "returnBarcode"
@@ -859,7 +859,7 @@ async function saveStockCart(){
     await apiRequest("saveProduct", item);
   }
 
-  alert("All stock saved!");
+  showSuccess("All stock saved!");
 
   stockCart = [];
   renderStockCart();
@@ -926,6 +926,26 @@ function closeRemoveModal(){
 
 document.getElementById(
 "removeModal"
+).style.display="none";
+
+}
+
+function showSuccess(message){
+
+document.getElementById(
+"successText"
+).innerText=message;
+
+document.getElementById(
+"successModal"
+).style.display="flex";
+
+}
+
+function closeSuccessModal(){
+
+document.getElementById(
+"successModal"
 ).style.display="none";
 
 }
