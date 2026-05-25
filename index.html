@@ -246,9 +246,8 @@ onclick="showTab('store')">
       placeholder="Price"
       oninput="updatePreview()" />
 
-      <button class="btn green"
-      onclick="saveProduct()">
-      Save Stock
+      <button class="btn green" onclick="addStockToCart()">
+      Add to Cart
       </button>
 
     </div>
@@ -283,6 +282,30 @@ onclick="showTab('store')">
 
     </div>
 
+</div>
+
+      <div class="section-card">
+  <h3>Stock Cart</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Barcode</th>
+        <th>Product</th>
+        <th>Color</th>
+        <th>Size</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+
+    <tbody id="stockCartTable"></tbody>
+  </table>
+
+  <button class="btn green" onclick="saveStockCart()">
+    Save All Stock
+  </button>
 </div>
         
       </section>
