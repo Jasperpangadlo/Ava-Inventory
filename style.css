@@ -550,5 +550,15 @@ width:100%;
 margin-top:15px;
 }
 
+.success-box{
+text-align:center;
+width:320px;
+}
+
+.success-box h2{
+margin:10px 0;
+color:#16a34a;
+}
+
 
 
