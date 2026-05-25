@@ -805,7 +805,7 @@ function renderStockCart() {
         <td>₱${item.price}</td>
         <td>
           <button class="remove-btn"
-          onclick="removeStockCart(${index})">
+          onclick="removeStockCartQty(${index})"
           Remove
           </button>
         </td>
@@ -868,6 +868,30 @@ async function saveStockCart(){
   loadHistory();
 
   document.getElementById("barcode").focus();
+}
+
+function removeStockCartQty(index){
+
+const item = stockCart[index];
+
+const removeQty = Number(
+prompt(
+`Ilang qty ang ire-remove? Available: ${item.stock}`
+)
+);
+
+if(!removeQty){
+return;
+}
+
+if(removeQty >= item.stock){
+stockCart.splice(index,1);
+}else{
+item.stock -= removeQty;
+}
+
+renderStockCart();
+
 }
 
 window.onload = () => {
