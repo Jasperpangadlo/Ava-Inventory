@@ -805,7 +805,7 @@ function renderStockCart() {
         <td>₱${item.price}</td>
         <td>
           <button class="remove-btn"
-          onclick="removeStockCartQty(${index})"
+          onclick="removeStockCartQty(${index})">
           Remove
           </button>
         </td>
