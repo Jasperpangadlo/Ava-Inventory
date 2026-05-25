@@ -790,11 +790,11 @@ function addStockToCart() {
 }
 
 function renderStockCart() {
-  const table = document.getElementById("stockCartTable");
-  table.innerHTML = "";
+  const tbody = document.getElementById("stockCartTable");
+  tbody.innerHTML = "";
 
   stockCart.forEach((item, index) => {
-    table.innerHTML += `
+    tbody.innerHTML += `
       <tr>
         <td>${item.barcode}</td>
         <td>${item.product}</td>
@@ -803,18 +803,14 @@ function renderStockCart() {
         <td>${item.stock}</td>
         <td>₱${item.price}</td>
         <td>
-          <button class="btn red" onclick="removeStockCartItem(${index})">
-            Remove
+          <button class="remove-btn"
+          onclick="removeStockCart(${index})">
+          Remove
           </button>
         </td>
       </tr>
     `;
   });
-}
-
-function removeStockCartItem(index) {
-  stockCart.splice(index, 1);
-  renderStockCart();
 }
 
 window.onload = () => {
