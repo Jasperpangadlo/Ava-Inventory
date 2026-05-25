@@ -97,8 +97,23 @@ font-size:14px;
 >
 
   <datalist id="products"></datalist>
+  
+  <input id="qty" type="number" min="1" value="1">
 
-  const productData=[
+<button onclick="addItem()">Add</button>
+<button onclick="generateLabels()">Generate</button>
+<button onclick="clearAll()">Clear</button>
+<button onclick="window.print()">Print</button>
+
+<div id="cart" class="cart-list"></div>
+
+</div>
+
+<div class="labels" id="labels"></div>
+
+<script>
+
+const productData=[
 
 {
 prefix:"ALE",
@@ -180,21 +195,7 @@ datalist.innerHTML+=`
 }
 
 generateProductList();
-  
-  <input id="qty" type="number" min="1" value="1">
 
-<button onclick="addItem()">Add</button>
-<button onclick="generateLabels()">Generate</button>
-<button onclick="clearAll()">Clear</button>
-<button onclick="window.print()">Print</button>
-
-<div id="cart" class="cart-list"></div>
-
-</div>
-
-<div class="labels" id="labels"></div>
-
-<script>
 let cart=[];
 
 function addItem(){
