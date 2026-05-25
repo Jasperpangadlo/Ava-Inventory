@@ -213,7 +213,8 @@ function filterProducts() {
 }
 
 function autoFillProduct() {
-  const barcode = document.getElementById("barcode").value.trim();
+  const barcode = cleanDuplicateBarcode(document.getElementById("barcode").value);
+  document.getElementById("barcode").value = barcode;
 
   // kapag walang barcode, i-clear lahat
   if (barcode === "") {
@@ -751,7 +752,7 @@ let stockCart = [];
 
 function addStockToCart() {
   const item = {
-    barcode: document.getElementById("barcode").value.trim(),
+    barcode: cleanDuplicateBarcode(document.getElementById("barcode").value),
     product: document.getElementById("product").value.trim(),
     category: document.getElementById("category").value,
     color: document.getElementById("color").value.trim(),
@@ -830,6 +831,21 @@ setTimeout(() => {
   addStockToCart();
 }, 300);
 
+}
+
+function cleanDuplicateBarcode(value){
+  value = value.trim();
+
+  const half = value.length / 2;
+
+  if(
+    value.length % 2 === 0 &&
+    value.slice(0, half) === value.slice(half)
+  ){
+    return value.slice(0, half);
+  }
+
+  return value;
 }
 
 window.onload = () => {
