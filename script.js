@@ -747,6 +747,67 @@ function focusBarcode(){
   document.getElementById("barcode").focus();
 }
 
+let stockCart = [];
+
+function addStockToCart() {
+  const item = {
+    barcode: document.getElementById("barcode").value.trim(),
+    product: document.getElementById("product").value.trim(),
+    category: document.getElementById("category").value,
+    color: document.getElementById("color").value.trim(),
+    size: document.getElementById("size").value.trim(),
+    stock: Number(document.getElementById("stock").value),
+    price: Number(document.getElementById("price").value)
+  };
+
+  if (!item.barcode || !item.product || !item.stock) {
+    alert("Please input barcode, product name, and quantity.");
+    return;
+  }
+
+  stockCart.push(item);
+  renderStockCart();
+
+  document.getElementById("barcode").value = "";
+  document.getElementById("product").value = "";
+  document.getElementById("category").selectedIndex = 0;
+  document.getElementById("color").value = "";
+  document.getElementById("size").value = "";
+  document.getElementById("stock").value = "";
+  document.getElementById("price").value = "";
+  resetPreview();
+
+  document.getElementById("barcode").focus();
+}
+
+function renderStockCart() {
+  const table = document.getElementById("stockCartTable");
+  table.innerHTML = "";
+
+  stockCart.forEach((item, index) => {
+    table.innerHTML += `
+      <tr>
+        <td>${item.barcode}</td>
+        <td>${item.product}</td>
+        <td>${item.color}</td>
+        <td>${item.size}</td>
+        <td>${item.stock}</td>
+        <td>₱${item.price}</td>
+        <td>
+          <button class="btn red" onclick="removeStockCartItem(${index})">
+            Remove
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+function removeStockCartItem(index) {
+  stockCart.splice(index, 1);
+  renderStockCart();
+}
+
 window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
