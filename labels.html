@@ -96,65 +96,90 @@ font-size:14px;
   placeholder="Search product..."
 >
 
-<datalist id="products">
-  <option value="ALE-BR-XS-01|Alessandra Brown XS">
-  <option value="ALE-BR-S-01|Alessandra Brown S">
-  <option value="ALE-BR-M-01|Alessandra Brown M">
-  <option value="ALE-BR-L-01|Alessandra Brown L">
-  <option value="ALE-BR-XL-01|Alessandra Brown XL">
+  <datalist id="products"></datalist>
 
-  <option value="ALE-LI-XS-01|Alessandra Light Blue XS">
-  <option value="ALE-LI-S-01|Alessandra Light Blue S">
-  <option value="ALE-LI-M-01|Alessandra Light Blue M">
-  <option value="ALE-LI-L-01|Alessandra Light Blue L">
-  <option value="ALE-LI-XL-01|Alessandra Light Blue XL">
+  const productData=[
 
-  <option value="CHR-WI-XS-02|Christine Wine Red XS">
-  <option value="CHR-WI-S-02|Christine Wine Red S">
-  <option value="CHR-WI-M-02|Christine Wine Red M">
-  <option value="CHR-WI-L-02|Christine Wine Red L">
-  <option value="CHR-WI-XL-02|Christine Wine Red XL">
-  
-  <option value="CHR-OL-XS-02|Christine Olive XS">
-  <option value="CHR-OL-S-02|Christine Olive S">
-  <option value="CHR-OL-M-02|Christine Olive M">
-  <option value="CHR-OL-L-02|Christine Olive L">
-  <option value="CHR-OL-XL-02|Christine Olive XL">
+{
+prefix:"ALE",
+name:"Alessandra",
+colors:[
+["BR","Brown"],
+["LI","Light Blue"]
+],
+sizes:["XS","S","M","L","XL"],
+series:"01"
+},
 
-  <option value="ELI-LI-XS-03 |Elie Set Light Blue XS">
-  <option value="ELI-LI-S-03 |Elie Set Light Blue S">
-  <option value="ELI-LI-S-03 |Elie Set Light Blue M">
-  <option value="ELI-LI-S-03 |Elie Set Light Blue L">
-  <option value="ELI-LI-S-03 |Elie Set Light Blue XL">
+{
+prefix:"CHR",
+name:"Christine",
+colors:[
+["WI","Wine Red"],
+["OL","Olive"]
+],
+sizes:["XS","S","M","L","XL"],
+series:"02"
+},
 
-  <option value="ELI-OL-XS-03 |Elie Set Olive XS">
-  <option value="ELI-OL-S-03 |Elie Set Olive S">
-  <option value="ELI-OL-S-03 |Elie Set Olive M">
-  <option value="ELI-OL-S-03 |Elie Set Olive L">
-  <option value="ELI-OL-S-03 |Elie Set Olive XL">    
+{
+prefix:"ELI",
+name:"Elie Set",
+colors:[
+["LI","Light Blue"],
+["OL","Olive"]
+],
+sizes:["XS","S","M","L","XL"],
+series:"03"
+},
 
-  <option value="ERI-PI-XS-04 |Erin Skirt Olive XS">
-  <option value="ERI-PI-S-04 |Erin Skirt Olive S">
-  <option value="ERI-PI-M-04 |Erin Skirt Olive M">
-  <option value="ERI-PI-L-04 |Erin Skirt Olive L">
-  <option value="ERI-PI-XL-04 |Erin Skirt Olive XL">
+{
+prefix:"ERI",
+name:"Erin Skirt",
+colors:[
+["PI","Pink"]
+],
+sizes:["XS","S","M","L","XL"],
+series:"04"
+},
 
-  //m//
-  <option value="BEL-RE-XS-01|Bella Red XS">
-  <option value="BEL-RE-S-01|Bella Red S">
-  <option value="BEL-RE-M-01|Bella Red M">
-  <option value="BEL-RE-L-01|Bella Red L">
-  <option value="BEL-RE-XL-01|Bella Red XL">
+{
+prefix:"BEL",
+name:"Bella",
+colors:[
+["RE","Red"],
+["BL","Blue"]
+],
+sizes:["XS","S","M","L","XL"],
+series:"01"
+}
 
-  <option value="BEL-BL-XS-01|Bella Blue XS">
-  <option value="BEL-BL-S-01|Bella Blue S">
-  <option value="BEL-BL-M-01|Bella Blue M">
-  <option value="BEL-BL-L-01|Bella Blue L">
-  <option value="BEL-BL-XL-01|Bella Blue XL">
+];
 
-  
-    
-</datalist>
+function generateProductList(){
+
+const datalist=
+document.getElementById("products");
+
+productData.forEach(product=>{
+
+product.colors.forEach(color=>{
+
+product.sizes.forEach(size=>{
+
+datalist.innerHTML+=`
+<option value="${product.prefix}-${color[0]}-${size}-${product.series}|${product.name} ${color[1]} ${size}">
+`;
+
+});
+
+});
+
+});
+
+}
+
+generateProductList();
   
   <input id="qty" type="number" min="1" value="1">
 
