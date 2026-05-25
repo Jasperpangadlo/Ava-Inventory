@@ -474,5 +474,26 @@ width:auto;
 padding:14px 30px;
 }
 
+#add-stock .add-stock-layout{
+  display:grid;
+  grid-template-columns: 1.4fr .8fr;
+  gap:25px;
+  align-items:start;
+}
+
+#add-stock .form-grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:14px;
+}
+
+#add-stock .preview-card{
+  margin-top:0;
+}
+
+.stock-cart-card{
+  grid-column:1 / -1;
+}
+
 
 
