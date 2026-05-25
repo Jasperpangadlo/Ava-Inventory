@@ -870,27 +870,63 @@ async function saveStockCart(){
   document.getElementById("barcode").focus();
 }
 
+let removeIndex = -1;
+
 function removeStockCartQty(index){
 
-const item = stockCart[index];
+removeIndex=index;
 
-const removeQty = Number(
-prompt(
-`Ilang qty ang ire-remove? Available: ${item.stock}`
-)
-);
+const item=stockCart[index];
 
-if(!removeQty){
-return;
+document.getElementById(
+"removeText"
+).innerText=
+`Available: ${item.stock}`;
+
+document.getElementById(
+"removeQtyInput"
+).value="";
+
+document.getElementById(
+"removeModal"
+).style.display="flex";
+
 }
 
-if(removeQty >= item.stock){
-stockCart.splice(index,1);
+function confirmRemoveQty(){
+
+const qty=Number(
+document.getElementById(
+"removeQtyInput"
+).value
+);
+
+const item=stockCart[removeIndex];
+
+if(qty>=item.stock){
+
+stockCart.splice(
+removeIndex,
+1
+);
+
 }else{
-item.stock -= removeQty;
+
+item.stock-=qty;
+
 }
 
 renderStockCart();
+
+closeRemoveModal();
+
+}
+
+function closeRemoveModal(){
+
+document.getElementById(
+"removeModal"
+).style.display="none";
 
 }
 
