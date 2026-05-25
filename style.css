@@ -27,6 +27,24 @@
       padding: 25px 18px;
     }
 
+
+.stock-buttons{
+display:flex;
+gap:15px;
+}
+
+.stock-buttons .btn{
+flex:1;
+}
+
+.blue{
+background:linear-gradient(
+135deg,
+#4f46e5,
+#4338ca
+);
+}
+
     aside h1 {
       font-size: 22px;
       margin-bottom: 35px;
