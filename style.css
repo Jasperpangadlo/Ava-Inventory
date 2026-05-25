@@ -463,5 +463,16 @@ font-weight:bold;
 margin-bottom:10px;
 }
 
+.cart-actions{
+display:flex;
+justify-content:flex-end;
+margin-top:20px;
+}
+
+.cart-actions .btn{
+width:auto;
+padding:14px 30px;
+}
+
 
 
