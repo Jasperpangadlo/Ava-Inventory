@@ -711,7 +711,7 @@ function updateClock() {
 
         } else if (productName.includes("christine")) {
         
-          previewImg.src = "images/cristine";
+          previewImg.src = "images/cristine.png";
 
         } else if (productName.includes("ellie set")) {
         
