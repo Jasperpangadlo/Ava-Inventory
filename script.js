@@ -708,11 +708,71 @@ function updateClock() {
         } else if (productName.includes("alessandra")) {
         
           previewImg.src = "images/alessandra.png";
+
+        } else if (productName.includes("cristine")) {
+        
+          previewImg.src = "";
+
+        } else if (productName.includes("ellie set")) {
+        
+          previewImg.src = "";
+
+        } else if (productName.includes("erin skirt")) {
+        
+          previewImg.src = "";
+
+        } else if (productName.includes("farrah")) {
+        
+          previewImg.src = "";
+
+        } else if (productName.includes("georgia")) {
+        
+          previewImg.src = "";
+
+        } else if (productName.includes("gia")) {
+        
+          previewImg.src = "";
+
+        } else if (productName.includes("katrice")) {
+        
+          previewImg.src = "";
+
+        } else if (productName.includes("leila")) {
+        
+          previewImg.src = "";
+
+        } else if (productName.includes("linda")) {
+        
+          previewImg.src = "";
+
+        } else if (productName.includes("natalie")) {
+        
+          previewImg.src = "";
+
+        } else if (productName.includes("rene")) {
+        
+          previewImg.src = "";
+
+        } else if (productName.includes("sadie")) {
+        
+          previewImg.src = "";
+
+        } else if (productName.includes("simone")) {
+        
+          previewImg.src = "";
+
+        } else if (productName.includes("tamara")) {
+        
+          previewImg.src = "";
+
+        } else if (productName.includes("winona")) {
+        
+          previewImg.src = "";
         
         } else if (productName.includes("bella")) {
         
           previewImg.src = "images/bella.png";
-        
+
         } else {
         
           previewImg.src = "logo.png";
