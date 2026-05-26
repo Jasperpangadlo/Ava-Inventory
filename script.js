@@ -1047,6 +1047,38 @@ function toggleSalesType(){
   }
 }
 
+function showMessage(text,type="success"){
+
+const icon=document.getElementById("msgIcon");
+const title=document.getElementById("msgTitle");
+
+document.getElementById("msgText").innerText=text;
+
+if(type==="success"){
+ icon.innerHTML="✅";
+ title.innerText="Success";
+}
+else if(type==="error"){
+ icon.innerHTML="❌";
+ title.innerText="Error";
+}
+else{
+ icon.innerHTML="⚠️";
+ title.innerText="Warning";
+}
+
+document.getElementById(
+"msgModal"
+).style.display="flex";
+
+}
+
+function closeMessage(){
+document.getElementById(
+"msgModal"
+).style.display="none";
+}
+
 window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
