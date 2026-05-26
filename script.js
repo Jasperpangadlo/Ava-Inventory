@@ -32,12 +32,12 @@ async function saveProduct() {
   };
 
   if (!data.barcode || !data.product || !data.stock) {
-    alert("Please input barcode, product name, at quantity.");
+    showMessage("Please input barcode, product name, at quantity.");
     return;
   }
 
   const result = await apiRequest("saveProduct", data);
-  alert(result.message || "Saved!");
+  showMessage(result.message || "Saved!");
 
 document.getElementById("barcode").value = "";
 document.getElementById("product").value = "";
@@ -387,7 +387,7 @@ document.getElementById(
 
 if(!barcode || !qty){
 
-alert(
+showMessage(
 "Please input barcode and quantity."
 );
 
@@ -487,7 +487,7 @@ document.getElementById(
 
 if(!barcode || !qty){
 
-alert(
+showMessage(
 "Please input barcode and quantity."
 );
 
@@ -856,7 +856,7 @@ function addStockToCart() {
   };
 
   if (!item.barcode || !item.product || !item.stock) {
-    alert("Please input barcode, product name, and quantity.");
+    showMessage("Please input barcode, product name, and quantity.");
     return;
   }
 
@@ -945,7 +945,7 @@ function cleanDuplicateBarcode(value){
 async function saveStockCart(){
 
   if(stockCart.length === 0){
-    alert("Cart is empty.");
+    showMessage("Cart is empty.");
     return;
   }
 
@@ -1115,7 +1115,7 @@ async function loginUser() {
   if (result.success) {
     document.getElementById("loginScreen").style.display = "none";
   } else {
-    alert("Wrong username or password");
+  showMessage("Wrong username or password");
   }
 }
 
