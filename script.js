@@ -725,9 +725,9 @@ function updateClock() {
         
           previewImg.src = "images/farrah.png";
 
-        } else if (productName.includes("georgia")) {
+        } else if (productName.includes("georgina")) {
         
-          previewImg.src = "images/georgia.png";
+          previewImg.src = "images/georgina.png";
 
         } else if (productName.includes("gia")) {
         
