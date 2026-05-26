@@ -186,7 +186,9 @@ async function stockOut() {
   const result = await apiRequest("stockOut", {
     barcode,
     qty,
-    remarks
+    remarks,
+    deductFrom
+
   });
 
   alert(result.message || "Stock deducted!");
