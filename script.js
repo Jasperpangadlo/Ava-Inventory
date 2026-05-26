@@ -711,15 +711,15 @@ function updateClock() {
 
         } else if (productName.includes("christine")) {
         
-          previewImg.src = "images/cristine.png";
+          previewImg.src = "images/christine.png";
 
-        } else if (productName.includes("ellie set")) {
+        } else if (productName.includes("ellie-set")) {
         
           previewImg.src = "images/ellie set.png";
 
-        } else if (productName.includes("erin skirt")) {
+        } else if (productName.includes("erin")) {
         
-          previewImg.src = "images/erin skirt.png";
+          previewImg.src = "images/erin.png";
 
         } else if (productName.includes("farrah")) {
         
