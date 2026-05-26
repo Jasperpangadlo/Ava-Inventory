@@ -427,6 +427,18 @@ placeholder="Scan Barcode">
 id="outQty"
 placeholder="Quantity Out">
 
+  <select id="deductFrom" onchange="toggleSalesType()">
+  <option value="">Deduct From</option>
+  <option value="Warehouse">Warehouse</option>
+  <option value="Store">Store</option>
+  </select>
+
+  <select id="salesType">
+  <option value="">Sales Type</option>
+  <option value="Online Sales">Online Sales</option>
+  <option value="Walk-in Sales">Walk-in Sales</option>
+  </select>
+
 <button
 class="btn danger"
 onclick="stockOut()">
