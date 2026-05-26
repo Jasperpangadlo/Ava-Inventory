@@ -157,14 +157,36 @@ async function stockOut() {
   const barcode = document.getElementById("outBarcode").value.trim();
   const qty = Number(document.getElementById("outQty").value);
 
+  const deductFrom =
+  document.getElementById("deductFrom").value;
+
+  const salesType =
+  document.getElementById("salesType").value;
+
   if (!barcode || !qty) {
     alert("Please input barcode and quantity out.");
     return;
   }
 
+  if(!deductFrom || !salesType){
+    alert("Please select sales destination");
+    return;
+  }
+
+  let remarks="";
+
+  if(deductFrom==="Warehouse"){
+      remarks =
+      "Warehouse - " + salesType;
+  } else {
+      remarks =
+      "Store - Walk-in";
+  }
+
   const result = await apiRequest("stockOut", {
     barcode,
-    qty
+    qty,
+    remarks
   });
 
   alert(result.message || "Stock deducted!");
@@ -1008,6 +1030,19 @@ document.getElementById(
 "successModal"
 ).style.display="none";
 
+}
+
+function toggleSalesType(){
+  const deductFrom = document.getElementById("deductFrom").value;
+  const salesType = document.getElementById("salesType");
+
+  if(deductFrom === "Store"){
+    salesType.value = "Walk-in Sales";
+    salesType.disabled = true;
+  }else{
+    salesType.disabled = false;
+    salesType.value = "";
+  }
 }
 
 window.onload = () => {
