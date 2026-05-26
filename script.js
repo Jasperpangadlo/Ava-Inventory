@@ -715,59 +715,59 @@ function updateClock() {
 
         } else if (productName.includes("ellie set")) {
         
-          previewImg.src = "";
+          previewImg.src = "images/ellie set.png";
 
         } else if (productName.includes("erin skirt")) {
         
-          previewImg.src = "";
+          previewImg.src = "images/erin skirt.png";
 
         } else if (productName.includes("farrah")) {
         
-          previewImg.src = "";
+          previewImg.src = "images/farrah.png";
 
         } else if (productName.includes("georgia")) {
         
-          previewImg.src = "";
+          previewImg.src = "images/georgia.png";
 
         } else if (productName.includes("gia")) {
         
-          previewImg.src = "";
+          previewImg.src = "images/gia.png";
 
         } else if (productName.includes("katrice")) {
         
-          previewImg.src = "";
+          previewImg.src = "images/katrice.png";
 
         } else if (productName.includes("leila")) {
         
-          previewImg.src = "";
+          previewImg.src = "images/leila.png";
 
         } else if (productName.includes("linda")) {
         
-          previewImg.src = "";
+          previewImg.src = "images/linda.png";
 
         } else if (productName.includes("natalie")) {
         
-          previewImg.src = "";
+          previewImg.src = "images/natalie.png";
 
         } else if (productName.includes("rene")) {
         
-          previewImg.src = "";
+          previewImg.src = "images/rene.png";
 
         } else if (productName.includes("sadie")) {
         
-          previewImg.src = "";
+          previewImg.src = "images/sadie.png";
 
         } else if (productName.includes("simone")) {
         
-          previewImg.src = "";
+          previewImg.src = "images/simone.png";
 
         } else if (productName.includes("tamara")) {
         
-          previewImg.src = "";
+          previewImg.src = "images/tamara.png";
 
         } else if (productName.includes("winona")) {
         
-          previewImg.src = "";
+          previewImg.src = "images/winona.png";
         
         } else if (productName.includes("bella")) {
         
