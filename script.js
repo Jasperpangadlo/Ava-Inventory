@@ -713,9 +713,9 @@ function updateClock() {
         
           previewImg.src = "images/christine.png";
 
-        } else if (productName.includes("ellie")) {
+        } else if (productName.includes("elie")) {
         
-          previewImg.src = "images/ellie.png";
+          previewImg.src = "images/elie.png";
 
         } else if (productName.includes("erin")) {
         
