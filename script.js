@@ -164,14 +164,20 @@ async function stockOut() {
   document.getElementById("salesType").value;
 
   if (!barcode || !qty) {
-    alert("Please input barcode and quantity out.");
+    showMessage(
+      "Please input barcode and quantity out.",
+      "warning"
+    );
     return;
-  }
+}
 
-  if(!deductFrom || !salesType){
-    alert("Please select sales destination");
+if(!deductFrom || !salesType){
+    showMessage(
+      "Please select sales destination",
+      "warning"
+    );
     return;
-  }
+}
 
   let remarks="";
 
