@@ -191,7 +191,11 @@ async function stockOut() {
 
   });
 
-  alert(result.message || "Stock deducted!");
+  if(result.message.includes("Not enough")){
+  showMessage(result.message, "error");
+}else{
+  showMessage(result.message, "success");
+}
 
   loadProducts();
   loadHistory();
