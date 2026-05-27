@@ -1119,6 +1119,8 @@ async function loginUser() {
   }
 }
 
+  document.body.classList.toggle("dark-mode");
+
 function logoutUser() {
 
   const confirmLogout =
