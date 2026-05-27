@@ -1,6 +1,7 @@
 let stockChart = null;
 let weeklyStockChart = null;
 let allProducts = [];
+let storeProducts = [];
 
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6K3N58inD_aZdmVA6yilTyxSSEE34ng_GXNviFvDTBLdXocmhBppWeCv4U9bcKr-3/exec";
 
@@ -424,6 +425,7 @@ function showTab(tabId){
 async function loadStoreProducts() {
   const result = await apiRequest("getStoreInventory");
   const products = result.products || [];
+  storeProducts = products;
   const table = document.getElementById("storeTable");
 
   table.innerHTML = "";
@@ -445,6 +447,7 @@ async function loadStoreProducts() {
       </tr>
     `;
   });
+  filterStoreProducts();
 }
 
 
