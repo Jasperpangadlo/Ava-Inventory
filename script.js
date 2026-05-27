@@ -436,16 +436,55 @@ async function loadStoreProducts() {
   }
 
   products.forEach(item => {
-    table.innerHTML += `
-      <tr>
-        <td>${item.barcode}</td>
-        <td>${item.product}</td>
-        <td>${item.color}</td>
-        <td>${item.size}</td>
-        <td>${item.stock}</td>
-        <td>${item.location}</td>
-      </tr>
-    `;
+    const stockBadge =
+
+item.stock <=0 ?
+
+`<span class="stock-out">
+❌ Out
+</span>`
+
+:
+
+item.stock <=5 ?
+
+`<span class="stock-low">
+⚠️ Low
+</span>`
+
+:
+
+`<span class="stock-ok">
+✔ In Stock
+</span>`;
+
+table.innerHTML += `
+
+<tr>
+
+<td>${item.barcode}</td>
+
+<td>${item.product}</td>
+
+<td>${item.color}</td>
+
+<td>${item.size}</td>
+
+<td>${stockBadge}</td>
+
+<td>
+
+<span class="location-tag">
+
+🏪 ${item.location}
+
+</span>
+
+</td>
+
+</tr>
+
+`;
   });
   filterStoreProducts();
 }
