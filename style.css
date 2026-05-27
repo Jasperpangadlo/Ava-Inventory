@@ -597,5 +597,74 @@ color:#16a34a;
  cursor:pointer;
 }
 
+.dark-mode{
+background:#0f172a;
+color:white;
+}
+
+.dark-mode main{
+background:#0f172a;
+}
+
+.dark-mode aside{
+background:#111827;
+}
+
+.dark-mode .card,
+.dark-mode .panel,
+.dark-mode .section-card,
+.dark-mode .preview-card,
+.dark-mode .chart-card,
+.dark-mode .date-card,
+.dark-mode .modal-box,
+.dark-mode .msg-box{
+
+background:#1e293b;
+color:white;
+}
+
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode h4,
+.dark-mode p,
+.dark-mode td,
+.dark-mode th,
+.dark-mode label{
+color:white;
+}
+
+.dark-mode table{
+background:#1e293b;
+}
+
+.dark-mode th{
+background:#334155;
+}
+
+.dark-mode td{
+border-color:#334155;
+}
+
+.dark-mode input,
+.dark-mode select{
+background:#334155;
+color:white;
+border:1px solid #475569;
+}
+
+.dark-mode input::placeholder{
+color:#cbd5e1;
+}
+
+.dark-mode tbody tr:hover{
+background:#243449;
+}
+
+.dark-mode .preview-badge{
+background:#312e81;
+color:#c7d2fe;
+}
+
 
 
