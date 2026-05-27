@@ -1098,8 +1098,6 @@ document.body.classList.toggle(
 }
 
 window.onload = () => {
-
-window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
   loadHistory();
