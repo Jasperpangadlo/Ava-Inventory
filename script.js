@@ -208,43 +208,97 @@ if(!deductFrom || !salesType){
   loadHistory();
 }
 
-function filterProducts() {
-  const searchInput = document.getElementById("searchInput");
-  if (!searchInput) return;
+function filterProducts(){
 
-  const keyword = searchInput.value.toLowerCase();
-  const rows = document.querySelectorAll("#productTable tr");
+const keyword =
+document.getElementById(
+"searchInput"
+).value.toLowerCase();
 
-  let found = false;
+const category =
+document.getElementById(
+"categoryFilter"
+).value.toLowerCase();
 
-  rows.forEach(row => {
-    const text = row.textContent.toLowerCase();
+const color =
+document.getElementById(
+"colorFilter"
+).value.toLowerCase();
 
-    if (text.includes(keyword)) {
-      row.style.display = "";
-      found = true;
-    } else {
-      row.style.display = "none";
-    }
-  });
+const stockStatus =
+document.getElementById(
+"stockFilter"
+).value;
 
-  // alisin muna lumang message
-  const oldMsg = document.getElementById("noResultRow");
-  if (oldMsg) oldMsg.remove();
+const rows =
+document.querySelectorAll(
+"#productTable tr"
+);
 
-  // kapag walang nahanap
-  if (!found && keyword !== "") {
-    const table = document.getElementById("productTable");
+rows.forEach(row=>{
 
-    table.innerHTML += `
-      <tr id="noResultRow">
-        <td colspan="8"
-        style="text-align:center;color:#888;padding:20px;">
-          ❌ Product not found
-        </td>
-      </tr>
-    `;
-  }
+const cells =
+row.querySelectorAll("td");
+
+if(cells.length < 8) return;
+
+const barcode =
+cells[0].textContent.toLowerCase();
+
+const product =
+cells[1].textContent.toLowerCase();
+
+const rowCategory =
+cells[2].textContent.toLowerCase();
+
+const rowColor =
+cells[3].textContent.toLowerCase();
+
+const size =
+cells[4].textContent.toLowerCase();
+
+const stock =
+Number(cells[5].textContent)||0;
+
+const searchMatch =
+barcode.includes(keyword) ||
+product.includes(keyword) ||
+rowColor.includes(keyword) ||
+size.includes(keyword);
+
+const categoryMatch =
+!category ||
+rowCategory===category;
+
+const colorMatch =
+!color ||
+rowColor===color;
+
+let statusMatch=true;
+
+if(stockStatus==="in"){
+statusMatch=stock>5;
+}
+
+if(stockStatus==="low"){
+statusMatch=stock>0 && stock<=5;
+}
+
+if(stockStatus==="out"){
+statusMatch=stock===0;
+}
+
+const show =
+searchMatch &&
+categoryMatch &&
+colorMatch &&
+statusMatch;
+
+row.style.display =
+show ? "" : "none";
+
+});
+
 }
 
 function autoFillProduct() {
