@@ -1141,3 +1141,46 @@ function logoutUser() {
   ).value = "";
 
 }
+
+.dark-mode{
+background:#0f172a;
+color:white;
+}
+
+.dark-mode main{
+background:#0f172a;
+}
+
+.dark-mode .panel,
+.dark-mode .card,
+.dark-mode .section-card,
+.dark-mode .preview-card,
+.dark-mode .chart-card,
+.dark-mode .date-card{
+background:#1e293b;
+color:white;
+}
+
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode h4,
+.dark-mode p,
+.dark-mode td,
+.dark-mode th{
+color:white;
+}
+
+.dark-mode input,
+.dark-mode select{
+background:#334155;
+color:white;
+border-color:#475569;
+}
+
+.dark-mode th{
+background:#334155;
+}
+
+.dark-mode tbody tr:hover{
+background:#243449;
+}
