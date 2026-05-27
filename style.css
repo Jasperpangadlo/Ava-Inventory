@@ -666,7 +666,8 @@ background:#312e81;
 color:#c7d2fe;
 }
 
-.product-filters{
+.product-filters,
+.store-filters{
 display:flex;
 align-items:center;
 gap:12px;
@@ -696,7 +697,8 @@ padding:0;
 width:auto;
 }
 
-.product-filters select{
+.product-filters select,
+.store-filters select{
 flex:1;
 min-width:180px;
 height:50px;
