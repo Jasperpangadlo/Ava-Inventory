@@ -522,13 +522,40 @@ Deduct Stock
       <section class="panel tab-content" id="store">
 
 <h3>Store Inventory</h3>
- <input
-  id="storeSearchInput"
-  type="text"
-  placeholder="Search store barcode, product, color, size..."
-  oninput="filterStoreProducts()"
-  style="margin-bottom:15px; max-width:350px;"
-/>       
+
+<div class="store-filters">
+
+<div class="search-box">
+<span>🔍</span>
+
+<input
+id="storeSearchInput"
+type="text"
+placeholder="Search barcode, product, color..."
+oninput="filterStoreProducts()"
+/>
+
+</div>
+
+<select id="storeLocationFilter"
+onchange="filterStoreProducts()">
+<option value="">All Store</option>
+</select>
+
+<select id="storeColorFilter"
+onchange="filterStoreProducts()">
+<option value="">All Color</option>
+</select>
+
+<select id="storeStockFilter"
+onchange="filterStoreProducts()">
+<option value="">All Stock</option>
+<option value="in">In Stock</option>
+<option value="low">Low Stock</option>
+<option value="out">Out of Stock</option>
+</select>
+
+</div>      
 <div class="table-scroll">
 
 <table>
