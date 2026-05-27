@@ -333,14 +333,32 @@ onclick="showTab('store')">
       <section class="panel tab-content" id="products">
         <h3>Product List</h3>
         <input
-    id="searchInput"
-    type="text"
-    placeholder="Search barcode, product, color, size..."
-    oninput="filterProducts()"
+    <div class="product-filters">
 
-    
-    style="margin-bottom:15px; max-width:350px;"
-  />
+<input
+id="searchInput"
+type="text"
+placeholder="Search barcode, product, color, size..."
+oninput="filterProducts()"
+/>
+
+<select id="categoryFilter" onchange="filterProducts()">
+<option value="">All Category</option>
+</select>
+
+<select id="colorFilter" onchange="filterProducts()">
+<option value="">All Color</option>
+</select>
+
+<select id="stockFilter" onchange="filterProducts()">
+<option value="">All Stock</option>
+<option value="in">In Stock</option>
+<option value="low">Low Stock</option>
+<option value="out">Out of Stock</option>
+</select>
+
+</div>
+        
         <div class="table-scroll">
 
         <table>
