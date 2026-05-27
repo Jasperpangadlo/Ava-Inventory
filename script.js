@@ -208,57 +208,87 @@ if(!deductFrom || !salesType){
   loadHistory();
 }
 
+function populateFilters(products){
+
+const categoryFilter = document.getElementById("categoryFilter");
+const colorFilter = document.getElementById("colorFilter");
+
+if(!categoryFilter || !colorFilter) return;
+
+const currentCategory = categoryFilter.value;
+const currentColor = colorFilter.value;
+
+const keyword = document
+.getElementById("searchInput")
+.value
+.toLowerCase();
+
+const matchedProducts = products.filter(p =>
+  String(p.barcode).toLowerCase().includes(keyword) ||
+  String(p.product).toLowerCase().includes(keyword) ||
+  String(p.size).toLowerCase().includes(keyword)
+);
+
+categoryFilter.innerHTML =
+`<option value="">All Category</option>`;
+
+colorFilter.innerHTML =
+`<option value="">All Color</option>`;
+
+const categories = [
+...new Set(matchedProducts.map(p => p.category).filter(Boolean))
+];
+
+const colors = [
+...new Set(matchedProducts.map(p => p.color).filter(Boolean))
+];
+
+categories.forEach(cat=>{
+categoryFilter.innerHTML +=
+`<option value="${cat}">${cat}</option>`;
+});
+
+colors.forEach(color=>{
+colorFilter.innerHTML +=
+`<option value="${color}">${color}</option>`;
+});
+
+categoryFilter.value = currentCategory;
+colorFilter.value = currentColor;
+
+}
+
 function filterProducts(){
 
+populateFilters(allProducts);
+
 const keyword =
-document.getElementById(
-"searchInput"
-).value.toLowerCase();
+document.getElementById("searchInput").value.toLowerCase();
 
 const category =
-document.getElementById(
-"categoryFilter"
-).value.toLowerCase();
+document.getElementById("categoryFilter").value.toLowerCase();
 
 const color =
-document.getElementById(
-"colorFilter"
-).value.toLowerCase();
+document.getElementById("colorFilter").value.toLowerCase();
 
 const stockStatus =
-document.getElementById(
-"stockFilter"
-).value;
+document.getElementById("stockFilter").value;
 
 const rows =
-document.querySelectorAll(
-"#productTable tr"
-);
+document.querySelectorAll("#productTable tr");
 
 rows.forEach(row=>{
 
-const cells =
-row.querySelectorAll("td");
+const cells = row.querySelectorAll("td");
 
 if(cells.length < 8) return;
 
-const barcode =
-cells[0].textContent.toLowerCase();
-
-const product =
-cells[1].textContent.toLowerCase();
-
-const rowCategory =
-cells[2].textContent.toLowerCase();
-
-const rowColor =
-cells[3].textContent.toLowerCase();
-
-const size =
-cells[4].textContent.toLowerCase();
-
-const stock =
-Number(cells[5].textContent)||0;
+const barcode = cells[0].textContent.toLowerCase();
+const product = cells[1].textContent.toLowerCase();
+const rowCategory = cells[2].textContent.toLowerCase();
+const rowColor = cells[3].textContent.toLowerCase();
+const size = cells[4].textContent.toLowerCase();
+const stock = Number(cells[5].textContent) || 0;
 
 const searchMatch =
 barcode.includes(keyword) ||
@@ -267,25 +297,23 @@ rowColor.includes(keyword) ||
 size.includes(keyword);
 
 const categoryMatch =
-!category ||
-rowCategory===category;
+!category || rowCategory === category;
 
 const colorMatch =
-!color ||
-rowColor===color;
+!color || rowColor === color;
 
-let statusMatch=true;
+let statusMatch = true;
 
-if(stockStatus==="in"){
-statusMatch=stock>5;
+if(stockStatus === "in"){
+statusMatch = stock > 5;
 }
 
-if(stockStatus==="low"){
-statusMatch=stock>0 && stock<=5;
+if(stockStatus === "low"){
+statusMatch = stock > 0 && stock <= 5;
 }
 
-if(stockStatus==="out"){
-statusMatch=stock===0;
+if(stockStatus === "out"){
+statusMatch = stock === 0;
 }
 
 const show =
@@ -294,8 +322,7 @@ categoryMatch &&
 colorMatch &&
 statusMatch;
 
-row.style.display =
-show ? "" : "none";
+row.style.display = show ? "" : "none";
 
 });
 
@@ -1149,40 +1176,6 @@ function toggleDarkMode(){
 document.body.classList.toggle(
 "dark-mode"
 );
-
-}
-
-function populateFilters(products){
-
-const categoryFilter =
-document.getElementById("categoryFilter");
-
-const colorFilter =
-document.getElementById("colorFilter");
-
-if(!categoryFilter || !colorFilter) return;
-
-categoryFilter.innerHTML =
-`<option value="">All Category</option>`;
-
-colorFilter.innerHTML =
-`<option value="">All Color</option>`;
-
-const categories =
-[...new Set(products.map(p => p.category).filter(Boolean))];
-
-const colors =
-[...new Set(products.map(p => p.color).filter(Boolean))];
-
-categories.forEach(cat=>{
-categoryFilter.innerHTML +=
-`<option value="${cat}">${cat}</option>`;
-});
-
-colors.forEach(color=>{
-colorFilter.innerHTML +=
-`<option value="${color}">${color}</option>`;
-});
 
 }
 
