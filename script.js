@@ -1089,6 +1089,16 @@ document.getElementById(
 ).style.display="none";
 }
 
+function toggleDarkMode(){
+
+document.body.classList.toggle(
+"dark-mode"
+);
+
+}
+
+window.onload = () => {
+
 window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
@@ -1119,7 +1129,7 @@ async function loginUser() {
   }
 }
 
-  document.body.classList.toggle("dark-mode");
+  
 
 function logoutUser() {
 
@@ -1144,4 +1154,3 @@ function logoutUser() {
 
 }
 
-}
