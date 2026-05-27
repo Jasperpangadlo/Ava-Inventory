@@ -1179,6 +1179,174 @@ document.body.classList.toggle(
 
 }
 
+function populateStoreFilters(products){
+
+const locationFilter =
+document.getElementById("storeLocationFilter");
+
+const colorFilter =
+document.getElementById("storeColorFilter");
+
+if(!locationFilter || !colorFilter) return;
+
+const keyword =
+document
+.getElementById("storeSearchInput")
+.value
+.toLowerCase();
+
+const filtered =
+products.filter(p=>
+
+String(p.product)
+.toLowerCase()
+.includes(keyword)
+
+);
+
+locationFilter.innerHTML =
+`<option value="">All Store</option>`;
+
+colorFilter.innerHTML =
+`<option value="">All Color</option>`;
+
+const stores=[
+...new Set(
+filtered.map(
+p=>p.location
+).filter(Boolean)
+)
+];
+
+const colors=[
+...new Set(
+filtered.map(
+p=>p.color
+).filter(Boolean)
+)
+];
+
+stores.forEach(store=>{
+
+locationFilter.innerHTML +=
+`<option value="${store}">
+${store}
+</option>`;
+
+});
+
+colors.forEach(color=>{
+
+colorFilter.innerHTML +=
+`<option value="${color}">
+${color}
+</option>`;
+
+});
+
+}
+
+function filterStoreProducts(){
+
+populateStoreFilters(storeProducts);
+
+const keyword =
+document
+.getElementById("storeSearchInput")
+.value
+.toLowerCase();
+
+const location =
+document
+.getElementById("storeLocationFilter")
+.value
+.toLowerCase();
+
+const color =
+document
+.getElementById("storeColorFilter")
+.value
+.toLowerCase();
+
+const stockStatus =
+document
+.getElementById("storeStockFilter")
+.value;
+
+const rows=
+document.querySelectorAll(
+"#storeTable tr"
+);
+
+rows.forEach(row=>{
+
+const cells =
+row.querySelectorAll("td");
+
+if(cells.length<6)return;
+
+const barcode=
+cells[0]
+.textContent
+.toLowerCase();
+
+const product=
+cells[1]
+.textContent
+.toLowerCase();
+
+const rowColor=
+cells[2]
+.textContent
+.toLowerCase();
+
+const stock=
+Number(cells[4].textContent)||0;
+
+const rowStore=
+cells[5]
+.textContent
+.toLowerCase();
+
+const searchMatch=
+
+barcode.includes(keyword) ||
+product.includes(keyword);
+
+const colorMatch=
+!color ||
+rowColor===color;
+
+const storeMatch=
+!location ||
+rowStore===location;
+
+let statusMatch=true;
+
+if(stockStatus==="in"){
+statusMatch=stock>5;
+}
+
+if(stockStatus==="low"){
+statusMatch=
+stock>0 && stock<=5;
+}
+
+if(stockStatus==="out"){
+statusMatch=stock===0;
+}
+
+row.style.display=
+searchMatch &&
+colorMatch &&
+storeMatch &&
+statusMatch
+? "" : "none";
+
+});
+
+}
+
 window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
