@@ -150,6 +150,7 @@ async function loadProducts() {
     }
   });
 }
+  populateFilters(products);
   filterProducts();
 }
 
@@ -1094,6 +1095,40 @@ function toggleDarkMode(){
 document.body.classList.toggle(
 "dark-mode"
 );
+
+}
+
+function populateFilters(products){
+
+const categoryFilter =
+document.getElementById("categoryFilter");
+
+const colorFilter =
+document.getElementById("colorFilter");
+
+if(!categoryFilter || !colorFilter) return;
+
+categoryFilter.innerHTML =
+`<option value="">All Category</option>`;
+
+colorFilter.innerHTML =
+`<option value="">All Color</option>`;
+
+const categories =
+[...new Set(products.map(p => p.category).filter(Boolean))];
+
+const colors =
+[...new Set(products.map(p => p.color).filter(Boolean))];
+
+categories.forEach(cat=>{
+categoryFilter.innerHTML +=
+`<option value="${cat}">${cat}</option>`;
+});
+
+colors.forEach(color=>{
+colorFilter.innerHTML +=
+`<option value="${color}">${color}</option>`;
+});
 
 }
 
