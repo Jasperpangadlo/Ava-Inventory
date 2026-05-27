@@ -425,67 +425,48 @@ function showTab(tabId){
 async function loadStoreProducts() {
   const result = await apiRequest("getStoreInventory");
   const products = result.products || [];
-  storeProducts = products;
-  const table = document.getElementById("storeTable");
 
+  storeProducts = products;
+
+  const table = document.getElementById("storeTable");
   table.innerHTML = "";
 
   if (products.length === 0) {
-    table.innerHTML = "<tr><td colspan='6'>No store products yet.</td></tr>";
+    table.innerHTML =
+    "<tr><td colspan='6'>No store products yet.</td></tr>";
     return;
   }
 
   products.forEach(item => {
-    const stockBadge =
+    const stock = Number(item.stock) || 0;
 
-item.stock <=0 ?
+    let stockBadge = "";
 
-`<span class="stock-out">
-❌ Out
-</span>`
+    if (stock <= 0) {
+      stockBadge = `<span class="stock-out">❌ Out</span>`;
+    } else if (stock <= 5) {
+      stockBadge = `<span class="stock-low">⚠️ Low</span>`;
+    } else {
+      stockBadge = `<span class="stock-ok">✔ In Stock</span>`;
+    }
 
-:
-
-item.stock <=5 ?
-
-`<span class="stock-low">
-⚠️ Low
-</span>`
-
-:
-
-`<span class="stock-ok">
-✔ In Stock
-</span>`;
-
-table.innerHTML += `
-
-<tr>
-
-<td>${item.barcode}</td>
-
-<td>${item.product}</td>
-
-<td>${item.color}</td>
-
-<td>${item.size}</td>
-
-<td>${stockBadge}</td>
-
-<td>
-
-<span class="location-tag">
-
-🏪 ${item.location}
-
-</span>
-
-</td>
-
-</tr>
-
-`;
+    table.innerHTML += `
+      <tr data-stock="${stock}">
+        <td>${item.barcode}</td>
+        <td>${item.product}</td>
+        <td>${item.color}</td>
+        <td>${item.size}</td>
+        <td>${stockBadge}</td>
+        <td>
+          <span class="location-tag">
+            🏪 ${item.location}
+          </span>
+        </td>
+      </tr>
+    `;
   });
+
+  populateStoreFilters(products);
   filterStoreProducts();
 }
 
@@ -554,41 +535,74 @@ document.getElementById(
 }
 
 
-function filterStoreProducts() {
-  const searchInput = document.getElementById("storeSearchInput");
-  if (!searchInput) return;
 
-  const keyword = searchInput.value.toLowerCase();
-  const rows = document.querySelectorAll("#storeTable tr");
 
-  let found = false;
+function filterStoreProducts(){
+
+  populateStoreFilters(storeProducts);
+
+  const keyword =
+  document.getElementById("storeSearchInput").value.toLowerCase();
+
+  const location =
+  document.getElementById("storeLocationFilter").value.toLowerCase();
+
+  const color =
+  document.getElementById("storeColorFilter").value.toLowerCase();
+
+  const stockStatus =
+  document.getElementById("storeStockFilter").value;
+
+  const rows =
+  document.querySelectorAll("#storeTable tr");
 
   rows.forEach(row => {
-    const text = row.textContent.toLowerCase();
+    const cells = row.querySelectorAll("td");
 
-    if (text.includes(keyword)) {
-      row.style.display = "";
-      found = true;
-    } else {
-      row.style.display = "none";
+    if(cells.length < 6) return;
+
+    const barcode = cells[0].textContent.toLowerCase();
+    const product = cells[1].textContent.toLowerCase();
+    const rowColor = cells[2].textContent.toLowerCase();
+    const rowStore = cells[5].textContent.toLowerCase();
+    const stock = Number(row.dataset.stock) || 0;
+
+    const searchMatch =
+    barcode.includes(keyword) ||
+    product.includes(keyword) ||
+    rowColor.includes(keyword);
+
+    const colorMatch =
+    !color || rowColor === color;
+
+    const storeMatch =
+    !location || rowStore.includes(location);
+
+    let statusMatch = true;
+
+    if(stockStatus === "in"){
+      statusMatch = stock > 5;
     }
+
+    if(stockStatus === "low"){
+      statusMatch = stock > 0 && stock <= 5;
+    }
+
+    if(stockStatus === "out"){
+      statusMatch = stock === 0;
+    }
+
+    row.style.display =
+    searchMatch &&
+    colorMatch &&
+    storeMatch &&
+    statusMatch
+    ? "" : "none";
   });
-
-  const oldMsg = document.getElementById("noStoreResultRow");
-  if (oldMsg) oldMsg.remove();
-
-  if (!found && keyword !== "") {
-    const table = document.getElementById("storeTable");
-
-    table.innerHTML += `
-      <tr id="noStoreResultRow">
-        <td colspan="6" style="text-align:center;color:#888;padding:20px;">
-          ❌ Store product not found
-        </td>
-      </tr>
-    `;
-  }
 }
+
+
+
 
 async function returnToWarehouse(){
 
