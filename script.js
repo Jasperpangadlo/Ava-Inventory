@@ -1578,6 +1578,16 @@ window.onload = () => {
 
 
 async function loginUser() {
+const btn =
+document.getElementById("logoutbtn");
+
+btn.classList.add("btn-loading");
+
+const originalText =
+btn.innerHTML;
+
+btn.innerHTML = "Processing...";
+  
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
 
@@ -1591,6 +1601,10 @@ async function loginUser() {
   } else {
   showMessage("Wrong username or password");
   }
+
+  btn.classList.remove("btn-loading");
+
+  btn.innerHTML = originalText;
 }
 
   
