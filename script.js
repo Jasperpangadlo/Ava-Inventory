@@ -1553,6 +1553,94 @@ No records
 
 }
 
+async function loadBestSellers(){
+
+const result =
+await apiRequest("getBestSellers", {
+  month:
+  document.getElementById("bestSellerMonth").value,
+
+  week:
+  document.getElementById("bestSellerWeek").value
+});
+
+const weekly =
+result.weekly || {};
+
+const monthly =
+result.monthly || {};
+
+const weeklyBox =
+document.getElementById("weeklyBestSeller");
+
+const monthlyBox =
+document.getElementById("monthlyBestSeller");
+
+weeklyBox.innerHTML = "";
+monthlyBox.innerHTML = "";
+
+Object.entries(weekly)
+.sort((a,b)=>b[1]-a[1])
+.slice(0,5)
+.forEach(item=>{
+
+weeklyBox.innerHTML += `
+
+<div class="best-seller-item">
+
+<span class="best-seller-name">
+${item[0]}
+</span>
+
+<span class="best-seller-qty">
+${item[1]} sold
+</span>
+
+</div>
+
+`;
+
+});
+
+Object.entries(monthly)
+.sort((a,b)=>b[1]-a[1])
+.slice(0,5)
+.forEach(item=>{
+
+monthlyBox.innerHTML += `
+
+<div class="best-seller-item">
+
+<span class="best-seller-name">
+${item[0]}
+</span>
+
+<span class="best-seller-qty">
+${item[1]} sold
+</span>
+
+</div>
+
+`;
+
+});
+
+if(!weeklyBox.innerHTML){
+weeklyBox.innerHTML =
+`<div class="report-empty">
+No records
+</div>`;
+}
+
+if(!monthlyBox.innerHTML){
+monthlyBox.innerHTML =
+`<div class="report-empty">
+No records
+</div>`;
+}
+
+}
+
 
 window.onload = () => {
   document.getElementById("barcode").focus();
