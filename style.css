@@ -867,3 +867,44 @@ font-weight:800;
 margin-right:8px;
 color:#1e1b4b;
 }
+
+
+
+.report-filters{
+display:flex;
+gap:10px;
+margin-bottom:20px;
+}
+
+.daily-report-grid{
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(300px,1fr));
+gap:20px;
+}
+
+.report-card{
+background:white;
+border-radius:20px;
+padding:20px;
+box-shadow:
+0 5px 15px rgba(0,0,0,.05);
+min-height:220px;
+}
+
+.report-card h4{
+margin-bottom:15px;
+color:#1e1b4b;
+}
+
+.report-item{
+padding:10px 0;
+border-bottom:1px solid #eee;
+font-size:14px;
+}
+
+.report-empty{
+color:#999;
+font-size:14px;
+padding:20px 0;
+}
