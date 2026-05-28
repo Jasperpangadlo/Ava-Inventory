@@ -1579,6 +1579,8 @@ document.getElementById("monthlyBestSeller");
 weeklyBox.innerHTML = "";
 monthlyBox.innerHTML = "";
 
+let rank = 1;
+
 Object.entries(weekly)
 .sort((a,b)=>b[1]-a[1])
 .slice(0,5)
@@ -1588,17 +1590,27 @@ weeklyBox.innerHTML += `
 
 <div class="best-seller-item">
 
-<span class="best-seller-name">
-${item[0]}
-</span>
+<div class="best-seller-left">
 
-<span class="best-seller-qty">
+<div class="rank-badge">
+${rank}
+</div>
+
+<div class="best-seller-name">
+${item[0]}
+</div>
+
+</div>
+
+<div class="best-seller-qty">
 ${item[1]} sold
-</span>
+</div>
 
 </div>
 
 `;
+
+rank++;
 
 });
 
