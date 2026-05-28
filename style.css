@@ -716,17 +716,17 @@ box-shadow:
 border:1px solid #eef2ff;
 }
 
-/* TABLE */
+/* PRODUCT + STORE TABLE ONLY */
 
-table{
+#products table,
+#store table{
 width:100%;
 border-collapse:separate;
 border-spacing:0 10px;
 }
 
-/* HEADER */
-
-th{
+#products th,
+#store th{
 background:#eef2ff;
 color:#1e1b4b;
 font-size:15px;
@@ -737,44 +737,34 @@ top:0;
 z-index:5;
 }
 
-th:first-child{
+#products th:first-child,
+#store th:first-child{
 border-radius:15px 0 0 15px;
 }
 
-th:last-child{
+#products th:last-child,
+#store th:last-child{
 border-radius:0 15px 15px 0;
 }
 
-/* BODY */
-
-tbody tr{
-
+#products tbody tr,
+#store tbody tr{
 background:white;
-
 transition:.25s;
-
-box-shadow:
-0 3px 10px rgba(0,0,0,.03);
-
+box-shadow:0 3px 10px rgba(0,0,0,.03);
 }
 
-tbody tr:hover{
-
+#products tbody tr:hover,
+#store tbody tr:hover{
 transform:translateY(-2px);
-
-box-shadow:
-0 10px 20px rgba(79,70,229,.12);
-
+box-shadow:0 10px 20px rgba(79,70,229,.12);
 }
 
-td{
-
+#products td,
+#store td{
 padding:18px;
-
 font-size:15px;
-
 border:none;
-
 }
 
 /* BARCODE STYLE */
