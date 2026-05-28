@@ -207,6 +207,7 @@ if(!deductFrom || !salesType){
   loadProducts();
   loadHistory();
   loadDailyReports();
+  loadBestSellers();
 
 document.getElementById("outBarcode").value = "";
 document.getElementById("outQty").value = "";
@@ -1106,6 +1107,7 @@ async function saveStockCart(){
   loadProducts();
   loadHistory();
   loadDailyReports();
+  loadBestSellers();
 
   document.getElementById("barcode").focus();
 }
@@ -1557,6 +1559,7 @@ window.onload = () => {
   loadProducts();
   loadHistory();
   loadDailyReports();
+  loadBestSellers();
   loadStoreProducts();
   loadWeeklyStockChart();
 
