@@ -1418,8 +1418,16 @@ async function loadDailyReports(){
 const date =
 document.getElementById("reportDate").value;
 
-const history =
-await apiRequest("getHistory");
+const result = await apiRequest(
+"getDailyReports",
+{
+  date:
+  document.getElementById("reportDate").value,
+
+  remarks: ""
+});
+
+const history = result.records || [];
 
 const addStock =
 document.getElementById("addStockReport");
