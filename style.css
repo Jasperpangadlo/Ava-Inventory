@@ -769,11 +769,10 @@ border:none;
 
 /* BARCODE STYLE */
 
-td:first-child{
-
+#products td:first-child,
+#store td:first-child{
 font-weight:700;
 color:#4338ca;
-
 }
 
 /* STOCK BADGES */
