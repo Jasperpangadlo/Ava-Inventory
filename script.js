@@ -206,6 +206,7 @@ if(!deductFrom || !salesType){
 
   loadProducts();
   loadHistory();
+  loadDailyReports();
 
 document.getElementById("outBarcode").value = "";
 document.getElementById("outQty").value = "";
@@ -1104,6 +1105,7 @@ async function saveStockCart(){
 
   loadProducts();
   loadHistory();
+  loadDailyReports();
 
   document.getElementById("barcode").focus();
 }
@@ -1409,10 +1411,144 @@ statusMatch
 
 }
 
+
+
+async function loadDailyReports(){
+
+const date =
+document.getElementById("reportDate").value;
+
+const history =
+await apiRequest("getHistory");
+
+const addStock =
+document.getElementById("addStockReport");
+
+const warehouseToStore =
+document.getElementById("warehouseToStoreReport");
+
+const storeToWarehouse =
+document.getElementById("storeToWarehouseReport");
+
+const warehouseOnline =
+document.getElementById("warehouseOnlineReport");
+
+const storeWalkin =
+document.getElementById("storeWalkinReport");
+
+addStock.innerHTML = "";
+warehouseToStore.innerHTML = "";
+storeToWarehouse.innerHTML = "";
+warehouseOnline.innerHTML = "";
+storeWalkin.innerHTML = "";
+
+const filtered = history.filter(item => {
+
+if(!date) return true;
+
+const itemDate =
+new Date(item.date)
+.toISOString()
+.split("T")[0];
+
+return itemDate === date;
+
+});
+
+filtered.forEach(item => {
+
+const row = `
+
+<div class="report-item">
+
+<b>${item.product}</b><br>
+
+${item.barcode}<br>
+
+Qty: ${item.qty}
+
+</div>
+
+`;
+
+const remarks =
+(item.remarks || "").toLowerCase();
+
+if(remarks.includes("add stock")){
+addStock.innerHTML += row;
+}
+
+else if(
+remarks.includes("warehouse") &&
+remarks.includes("store")
+){
+warehouseToStore.innerHTML += row;
+}
+
+else if(
+remarks.includes("store") &&
+remarks.includes("warehouse")
+){
+storeToWarehouse.innerHTML += row;
+}
+
+else if(
+remarks.includes("online")
+){
+warehouseOnline.innerHTML += row;
+}
+
+else if(
+remarks.includes("walk")
+){
+storeWalkin.innerHTML += row;
+}
+
+});
+
+if(!addStock.innerHTML){
+addStock.innerHTML =
+`<div class="report-empty">
+No records
+</div>`;
+}
+
+if(!warehouseToStore.innerHTML){
+warehouseToStore.innerHTML =
+`<div class="report-empty">
+No records
+</div>`;
+}
+
+if(!storeToWarehouse.innerHTML){
+storeToWarehouse.innerHTML =
+`<div class="report-empty">
+No records
+</div>`;
+}
+
+if(!warehouseOnline.innerHTML){
+warehouseOnline.innerHTML =
+`<div class="report-empty">
+No records
+</div>`;
+}
+
+if(!storeWalkin.innerHTML){
+storeWalkin.innerHTML =
+`<div class="report-empty">
+No records
+</div>`;
+}
+
+}
+
+
 window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
   loadHistory();
+  loadDailyReports();
   loadStoreProducts();
   loadWeeklyStockChart();
 
