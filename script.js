@@ -203,10 +203,16 @@ if(!deductFrom || !salesType){
   showMessage(result.message, "error");
 }else{
   showMessage(result.message, "success");
-}
 
   loadProducts();
   loadHistory();
+
+document.getElementById("outBarcode").value = "";
+document.getElementById("outQty").value = "";
+document.getElementById("deductFrom").selectedIndex = 0;
+document.getElementById("salesType").selectedIndex = 0;
+document.getElementById("outBarcode").focus();
+}
 }
 
 function populateFilters(products){
