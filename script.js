@@ -1596,7 +1596,16 @@ async function loginUser() {
   
 
 function logoutUser() {
+const btn =
+document.getElementById("logoutbtn");
 
+btn.classList.add("btn-loading");
+
+const originalText =
+btn.innerHTML;
+
+btn.innerHTML = "Processing...";
+  
   const confirmLogout =
   confirm("Are you sure you want to log out?");
 
@@ -1615,6 +1624,10 @@ function logoutUser() {
   document.getElementById(
     "password"
   ).value = "";
+
+  btn.classList.remove("btn-loading");
+
+  btn.innerHTML = originalText;
 
 }
 
