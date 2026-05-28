@@ -1312,106 +1312,7 @@ ${color}
 
 }
 
-function filterStoreProducts(){
 
-populateStoreFilters(storeProducts);
-
-const keyword =
-document
-.getElementById("storeSearchInput")
-.value
-.toLowerCase();
-
-const location =
-document
-.getElementById("storeLocationFilter")
-.value
-.toLowerCase();
-
-const color =
-document
-.getElementById("storeColorFilter")
-.value
-.toLowerCase();
-
-const stockStatus =
-document
-.getElementById("storeStockFilter")
-.value;
-
-const rows=
-document.querySelectorAll(
-"#storeTable tr"
-);
-
-rows.forEach(row=>{
-
-const cells =
-row.querySelectorAll("td");
-
-if(cells.length<6)return;
-
-const barcode=
-cells[0]
-.textContent
-.toLowerCase();
-
-const product=
-cells[1]
-.textContent
-.toLowerCase();
-
-const rowColor=
-cells[2]
-.textContent
-.toLowerCase();
-
-const stock=
-Number(cells[4].textContent)||0;
-
-const rowStore=
-cells[5]
-.textContent
-.toLowerCase();
-
-const searchMatch=
-
-barcode.includes(keyword) ||
-product.includes(keyword);
-
-const colorMatch=
-!color ||
-rowColor===color;
-
-const storeMatch=
-!location ||
-rowStore===location;
-
-let statusMatch=true;
-
-if(stockStatus==="in"){
-statusMatch=stock>5;
-}
-
-if(stockStatus==="low"){
-statusMatch=
-stock>0 && stock<=5;
-}
-
-if(stockStatus==="out"){
-statusMatch=stock===0;
-}
-
-row.style.display=
-searchMatch &&
-colorMatch &&
-storeMatch &&
-statusMatch
-? "" : "none";
-
-});
-
-}
 
 
 
@@ -1563,6 +1464,7 @@ await apiRequest("getBestSellers", {
   week:
   document.getElementById("bestSellerWeek").value
 });
+  console.log(result);
 
 const weekly =
 result.weekly || {};
