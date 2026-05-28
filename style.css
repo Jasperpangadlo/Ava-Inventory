@@ -1135,3 +1135,31 @@ border-radius:999px;
 font-weight:800;
 font-size:13px;
 }
+
+/* BUTTON LOADING */
+
+.btn-loading{
+position:relative;
+pointer-events:none;
+opacity:.85;
+}
+
+.btn-loading::after{
+content:"";
+width:18px;
+height:18px;
+border:3px solid rgba(255,255,255,.4);
+border-top:3px solid white;
+border-radius:50%;
+position:absolute;
+right:18px;
+top:50%;
+transform:translateY(-50%);
+animation:spin .7s linear infinite;
+}
+
+@keyframes spin{
+100%{
+transform:translateY(-50%) rotate(360deg);
+}
+}
