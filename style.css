@@ -907,6 +907,73 @@ align-items:center;
 font-size:15px;
 }
 
+.best-seller-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+margin-top:20px;
+}
+
+.small-card{
+padding:24px;
+min-height:auto !important;
+}
+
+.card-title{
+font-size:22px;
+font-weight:700;
+margin-bottom:20px;
+color:#1e1b4b;
+}
+
+.best-seller-item{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:14px 0;
+border-bottom:1px solid #eee;
+}
+
+.best-seller-left{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.rank-badge{
+width:32px;
+height:32px;
+border-radius:50%;
+background:#4f46e5;
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:bold;
+font-size:14px;
+}
+
+.best-seller-name{
+font-weight:600;
+font-size:15px;
+color:#1e1b4b;
+}
+
+.best-seller-qty{
+background:#eef2ff;
+color:#4338ca;
+padding:7px 14px;
+border-radius:20px;
+font-size:13px;
+font-weight:700;
+}
+
+.report-empty{
+padding:20px 0;
+color:#888;
+font-size:14px;
+}
+
 .best-seller-name{
 font-weight:700;
 color:#1e1b4b;
