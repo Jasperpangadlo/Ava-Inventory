@@ -986,3 +986,152 @@ padding:6px 12px;
 border-radius:20px;
 font-weight:bold;
 }
+
+/* PREMIUM REPORTS PANEL */
+
+#reports{
+background:linear-gradient(135deg,#ffffff,#f8fbff);
+border-radius:28px;
+padding:30px;
+}
+
+.report-filters{
+display:grid;
+grid-template-columns:1fr 140px;
+gap:14px;
+margin-bottom:25px;
+}
+
+.report-filters input{
+height:58px;
+border-radius:18px;
+font-size:16px;
+padding:0 18px;
+}
+
+.daily-report-grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:22px;
+}
+
+.report-card{
+background:rgba(255,255,255,.88);
+backdrop-filter:blur(14px);
+border:1px solid rgba(226,232,240,.9);
+border-radius:26px;
+padding:24px;
+box-shadow:0 18px 45px rgba(15,23,42,.08);
+min-height:360px;
+max-height:520px;
+overflow-y:auto;
+transition:.25s ease;
+}
+
+.report-card:hover{
+transform:translateY(-4px);
+box-shadow:0 25px 60px rgba(79,70,229,.16);
+}
+
+.report-card h4,
+.card-title{
+font-size:21px;
+font-weight:800;
+color:#111827;
+margin-bottom:22px;
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.report-item{
+background:#f8fafc;
+border:1px solid #eef2ff;
+border-radius:18px;
+padding:14px 16px;
+margin-bottom:12px;
+font-size:14px;
+line-height:1.45;
+}
+
+.report-item b{
+font-size:16px;
+color:#1e1b4b;
+}
+
+.report-empty{
+background:#f9fafb;
+border:1px dashed #cbd5e1;
+border-radius:18px;
+padding:24px;
+text-align:center;
+color:#94a3b8;
+font-weight:600;
+}
+
+.best-seller-filters{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:14px;
+margin:28px 0 20px;
+}
+
+.best-seller-filters input,
+.best-seller-filters select{
+height:58px;
+border-radius:18px;
+font-size:16px;
+}
+
+.best-seller-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:22px;
+}
+
+.small-card{
+min-height:220px;
+}
+
+.best-seller-item{
+display:flex;
+align-items:center;
+justify-content:space-between;
+background:#f8fafc;
+border:1px solid #eef2ff;
+border-radius:18px;
+padding:14px 16px;
+margin-bottom:12px;
+}
+
+.best-seller-left{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.rank-badge{
+width:34px;
+height:34px;
+border-radius:50%;
+background:linear-gradient(135deg,#4f46e5,#7c3aed);
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:800;
+}
+
+.best-seller-name{
+font-weight:800;
+color:#1e1b4b;
+}
+
+.best-seller-qty{
+background:#eef2ff;
+color:#4338ca;
+padding:8px 14px;
+border-radius:999px;
+font-weight:800;
+font-size:13px;
+}
