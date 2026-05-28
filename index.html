@@ -88,6 +88,7 @@ class="eyeIcon"
 </div>
 
 <button
+  id="loginbtn"
 class="btn login-btn"
 onclick="loginUser()"
 >
@@ -126,12 +127,16 @@ Login
       🌙
       </button>
           
-      <button class="btn" onclick="refreshAllData()">
+      <button 
+        id="refreshbtn"
+        class="btn" 
+      onclick="refreshAllData()">
 
   Refresh Data
 </button>
 
       <button
+        id="logoutbtn"
       class="btn red"
       onclick="logoutUser()">
       Logout
@@ -170,21 +175,21 @@ Login
 
 <div class="quick-actions">
 
-<button class="btn"
+<button id="addstockbtn" class="btn"
 onclick="showTab('add-stock')">
 
 ➕ Add Stock
 
 </button>
 
-<button class="btn"
+<button id="salesbtn" class="btn"
 onclick="showTab('sales')">
 
 💰 Stock Out
 
 </button>
 
-<button class="btn"
+<button id="storebtn" class="btn"
 onclick="showTab('store')">
 
 🏬 View Store
@@ -260,12 +265,12 @@ onclick="showTab('store')">
 
       <div class="stock-buttons">
 
-      <button class="btn green"
+      <button id="addstockbtn" class="btn green"
       onclick="addStockToCart()">
       Add to Cart
       </button>
       
-      <button class="btn blue"
+      <button id="savestockbtn" class="btn blue"
       onclick="saveStockCart()">
       Save All Stock
       </button>
@@ -405,6 +410,7 @@ oninput="filterProducts()"
 <input id="transferQty" type="number" placeholder="Quantity">
 
 <button
+  id="sendtostorebtn"
 class="btn"
 onclick="sendToStore()">
 Send To Store
@@ -430,6 +436,7 @@ Send To Store
 <input id="returnQty" placeholder="Quantity">
 
 <button
+  id="returntobtn"
 class="btn"
 onclick="returnToWarehouse()">
 Return To Warehouse
@@ -470,6 +477,7 @@ placeholder="Quantity Out">
   </select>
 
 <button
+  id="deductbtn"
 class="btn danger"
 onclick="stockOut()">
 
@@ -524,7 +532,8 @@ id="reportDate"
 type="date"
 onchange="loadDailyReports()">
 
-<button class="btn"
+<button id="dailyreport" 
+class="btn"
 onclick="loadDailyReports()">
 View Report
 </button>
