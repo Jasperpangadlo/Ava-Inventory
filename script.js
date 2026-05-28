@@ -1457,20 +1457,16 @@ No records
 async function loadBestSellers(){
 
 const result =
-await apiRequest("getBestSellers", {
-  month:
-  document.getElementById("bestSellerMonth").value,
+await apiRequest("getHistory");
 
-  week:
-  document.getElementById("bestSellerWeek").value
-});
-  console.log(result);
+const records =
+result.records || [];
 
-const weekly =
-result.weekly || {};
+const selectedMonth =
+document.getElementById("bestSellerMonth").value;
 
-const monthly =
-result.monthly || {};
+const selectedWeek =
+document.getElementById("bestSellerWeek").value;
 
 const weeklyBox =
 document.getElementById("weeklyBestSeller");
@@ -1481,14 +1477,47 @@ document.getElementById("monthlyBestSeller");
 weeklyBox.innerHTML = "";
 monthlyBox.innerHTML = "";
 
+const sales = {};
+
+records.forEach(item=>{
+
+const remarks =
+String(item.remarks || "").toLowerCase();
+
+if(!remarks.includes("walk")) return;
+
+const date =
+new Date(item.datetime);
+
+const month =
+date.toISOString().slice(0,7);
+
+const week =
+String(Math.ceil(date.getDate() / 7));
+
+if(selectedMonth && month !== selectedMonth) return;
+
+if(selectedWeek && week !== selectedWeek) return;
+
+const product =
+item.product;
+
+const qty =
+Number(item.qty) || 0;
+
+sales[product] =
+(sales[product] || 0) + qty;
+
+});
+
 let rank = 1;
 
-Object.entries(weekly)
+Object.entries(sales)
 .sort((a,b)=>b[1]-a[1])
 .slice(0,5)
 .forEach(item=>{
 
-weeklyBox.innerHTML += `
+const row = `
 
 <div class="best-seller-item">
 
@@ -1512,45 +1541,21 @@ ${item[1]} sold
 
 `;
 
+weeklyBox.innerHTML += row;
+monthlyBox.innerHTML += row;
+
 rank++;
-
-});
-
-Object.entries(monthly)
-.sort((a,b)=>b[1]-a[1])
-.slice(0,5)
-.forEach(item=>{
-
-monthlyBox.innerHTML += `
-
-<div class="best-seller-item">
-
-<span class="best-seller-name">
-${item[0]}
-</span>
-
-<span class="best-seller-qty">
-${item[1]} sold
-</span>
-
-</div>
-
-`;
 
 });
 
 if(!weeklyBox.innerHTML){
 weeklyBox.innerHTML =
-`<div class="report-empty">
-No records
-</div>`;
+`<div class="report-empty">No records</div>`;
 }
 
 if(!monthlyBox.innerHTML){
 monthlyBox.innerHTML =
-`<div class="report-empty">
-No records
-</div>`;
+`<div class="report-empty">No records</div>`;
 }
 
 }
