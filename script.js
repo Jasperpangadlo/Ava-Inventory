@@ -456,7 +456,7 @@ async function loadStoreProducts() {
         <td>${item.product}</td>
         <td>${item.color}</td>
         <td>${item.size}</td>
-        <td>${stockBadge}</td>
+        <td><span class="stock-number">${stock}</span>${stockBadge}</td>
         <td>
           <span class="location-tag">
             🏪 ${item.location}
