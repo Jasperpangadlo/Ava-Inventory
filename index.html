@@ -511,15 +511,59 @@ Deduct Stock
   </div>
 </section>
 
-      <section class="panel tab-content" id="reports">
-  <h3>Reports</h3>
-  <div style="height:350px;">
-    <canvas id="stockChart"></canvas>
-  </div>
-</section>
-      
 
-      <section class="panel tab-content" id="store">
+      
+      <section class="panel tab-content" id="reports">
+
+<h3>Daily Reports</h3>
+
+<div class="report-filters">
+
+<input
+id="reportDate"
+type="date"
+onchange="loadDailyReports()">
+
+<button class="btn"
+onclick="loadDailyReports()">
+View Report
+</button>
+
+</div>
+
+<div class="daily-report-grid">
+
+<div class="report-card">
+<h4>➕ Add Stock</h4>
+<div id="addStockReport"></div>
+</div>
+
+<div class="report-card">
+<h4>🚚 Warehouse → Store</h4>
+<div id="warehouseToStoreReport"></div>
+</div>
+
+<div class="report-card">
+<h4>🔄 Store → Warehouse</h4>
+<div id="storeToWarehouseReport"></div>
+</div>
+
+<div class="report-card">
+<h4>💻 Warehouse → Online Sales</h4>
+<div id="warehouseOnlineReport"></div>
+</div>
+
+<div class="report-card">
+<h4>🏪 Store → Walk-in Sales</h4>
+<div id="storeWalkinReport"></div>
+</div>
+
+</div>
+
+</section>
+
+
+      
 
 <h3>Store Inventory</h3>
 
