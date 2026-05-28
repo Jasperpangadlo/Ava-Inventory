@@ -1579,7 +1579,7 @@ window.onload = () => {
 
 async function loginUser() {
 const btn =
-document.getElementById("logoutbtn");
+document.getElementById("loginbtn");
 
 btn.classList.add("btn-loading");
 
