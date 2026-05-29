@@ -1170,3 +1170,15 @@ animation:spin .7s linear infinite;
 transform:translateY(-50%) rotate(360deg);
 }
 }
+
+.report-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+}
+
+#printReportBtn{
+width:auto;
+padding:12px 20px;
+}
