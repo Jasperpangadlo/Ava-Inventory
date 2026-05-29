@@ -1175,10 +1175,14 @@ transform:translateY(-50%) rotate(360deg);
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:20px;
+margin-bottom:25px;
+}
+
+.report-filters{
+margin-top:0;
 }
 
 #printReportBtn{
-width:auto;
-padding:12px 20px;
+margin-bottom:15px;
+box-shadow:0 10px 25px rgba(34,197,94,.25);
 }
