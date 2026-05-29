@@ -1579,7 +1579,9 @@ document.getElementById("printType").value;
 let content = "";
 
 if(printType === "all"){
-  content = reportSection.innerHTML;
+  content =
+  document.querySelector(".daily-report-grid").outerHTML +
+  document.querySelector(".best-seller-grid").outerHTML;
 }
 
 if(printType === "daily"){
