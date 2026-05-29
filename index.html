@@ -525,18 +525,12 @@ Deduct Stock
 
 <h3>Daily Reports</h3>
 
-<div class="report-filters">
+<div class="report-top">
 
 <input
 id="reportDate"
 type="date"
-onchange="loadDailyReports()">
-
-<button id="dailyreport" 
-class="btn"
-onclick="loadDailyReports()">
-View Report
-</button>
+onchange="loadDailyReports(); loadBestSellers();">
 
 </div>
 
