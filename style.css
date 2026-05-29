@@ -859,10 +859,24 @@ color:#1e1b4b;
 
 
 
-.report-filters{
+.report-top{
 display:flex;
-gap:10px;
+align-items:center;
+gap:12px;
 margin-bottom:20px;
+}
+
+#reportMonth{
+max-width:220px;
+}
+
+#reportWeek{
+max-width:220px;
+}
+
+#viewReportBtn{
+width:160px;
+height:56px;
 }
 
 .daily-report-grid{
