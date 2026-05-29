@@ -1561,6 +1561,146 @@ monthlyBox.innerHTML =
 }
 
 
+function printReports(){
+
+const reportSection =
+document.getElementById("reports");
+
+const printWindow =
+window.open("", "", "width=1200,height=800");
+
+const today =
+new Date().toLocaleString();
+
+printWindow.document.write(`
+<html>
+<head>
+<title>Ava Inventory Report</title>
+
+<style>
+body{
+font-family:Arial,sans-serif;
+padding:35px;
+color:#111827;
+}
+
+.print-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:2px solid #e5e7eb;
+padding-bottom:18px;
+margin-bottom:25px;
+}
+
+.print-title h1{
+margin:0;
+color:#1e1b4b;
+}
+
+.print-title p{
+margin:5px 0 0;
+color:#6b7280;
+}
+
+.print-date{
+font-size:13px;
+color:#6b7280;
+}
+
+.report-filters,
+.best-seller-filters,
+button{
+display:none !important;
+}
+
+.daily-report-grid,
+.best-seller-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:18px;
+}
+
+.report-card{
+border:1px solid #e5e7eb;
+padding:18px;
+border-radius:12px;
+margin-bottom:18px;
+page-break-inside:avoid;
+}
+
+.report-card h4,
+.card-title{
+font-size:18px;
+color:#1e1b4b;
+margin-bottom:14px;
+}
+
+.report-item,
+.best-seller-item{
+padding:10px 0;
+border-bottom:1px solid #eee;
+}
+
+.rank-badge{
+display:inline-flex;
+width:26px;
+height:26px;
+border-radius:50%;
+background:#4f46e5;
+color:white;
+align-items:center;
+justify-content:center;
+font-weight:bold;
+margin-right:8px;
+}
+
+.best-seller-qty{
+float:right;
+font-weight:bold;
+color:#4338ca;
+}
+
+.report-empty{
+color:#999;
+font-style:italic;
+}
+</style>
+</head>
+
+<body>
+
+<div class="print-header">
+  <div class="print-title">
+    <h1>Ava Inventory Report</h1>
+    <p>Daily Movement & Best Seller Summary</p>
+  </div>
+
+  <div class="print-date">
+    Generated: ${today}
+  </div>
+</div>
+
+${reportSection.innerHTML}
+
+</body>
+</html>
+`);
+
+printWindow.document.close();
+
+setTimeout(()=>{
+printWindow.print();
+printWindow.close();
+},500);
+
+}
+
+
+
+
+
+
 window.onload = () => {
   document.getElementById("barcode").focus();
   loadProducts();
