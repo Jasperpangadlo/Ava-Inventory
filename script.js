@@ -1693,8 +1693,20 @@ color:#4338ca;
 color:#999;
 font-style:italic;
 }
+
+.report-filters,
+.report-top,
+.best-seller-filters,
+.print-controls,
+#printType,
+#printReportBtn{
+display:none !important;
+}
+
 </style>
+
 </head>
+
 
 <body>
 
