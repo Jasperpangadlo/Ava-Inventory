@@ -1201,15 +1201,3 @@ height:50px;
 .no-print{
 display:none !important;
 }
-
-.report-filters,
-.report-top,
-.best-seller-filters,
-.print-controls,
-#printType,
-#printReportBtn,
-button,
-input,
-select{
-display:none !important;
-}
