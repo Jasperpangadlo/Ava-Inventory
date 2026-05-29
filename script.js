@@ -1572,6 +1572,32 @@ window.open("", "", "width=1200,height=800");
 const today =
 new Date().toLocaleString();
 
+
+const printType =
+document.getElementById("printType").value;
+
+let content = "";
+
+if(printType === "all"){
+  content = reportSection.innerHTML;
+}
+
+if(printType === "daily"){
+  content = document.querySelector(".daily-report-grid").outerHTML;
+}
+
+if(printType === "weekly"){
+  content = document.querySelector("#weeklyBestSeller").parentElement.outerHTML;
+}
+
+if(printType === "monthly"){
+  content = document.querySelector("#monthlyBestSeller").parentElement.outerHTML;
+}
+
+if(printType === "best"){
+  content = document.querySelector(".best-seller-grid").outerHTML;
+}
+  
 printWindow.document.write(`
 <html>
 <head>
@@ -1681,7 +1707,7 @@ font-style:italic;
   </div>
 </div>
 
-${reportSection.innerHTML}
+${content}
 
 </body>
 </html>
