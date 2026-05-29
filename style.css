@@ -866,17 +866,10 @@ gap:12px;
 margin-bottom:20px;
 }
 
-#reportMonth{
-max-width:220px;
-}
-
-#reportWeek{
-max-width:220px;
-}
-
-#viewReportBtn{
-width:160px;
+#reportDate{
+width:220px;
 height:56px;
+flex:none;
 }
 
 .daily-report-grid{
