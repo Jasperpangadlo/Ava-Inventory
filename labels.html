@@ -84,6 +84,14 @@ padding:5px;
 font-size:14px;
 }
 
+.barcode-code{
+font-size:12px;
+font-weight:bold;
+color:#000;
+margin-top:2px;
+text-align:center;
+}
+
     
   </style>
 </head>
@@ -572,6 +580,8 @@ labels.innerHTML+=`
 <img src="https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(code)}&code=Code128&dpi=300&hidehrt=True">
 
 <div class="name">${name}</div>
+
+<div class="barcode-code">${code}</div>
 
 </div>
 `;
