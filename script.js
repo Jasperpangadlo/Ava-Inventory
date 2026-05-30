@@ -551,7 +551,6 @@ document.getElementById(
 
 function filterStoreProducts(){
 
-  populateStoreFilters(storeProducts);
 
   const keyword =
   document.getElementById("storeSearchInput").value.toLowerCase();
@@ -1265,14 +1264,11 @@ function populateStoreFilters(products){
 const locationFilter =
 document.getElementById("storeLocationFilter");
 
-const colorFilter =
-document.getElementById("storeColorFilter");
+const currentStore =
+locationFilter.value;
 
 locationFilter.innerHTML =
 `<option value="">All Store</option>`;
-
-colorFilter.innerHTML =
-`<option value="">All Color</option>`;
 
 const locations =
 [...new Set(products.map(p=>p.location))];
@@ -1285,6 +1281,8 @@ ${location}
 </option>`;
 
 });
+
+locationFilter.value = currentStore;
 
 }
 
