@@ -1405,14 +1405,14 @@ addStock.innerHTML += row;
 }
 
 else if(
-remarks.includes("warehouse") &&
+remarks.startsWith("warehouse") &&
 remarks.includes("store")
 ){
 warehouseToStore.innerHTML += row;
 }
 
 else if(
-remarks.includes("store") &&
+remarks.startsWith("store") &&
 remarks.includes("warehouse")
 ){
 storeToWarehouse.innerHTML += row;
@@ -1819,6 +1819,9 @@ btn.innerHTML = "Processing...";
   confirm("Are you sure you want to log out?");
 
   if (!confirmLogout) {
+
+    btn.classList.remove("btn-loading");
+    btn.innerHTML = originalText;
     return;
   }
 
