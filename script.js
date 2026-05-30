@@ -1268,59 +1268,20 @@ document.getElementById("storeLocationFilter");
 const colorFilter =
 document.getElementById("storeColorFilter");
 
-if(!locationFilter || !colorFilter) return;
-
-const keyword =
-document
-.getElementById("storeSearchInput")
-.value
-.toLowerCase();
-
-const filtered =
-products.filter(p=>
-
-String(p.product)
-.toLowerCase()
-.includes(keyword)
-
-);
-
 locationFilter.innerHTML =
 `<option value="">All Store</option>`;
 
 colorFilter.innerHTML =
 `<option value="">All Color</option>`;
 
-const stores=[
-...new Set(
-filtered.map(
-p=>p.location
-).filter(Boolean)
-)
-];
+const locations =
+[...new Set(products.map(p=>p.location))];
 
-const colors=[
-...new Set(
-filtered.map(
-p=>p.color
-).filter(Boolean)
-)
-];
+locations.forEach(location=>{
 
-stores.forEach(store=>{
-
-locationFilter.innerHTML +=
-`<option value="${store}">
-${store}
-</option>`;
-
-});
-
-colors.forEach(color=>{
-
-colorFilter.innerHTML +=
-`<option value="${color}">
-${color}
+locationFilter.innerHTML += `
+<option value="${location}">
+${location}
 </option>`;
 
 });
@@ -1328,8 +1289,41 @@ ${color}
 }
 
 
+function updateColorFilter(){
 
+const selectedStore =
+document.getElementById("storeLocationFilter").value;
 
+const colorFilter =
+document.getElementById("storeColorFilter");
+
+colorFilter.innerHTML =
+`<option value="">All Color</option>`;
+
+let filteredProducts = storeProducts;
+
+if(selectedStore){
+
+filteredProducts =
+storeProducts.filter(
+p => p.location === selectedStore
+);
+
+}
+
+const colors =
+[...new Set(filteredProducts.map(p=>p.color))];
+
+colors.forEach(color=>{
+
+colorFilter.innerHTML += `
+<option value="${color}">
+${color}
+</option>`;
+
+});
+
+}
 
 async function loadDailyReports(){
 
