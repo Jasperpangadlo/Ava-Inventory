@@ -1347,15 +1347,23 @@ document.getElementById("storeToWarehouseReport");
 const warehouseOnline =
 document.getElementById("warehouseOnlineReport");
 
-const storeWalkin =
-document.getElementById("storeWalkinReport");
+const store1Walkin =
+document.getElementById("store1WalkinReport");
+
+const store2Walkin =
+document.getElementById("store2WalkinReport");
+
+const store3Walkin =
+document.getElementById("store3WalkinReport");
 
 addStock.innerHTML = "";
 warehouseToStore.innerHTML = "";
 storeToWarehouse.innerHTML = "";
 warehouseOnline.innerHTML = "";
-storeWalkin.innerHTML = "";
-
+store1Walkin.innerHTML = "";
+store2Walkin.innerHTML = "";
+store3Walkin.innerHTML = "";
+  
 const filtered = history.filter(item => {
 
 if(!date) return true;
@@ -1413,9 +1421,24 @@ warehouseOnline.innerHTML += row;
 }
 
 else if(
+remarks.startsWith("store 1") &&
 remarks.includes("walk")
 ){
-storeWalkin.innerHTML += row;
+store1Walkin.innerHTML += row;
+}
+
+else if(
+remarks.startsWith("store 2") &&
+remarks.includes("walk")
+){
+store2Walkin.innerHTML += row;
+}
+
+else if(
+remarks.startsWith("store 3") &&
+remarks.includes("walk")
+){
+store3Walkin.innerHTML += row;
 }
 
 });
@@ -1448,11 +1471,16 @@ No records
 </div>`;
 }
 
-if(!storeWalkin.innerHTML){
-storeWalkin.innerHTML =
-`<div class="report-empty">
-No records
-</div>`;
+if(!store1Walkin.innerHTML){
+store1Walkin.innerHTML = `<div class="report-empty">No records</div>`;
+}
+
+if(!store2Walkin.innerHTML){
+store2Walkin.innerHTML = `<div class="report-empty">No records</div>`;
+}
+
+if(!store3Walkin.innerHTML){
+store3Walkin.innerHTML = `<div class="report-empty">No records</div>`;
 }
 
 }
