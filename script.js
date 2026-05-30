@@ -183,13 +183,17 @@ if(!deductFrom || !salesType){
 
   let remarks="";
 
-  if(deductFrom==="Warehouse"){
-      remarks =
-      "Warehouse - " + salesType;
-  } else {
-      remarks =
-      "Store - Walk-in";
-  }
+if(deductFrom === "Warehouse"){
+
+remarks =
+"Warehouse - " + salesType;
+
+}else{
+
+remarks =
+deductFrom + " - Walk-in";
+
+}
 
   const result = await apiRequest("stockOut", {
     barcode,
@@ -1193,16 +1197,27 @@ document.getElementById(
 }
 
 function toggleSalesType(){
-  const deductFrom = document.getElementById("deductFrom").value;
-  const salesType = document.getElementById("salesType");
 
-  if(deductFrom === "Store"){
-    salesType.value = "Walk-in Sales";
-    salesType.disabled = true;
-  }else{
-    salesType.disabled = false;
-    salesType.value = "";
-  }
+const deductFrom =
+document.getElementById("deductFrom").value;
+
+const salesType =
+document.getElementById("salesType");
+
+if(
+deductFrom.includes("Store")
+){
+
+salesType.value = "Walk-in Sales";
+salesType.disabled = true;
+
+}else{
+
+salesType.disabled = false;
+salesType.value = "";
+
+}
+
 }
 
 function showMessage(text,type="success"){
