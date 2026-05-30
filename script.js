@@ -1284,6 +1284,7 @@ ${location}
 });
 
 locationFilter.value = currentStore;
+updateColorFilter();
 
 }
 
