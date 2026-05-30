@@ -479,6 +479,7 @@ async function loadStoreProducts() {
   });
 
   populateStoreFilters(products);
+  updateColorFilter();
   filterStoreProducts();
 }
 
@@ -1301,24 +1302,18 @@ colorFilter.innerHTML =
 let filteredProducts = storeProducts;
 
 if(selectedStore){
-
 filteredProducts =
-storeProducts.filter(
-p => p.location === selectedStore
+storeProducts.filter(p =>
+String(p.location).trim() === selectedStore
 );
-
 }
 
 const colors =
-[...new Set(filteredProducts.map(p=>p.color))];
+[...new Set(filteredProducts.map(p=>p.color).filter(Boolean))];
 
 colors.forEach(color=>{
-
 colorFilter.innerHTML += `
-<option value="${color}">
-${color}
-</option>`;
-
+<option value="${color}">${color}</option>`;
 });
 
 }
