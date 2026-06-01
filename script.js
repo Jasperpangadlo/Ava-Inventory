@@ -214,6 +214,7 @@ await loadHistory();
 await loadDailyReports();
 await loadBestSellers();
 await updateStoreSalesToday();
+await updateBranchRanking();
 
 document.getElementById("outBarcode").value = "";
 document.getElementById("outQty").value = "";
@@ -680,6 +681,7 @@ async function refreshAllData() {
   await loadStoreProducts();
   await loadWeeklyStockChart();
   await updateStoreSalesToday();
+  await updateBranchRanking();
 }
 
 function togglePassword(){
@@ -1960,6 +1962,63 @@ el.textContent = "🟢 Healthy Stock";
 el.style.background = "#dcfce7";
 el.style.color = "#166534";
 }
+
+}
+
+function updateBranchRanking(){
+
+const s1 =
+Number(
+document.getElementById("store1Sales")
+?.textContent.replace(/[₱,]/g,"")
+) || 0;
+
+const s2 =
+Number(
+document.getElementById("store2Sales")
+?.textContent.replace(/[₱,]/g,"")
+) || 0;
+
+const s3 =
+Number(
+document.getElementById("store3Sales")
+?.textContent.replace(/[₱,]/g,"")
+) || 0;
+
+const stores = [
+{name:"Store 1", sales:s1},
+{name:"Store 2", sales:s2},
+{name:"Store 3", sales:s3}
+];
+
+stores.sort((a,b)=>b.sales-a.sales);
+
+document.getElementById("branchRanking").innerHTML = `
+<div class="rank-item">🥇 ${stores[0].name} - ₱${stores[0].sales}</div>
+<div class="rank-item">🥈 ${stores[1].name} - ₱${stores[1].sales}</div>
+<div class="rank-item">🥉 ${stores[2].name} - ₱${stores[2].sales}</div>
+`;
+
+const max =
+Math.max(s1,s2,s3,1);
+
+document.getElementById("barStore1").style.width =
+(s1/max*100)+"%";
+
+document.getElementById("barStore2").style.width =
+(s2/max*100)+"%";
+
+document.getElementById("barStore3").style.width =
+(s3/max*100)+"%";
+
+document.getElementById("barStore1Amount").textContent =
+"₱"+s1;
+
+document.getElementById("barStore2Amount").textContent =
+"₱"+s2;
+
+document.getElementById("barStore3Amount").textContent =
+"₱"+s3;
 
 }
 
