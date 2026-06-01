@@ -1900,6 +1900,28 @@ document.getElementById("store3Sales").textContent = "₱" + store3;
 
 }
 
+function updateStoreCards(products){
+
+let store1 = 0;
+let store2 = 0;
+let store3 = 0;
+
+products.forEach(item=>{
+
+const stock = Number(item.stock) || 0;
+
+if(item.location === "Store 1") store1 += stock;
+if(item.location === "Store 2") store2 += stock;
+if(item.location === "Store 3") store3 += stock;
+
+});
+
+document.getElementById("store1Count").textContent = store1;
+document.getElementById("store2Count").textContent = store2;
+document.getElementById("store3Count").textContent = store3;
+
+}
+
 
 
 
