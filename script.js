@@ -1866,6 +1866,10 @@ let store1 = 0;
 let store2 = 0;
 let store3 = 0;
 
+let store1Qty = 0;
+let store2Qty = 0;
+let store3Qty = 0;
+
 const today =
 new Date().toLocaleDateString();
 
@@ -1884,14 +1888,17 @@ if(itemDate !== today) return;
 
 if(remarks.includes("store 1") && remarks.includes("walk")){
 store1 += total;
+store1Qty += Number(item.qty) || 0;
 }
 
 if(remarks.includes("store 2") && remarks.includes("walk")){
 store2 += total;
+store2Qty += Number(item.qty) || 0;
 }
 
 if(remarks.includes("store 3") && remarks.includes("walk")){
 store3 += total;
+store3Qty += Number(item.qty) || 0;
 }
 
 });
@@ -1899,6 +1906,10 @@ store3 += total;
 document.getElementById("store1Sales").textContent = "₱" + store1;
 document.getElementById("store2Sales").textContent = "₱" + store2;
 document.getElementById("store3Sales").textContent = "₱" + store3;
+
+document.getElementById("store1ItemsSold").textContent = store1Qty;
+document.getElementById("store2ItemsSold").textContent = store2Qty;
+document.getElementById("store3ItemsSold").textContent = store3Qty;
 
 }
 
@@ -1922,8 +1933,35 @@ document.getElementById("store1Count").textContent = store1;
 document.getElementById("store2Count").textContent = store2;
 document.getElementById("store3Count").textContent = store3;
 
+updateStoreStatus("store1Status", store1);
+updateStoreStatus("store2Status", store2);
+updateStoreStatus("store3Status", store3);
+
 }
 
+function updateStoreStatus(id, stock){
+
+const el = document.getElementById(id);
+
+if(stock <= 0){
+el.textContent = "🔴 Out of Stock";
+el.style.background = "#fee2e2";
+el.style.color = "#991b1b";
+}
+
+else if(stock <= 5){
+el.textContent = "🟡 Low Stock";
+el.style.background = "#fef3c7";
+el.style.color = "#92400e";
+}
+
+else{
+el.textContent = "🟢 Healthy Stock";
+el.style.background = "#dcfce7";
+el.style.color = "#166534";
+}
+
+}
 
 
 
