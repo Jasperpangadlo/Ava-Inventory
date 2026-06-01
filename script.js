@@ -1377,6 +1377,11 @@ return itemDate === date;
 
 });
 
+
+let store1Sales = {};
+let store2Sales = {};
+let store3Sales = {};
+
 filtered.forEach(item => {
 
 const row = `
@@ -1396,6 +1401,42 @@ Qty: ${item.qty}
 const remarks =
 (item.remarks || "").toLowerCase();
 
+  const product =
+  item.product;
+
+  if(
+remarks.includes("store 1") &&
+remarks.includes("walk")
+){
+
+store1Sales[product] =
+(store1Sales[product] || 0) +
+(Number(item.qty) || 0);
+
+}
+
+if(
+remarks.includes("store 2") &&
+remarks.includes("walk")
+){
+
+store2Sales[product] =
+(store2Sales[product] || 0) +
+(Number(item.qty) || 0);
+
+}
+
+if(
+remarks.includes("store 3") &&
+remarks.includes("walk")
+){
+
+store3Sales[product] =
+(store3Sales[product] || 0) +
+(Number(item.qty) || 0);
+
+}
+  
 if(remarks.includes("add stock")){
 addStock.innerHTML += row;
 }
@@ -1482,6 +1523,24 @@ store2Walkin.innerHTML = `<div class="report-empty">No records</div>`;
 if(!store3Walkin.innerHTML){
 store3Walkin.innerHTML = `<div class="report-empty">No records</div>`;
 }
+
+updateBestSellerCard(
+store1Sales,
+"store1BestSeller",
+"store1BestSellerQty"
+);
+
+updateBestSellerCard(
+store2Sales,
+"store2BestSeller",
+"store2BestSellerQty"
+);
+
+updateBestSellerCard(
+store3Sales,
+"store3BestSeller",
+"store3BestSellerQty"
+);
 
 }
 
@@ -1767,7 +1826,32 @@ printWindow.close();
 
 }
 
+function updateBestSellerCard(data,nameId,qtyId){
 
+const entries =
+Object.entries(data)
+.sort((a,b)=>b[1]-a[1]);
+
+if(entries.length){
+
+document.getElementById(nameId)
+.textContent = entries[0][0];
+
+document.getElementById(qtyId)
+.textContent =
+entries[0][1] + " sold";
+
+}else{
+
+document.getElementById(nameId)
+.textContent = "-";
+
+document.getElementById(qtyId)
+.textContent = "0 sold";
+
+}
+
+}
 
 
 
