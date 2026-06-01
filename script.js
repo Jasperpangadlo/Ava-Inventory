@@ -478,6 +478,7 @@ async function loadStoreProducts() {
     `;
   });
 
+  updateStoreCards(products);
   populateStoreFilters(products);
   updateColorFilter();
   filterStoreProducts();
@@ -676,6 +677,7 @@ async function refreshAllData() {
   await loadHistory();
   await loadStoreProducts();
   await loadWeeklyStockChart();
+  await updateStoreSalesToday();
 }
 
 function togglePassword(){
@@ -1853,6 +1855,51 @@ document.getElementById(qtyId)
 
 }
 
+async function updateStoreSalesToday(){
+
+const result = await apiRequest("getHistory");
+const records = result.records || [];
+
+let store1 = 0;
+let store2 = 0;
+let store3 = 0;
+
+const today =
+new Date().toLocaleDateString();
+
+records.forEach(item=>{
+
+const itemDate =
+new Date(item.datetime).toLocaleDateString();
+
+const remarks =
+String(item.remarks || "").toLowerCase();
+
+const total =
+Number(item.total) || 0;
+
+if(itemDate !== today) return;
+
+if(remarks.includes("store 1") && remarks.includes("walk")){
+store1 += total;
+}
+
+if(remarks.includes("store 2") && remarks.includes("walk")){
+store2 += total;
+}
+
+if(remarks.includes("store 3") && remarks.includes("walk")){
+store3 += total;
+}
+
+});
+
+document.getElementById("store1Sales").textContent = "₱" + store1;
+document.getElementById("store2Sales").textContent = "₱" + store2;
+document.getElementById("store3Sales").textContent = "₱" + store3;
+
+}
+
 
 
 
@@ -1864,6 +1911,7 @@ window.onload = () => {
   loadBestSellers();
   loadStoreProducts();
   loadWeeklyStockChart();
+  updateStoreSalesToday();
 
   updateClock();
   setInterval(updateClock, 1000);
