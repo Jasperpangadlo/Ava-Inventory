@@ -208,11 +208,12 @@ deductFrom + " - Walk-in";
 }else{
   showMessage(result.message, "success");
 
-  loadProducts();
-  loadHistory();
-  loadDailyReports();
-  loadBestSellers();
-  updateStoreSalesToday();
+await loadProducts();
+await loadStoreProducts();
+await loadHistory();
+await loadDailyReports();
+await loadBestSellers();
+await updateStoreSalesToday();
 
 document.getElementById("outBarcode").value = "";
 document.getElementById("outQty").value = "";
