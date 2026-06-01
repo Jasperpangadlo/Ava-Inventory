@@ -212,6 +212,7 @@ deductFrom + " - Walk-in";
   loadHistory();
   loadDailyReports();
   loadBestSellers();
+  updateStoreSalesToday();
 
 document.getElementById("outBarcode").value = "";
 document.getElementById("outQty").value = "";
