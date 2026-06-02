@@ -156,11 +156,24 @@ async function loadProducts() {
 }
 
 async function stockOut() {
+  const btn =
+  document.getElementById("deductbtn");
+
+  setButtonLoading(btn,true);
   const barcode = document.getElementById("outBarcode").value.trim();
   const qty = Number(document.getElementById("outQty").value);
 
-  const deductFrom =
-  document.getElementById("deductFrom").value;
+  if(!deductFrom || !salesType){
+
+  setButtonLoading(btn,false);
+  
+  showMessage(
+  "Please select sales destination",
+  "warning"
+  );
+  
+  return;
+  }
 
   const salesType =
   document.getElementById("salesType").value;
@@ -204,9 +217,23 @@ deductFrom + " - Walk-in";
   });
 
   if(result.message.includes("Not enough")){
-  showMessage(result.message, "error");
-}else{
-  showMessage(result.message, "success");
+
+  setButtonError(
+  btn,
+  "✕ No Stock"
+  );
+  
+  showMessage(
+  result.message,
+  "error"
+  );
+
+    setButtonSuccess(
+    btn,
+    "✓ Deducted"
+    );
+  
+  }
 
 await loadProducts();
 await loadStoreProducts();
@@ -2073,6 +2100,69 @@ await loadBestSellers();
 setTimeout(()=>{
 hideReportLoader();
 },500);
+
+}
+
+function setButtonLoading(btn, loading=true){
+
+if(!btn) return;
+
+if(loading){
+
+btn.dataset.originalText = btn.innerHTML;
+btn.classList.add("is-loading");
+
+}else{
+
+btn.classList.remove("is-loading");
+
+if(btn.dataset.originalText){
+btn.innerHTML = btn.dataset.originalText;
+}
+
+}
+
+}
+
+function setButtonSuccess(btn, text="✓ Success"){
+
+if(!btn) return;
+
+btn.classList.remove("is-loading");
+btn.classList.add("is-success");
+
+const originalText =
+btn.dataset.originalText || btn.innerHTML;
+
+btn.innerHTML = text;
+
+setTimeout(()=>{
+
+btn.classList.remove("is-success");
+btn.innerHTML = originalText;
+
+},1200);
+
+}
+
+function setButtonError(btn, text="✕ Failed"){
+
+if(!btn) return;
+
+btn.classList.remove("is-loading");
+btn.classList.add("is-error");
+
+const originalText =
+btn.dataset.originalText || btn.innerHTML;
+
+btn.innerHTML = text;
+
+setTimeout(()=>{
+
+btn.classList.remove("is-error");
+btn.innerHTML = originalText;
+
+},1200);
 
 }
 
