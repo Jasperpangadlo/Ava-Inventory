@@ -2042,6 +2042,29 @@ reportDate.value =
 
 }
 
+
+function showReportLoader(){
+document.getElementById("reportLoader").style.display = "flex";
+}
+
+function hideReportLoader(){
+document.getElementById("reportLoader").style.display = "none";
+}
+
+async function reloadReportsWithLoader(){
+
+showReportLoader();
+
+await loadDailyReports();
+await loadBestSellers();
+
+setTimeout(()=>{
+hideReportLoader();
+},500);
+
+}
+
+
 window.onload = async () => {
 
   if(localStorage.getItem("avaLoggedIn") === "true")
