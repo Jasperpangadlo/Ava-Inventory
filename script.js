@@ -673,8 +673,9 @@ document.getElementById(
 
 if(!barcode || !qty){
 
-showMessage(
-"Please input barcode and quantity."
+setButtonError(
+btn,
+"✕ Failed"
 );
 
 return;
@@ -691,7 +692,10 @@ qty
 }
 );
 
-showSuccess(result.message);
+setButtonSuccess(
+btn,
+"✓ Returned"
+);
 
 document.getElementById(
 "returnBarcode"
