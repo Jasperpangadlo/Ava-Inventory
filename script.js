@@ -160,6 +160,7 @@ async function stockOut() {
   document.getElementById("deductbtn");
 
   setButtonLoading(btn,true);
+  
   const barcode = document.getElementById("outBarcode").value.trim();
   const qty = Number(document.getElementById("outQty").value);
 
@@ -654,6 +655,11 @@ function filterStoreProducts(){
 
 async function returnToWarehouse(){
 
+const btn =
+document.getElementById("returnBtn");
+
+setButtonLoading(btn,true);
+
 const barcode=
 document.getElementById(
 "returnBarcode"
@@ -673,9 +679,11 @@ document.getElementById(
 
 if(!barcode || !qty){
 
-setButtonError(
-btn,
-"✕ Failed"
+setButtonLoading(btn,false);
+
+showMessage(
+"Please input barcode and quantity.",
+"warning"
 );
 
 return;
@@ -696,6 +704,8 @@ setButtonSuccess(
 btn,
 "✓ Returned"
 );
+
+  showSuccess(result.message);
 
 document.getElementById(
 "returnBarcode"
