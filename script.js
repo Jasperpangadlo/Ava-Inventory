@@ -2024,14 +2024,32 @@ document.getElementById("barStore3Amount").textContent =
 
 }
 
+function setTodayReportDate(){
 
+const reportDate =
+document.getElementById("reportDate");
 
-window.onload = () => {
+if(!reportDate) return;
+
+const today = new Date();
+
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth() + 1).padStart(2,"0");
+const dd = String(today.getDate()).padStart(2,"0");
+
+reportDate.value =
+`${yyyy}-${mm}-${dd}`;
+
+}
+
+window.onload = async () => {
 
   if(localStorage.getItem("avaLoggedIn") === "true")
 {
   document.getElementById("loginScreen").style.display = "none";
   }
+
+  setTodayReportDate();
   
   document.getElementById("barcode").focus();
   loadProducts();
