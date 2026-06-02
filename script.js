@@ -533,40 +533,35 @@ async function loadStoreProducts() {
 
 
 async function sendToStore(){
-  const btn =
-  document.getElementById("sendStoreBtn");
-  
-  setButtonLoading(btn,true);
 
-const barcode=
-document.getElementById(
-"transferBarcode"
-).value.trim();
+const btn =
+document.getElementById("sendStoreBtn");
 
-const store=
-document.getElementById(
-"toStore"
-).value;
+setButtonLoading(btn,true);
 
-const qty=
-Number(
-document.getElementById(
-"transferQty"
-).value
-);
+const barcode =
+document.getElementById("transferBarcode").value.trim();
+
+const store =
+document.getElementById("toStore").value;
+
+const qty =
+Number(document.getElementById("transferQty").value);
 
 if(!barcode || !qty){
 
 setButtonLoading(btn,false);
 
 showMessage(
-"Please input barcode and quantity."
+"Please input barcode and quantity.",
+"warning"
 );
 
 return;
+
 }
 
-const result=
+const result =
 await apiRequest(
 "sendToStore",
 {
@@ -576,27 +571,22 @@ qty
 }
 );
 
+setButtonSuccess(
+btn,
+"✓ Sent"
+);
+
 showSuccess(result.message);
 
-loadProducts();
-loadStoreProducts();
-loadHistory();
+await loadProducts();
+await loadStoreProducts();
+await loadHistory();
+await loadDailyReports();
 
-document.getElementById(
-"transferBarcode"
-).value = "";
-
-document.getElementById(
-"transferQty"
-).value = "";
-
-document.getElementById(
-"toStore"
-).selectedIndex = 0;
-
-document.getElementById(
-"transferBarcode"
-).focus();
+document.getElementById("transferBarcode").value = "";
+document.getElementById("transferQty").value = "";
+document.getElementById("toStore").selectedIndex = 0;
+document.getElementById("transferBarcode").focus();
 
 }
 
