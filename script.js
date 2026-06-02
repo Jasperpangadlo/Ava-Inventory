@@ -516,6 +516,10 @@ async function loadStoreProducts() {
 
 
 async function sendToStore(){
+  const btn =
+  document.getElementById("sendStoreBtn");
+  
+  setButtonLoading(btn,true);
 
 const barcode=
 document.getElementById(
@@ -536,12 +540,13 @@ document.getElementById(
 
 if(!barcode || !qty){
 
+setButtonLoading(btn,false);
+
 showMessage(
 "Please input barcode and quantity."
 );
 
 return;
-
 }
 
 const result=
