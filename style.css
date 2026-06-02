@@ -1018,7 +1018,8 @@ padding:0 18px;
 
 .daily-report-grid{
 display:grid;
-grid-template-columns:repeat(3,1fr);
+grid-template-columns:
+repeat(auto-fit,minmax(320px,1fr));
 gap:22px;
 }
 
@@ -1204,7 +1205,8 @@ display:none !important;
 
 .store-summary{
 display:grid;
-grid-template-columns:repeat(3,1fr);
+grid-template-columns:
+repeat(auto-fit,minmax(320px,1fr));
 gap:20px;
 margin-bottom:25px;
 }
