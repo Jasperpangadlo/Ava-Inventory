@@ -1369,3 +1369,23 @@ transform:scale(1);
 opacity:1;
 }
 }
+
+#reports .report-card{
+height:440px;
+max-height:440px;
+overflow-y:auto;
+overflow-x:hidden;
+}
+
+#reports .report-card.small-card{
+height:260px;
+max-height:260px;
+}
+
+#reports .daily-report-grid{
+align-items:stretch;
+}
+
+#reports .report-item{
+word-break:break-word;
+}
