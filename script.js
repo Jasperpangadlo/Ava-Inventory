@@ -571,6 +571,26 @@ qty
 }
 );
 
+if(
+String(result.message)
+.toLowerCase()
+.includes("not enough")
+){
+
+setButtonError(
+btn,
+"✕ No Stock"
+);
+
+showMessage(
+result.message,
+"error"
+);
+
+return;
+
+}
+
 setButtonSuccess(
 btn,
 "✓ Sent"
