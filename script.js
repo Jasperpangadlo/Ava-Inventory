@@ -156,46 +156,51 @@ async function loadProducts() {
 }
 
 async function stockOut() {
-  const btn =
-  document.getElementById("deductbtn");
 
-  setButtonLoading(btn,true);
-  
-  const barcode = document.getElementById("outBarcode").value.trim();
-  const qty = Number(document.getElementById("outQty").value);
+const btn =
+document.getElementById("deductbtn");
 
-  if(!deductFrom || !salesType){
+setButtonLoading(btn,true);
 
-  setButtonLoading(btn,false);
-  
-  showMessage(
-  "Please select sales destination",
-  "warning"
-  );
-  
-  return;
-  }
+const barcode =
+document.getElementById("outBarcode").value.trim();
 
-  const salesType =
-  document.getElementById("salesType").value;
+const qty =
+Number(document.getElementById("outQty").value);
 
-  if (!barcode || !qty) {
-    showMessage(
-      "Please input barcode and quantity out.",
-      "warning"
-    );
-    return;
+const deductFrom =
+document.getElementById("deductFrom").value;
+
+const salesType =
+document.getElementById("salesType").value;
+
+if(!barcode || !qty){
+
+setButtonLoading(btn,false);
+
+showMessage(
+"Please input barcode and quantity out.",
+"warning"
+);
+
+return;
+
 }
 
 if(!deductFrom || !salesType){
-    showMessage(
-      "Please select sales destination",
-      "warning"
-    );
-    return;
+
+setButtonLoading(btn,false);
+
+showMessage(
+"Please select sales destination",
+"warning"
+);
+
+return;
+
 }
 
-  let remarks="";
+let remarks = "";
 
 if(deductFrom === "Warehouse"){
 
@@ -209,32 +214,42 @@ deductFrom + " - Walk-in";
 
 }
 
-  const result = await apiRequest("stockOut", {
-    barcode,
-    qty,
-    remarks,
-    deductFrom
+const result =
+await apiRequest(
+"stockOut",
+{
+barcode,
+qty,
+remarks,
+deductFrom
+}
+);
 
-  });
+if(result.message.includes("Not enough")){
 
-  if(result.message.includes("Not enough")){
+setButtonError(
+btn,
+"✕ No Stock"
+);
 
-  setButtonError(
-  btn,
-  "✕ No Stock"
-  );
-  
-  showMessage(
-  result.message,
-  "error"
-  );
+showMessage(
+result.message,
+"error"
+);
 
-    setButtonSuccess(
-    btn,
-    "✓ Deducted"
-    );
-  
-  }
+return;
+
+}
+
+setButtonSuccess(
+btn,
+"✓ Deducted"
+);
+
+showMessage(
+result.message,
+"success"
+);
 
 await loadProducts();
 await loadStoreProducts();
@@ -249,6 +264,7 @@ document.getElementById("outQty").value = "";
 document.getElementById("deductFrom").selectedIndex = 0;
 document.getElementById("salesType").selectedIndex = 0;
 document.getElementById("outBarcode").focus();
+
 }
 
 
