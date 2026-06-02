@@ -1913,6 +1913,8 @@ document.getElementById("store1ItemsSold").textContent = store1Qty;
 document.getElementById("store2ItemsSold").textContent = store2Qty;
 document.getElementById("store3ItemsSold").textContent = store3Qty;
 
+  updateBranchRanking();
+
 }
 
 function updateStoreCards(products){
@@ -2033,6 +2035,7 @@ window.onload = () => {
   loadStoreProducts();
   loadWeeklyStockChart();
   updateStoreSalesToday();
+  
 
   updateClock();
   setInterval(updateClock, 1000);
