@@ -2027,6 +2027,12 @@ document.getElementById("barStore3Amount").textContent =
 
 
 window.onload = () => {
+
+  if(localStorage.getItem("avaLoggedIn") === "true")
+{
+  document.getElementById("loginScreen").style.display = "none";
+  }
+  
   document.getElementById("barcode").focus();
   loadProducts();
   loadHistory();
@@ -2064,10 +2070,19 @@ btn.innerHTML = "Processing...";
   });
 
   if (result.success) {
+
+    localStorage.setItem(
+        "avaLoggedIn",
+        "true"
+    );
+
     document.getElementById("loginScreen").style.display = "none";
-  } else {
-  showMessage("Wrong username or password");
-  }
+
+} else {
+
+    showMessage("Wrong username or password");
+
+}
 
   btn.classList.remove("btn-loading");
 
@@ -2096,6 +2111,9 @@ btn.innerHTML = "Processing...";
     btn.innerHTML = originalText;
     return;
   }
+
+  localStorage.removeItem("avaLoggedIn");
+  localStorage.removeItem("avaUser");
 
   document.getElementById(
     "loginScreen"
