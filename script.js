@@ -2064,6 +2064,18 @@ hideReportLoader();
 
 }
 
+async function reloadBestSellersWithLoader(){
+
+showReportLoader();
+
+await loadBestSellers();
+
+setTimeout(()=>{
+hideReportLoader();
+},500);
+
+}
+
 
 window.onload = async () => {
 
