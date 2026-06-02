@@ -250,7 +250,7 @@ document.getElementById("deductFrom").selectedIndex = 0;
 document.getElementById("salesType").selectedIndex = 0;
 document.getElementById("outBarcode").focus();
 }
-}
+
 
 function populateFilters(products){
 
