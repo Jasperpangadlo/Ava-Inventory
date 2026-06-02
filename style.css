@@ -1389,3 +1389,40 @@ align-items:stretch;
 #reports .report-item{
 word-break:break-word;
 }
+
+.btn.is-loading{
+pointer-events:none;
+opacity:.95;
+position:relative;
+color:transparent !important;
+}
+
+.btn.is-loading::before{
+content:"";
+width:20px;
+height:20px;
+border-radius:50%;
+border:3px solid rgba(255,255,255,.35);
+border-top-color:#fff;
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+animation:btnSpin .7s linear infinite;
+}
+
+.btn.is-success{
+background:linear-gradient(135deg,#22c55e,#16a34a) !important;
+box-shadow:0 12px 25px rgba(34,197,94,.35);
+}
+
+.btn.is-error{
+background:linear-gradient(135deg,#ef4444,#dc2626) !important;
+box-shadow:0 12px 25px rgba(239,68,68,.35);
+}
+
+@keyframes btnSpin{
+to{
+transform:translate(-50%,-50%) rotate(360deg);
+}
+}
