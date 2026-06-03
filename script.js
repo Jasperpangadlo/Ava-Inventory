@@ -2374,14 +2374,23 @@ bestSeller ? bestSeller[0] : "-";
 document.getElementById("kpiTopStore").textContent =
 storeData[0].sales > 0 ? storeData[0].name : "-";
 
-document.getElementById("reportStore1Sales").textContent =
-"₱" + store1Total.toLocaleString();
+animateNumber(
+"reportStore1Sales",
+store1Total,
+"₱"
+);
 
-document.getElementById("reportStore2Sales").textContent =
-"₱" + store2Total.toLocaleString();
+animateNumber(
+"reportStore2Sales",
+store2Total,
+"₱"
+);
 
-document.getElementById("reportStore3Sales").textContent =
-"₱" + store3Total.toLocaleString();
+animateNumber(
+"reportStore3Sales",
+store3Total,
+"₱"
+);
 
 document.getElementById("reportStore1Qty").textContent =
 storeData.find(s=>s.name==="Store 1").qty + " items sold";
