@@ -1692,6 +1692,15 @@ store3Sales,
 "store3BestSellerQty"
 );
 
+  updateReportOverview(
+  store1Total,
+  store2Total,
+  store3Total,
+  store1Sales,
+  store2Sales,
+  store3Sales
+);
+
 }
 
 async function loadBestSellers(){
@@ -2307,6 +2316,85 @@ weekSelect.value = currentWeek;
 
 }
 
+function updateReportOverview(
+store1Total,
+store2Total,
+store3Total,
+store1Sales,
+store2Sales,
+store3Sales
+){
+
+const totalRevenue =
+store1Total + store2Total + store3Total;
+
+const allSales = {};
+
+[store1Sales, store2Sales, store3Sales].forEach(store=>{
+Object.entries(store).forEach(([product, qty])=>{
+allSales[product] = (allSales[product] || 0) + qty;
+});
+});
+
+const bestSeller =
+Object.entries(allSales).sort((a,b)=>b[1]-a[1])[0];
+
+const storeData = [
+{name:"Store 1", sales:store1Total, qty:Object.values(store1Sales).reduce((a,b)=>a+b,0)},
+{name:"Store 2", sales:store2Total, qty:Object.values(store2Sales).reduce((a,b)=>a+b,0)},
+{name:"Store 3", sales:store3Total, qty:Object.values(store3Sales).reduce((a,b)=>a+b,0)}
+];
+
+storeData.sort((a,b)=>b.sales-a.sales);
+
+document.getElementById("reportRevenue").textContent =
+"₱" + totalRevenue.toLocaleString();
+
+document.getElementById("reportBestSeller").textContent =
+bestSeller ? `${bestSeller[0]} (${bestSeller[1]} sold)` : "-";
+
+document.getElementById("reportTopStore").textContent =
+storeData[0].sales > 0 ? storeData[0].name : "-";
+
+document.getElementById("reportItemsSold").textContent =
+storeData.reduce((sum,s)=>sum+s.qty,0);
+
+document.getElementById("reportStore1Sales").textContent =
+"₱" + store1Total.toLocaleString();
+
+document.getElementById("reportStore2Sales").textContent =
+"₱" + store2Total.toLocaleString();
+
+document.getElementById("reportStore3Sales").textContent =
+"₱" + store3Total.toLocaleString();
+
+document.getElementById("reportStore1Qty").textContent =
+storeData.find(s=>s.name==="Store 1").qty + " items sold";
+
+document.getElementById("reportStore2Qty").textContent =
+storeData.find(s=>s.name==="Store 2").qty + " items sold";
+
+document.getElementById("reportStore3Qty").textContent =
+storeData.find(s=>s.name==="Store 3").qty + " items sold";
+
+const max =
+Math.max(store1Total, store2Total, store3Total, 1);
+
+document.getElementById("reportStoreRanking").innerHTML =
+storeData.map((store,index)=>`
+<div class="ranking-row">
+  <div class="ranking-top">
+    <span>${index + 1}. ${store.name}</span>
+    <span>₱${store.sales.toLocaleString()}</span>
+  </div>
+  <div class="ranking-bar">
+    <div style="width:${(store.sales / max) * 100}%"></div>
+  </div>
+</div>
+`).join("");
+
+}
+
 
 window.onload = async () => {
 
@@ -2333,6 +2421,8 @@ window.onload = async () => {
   
   showTab("dashboard");
 };
+
+
 
 
 async function loginUser() {
