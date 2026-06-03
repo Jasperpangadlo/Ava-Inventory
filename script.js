@@ -1209,26 +1209,45 @@ function cleanDuplicateBarcode(value){
 
 async function saveStockCart(){
 
-  if(stockCart.length === 0){
-    showMessage("Cart is empty.");
-    return;
-  }
+const btn =
+document.getElementById("savestockbtn");
 
-  for(const item of stockCart){
-    await apiRequest("saveProduct", item);
-  }
+setButtonLoading(btn,true);
 
-  showSuccess("All stock saved!");
+if(stockCart.length === 0){
 
-  stockCart = [];
-  renderStockCart();
+setButtonLoading(btn,false);
 
-  loadProducts();
-  loadHistory();
-  loadDailyReports();
-  loadBestSellers();
+showMessage(
+"Cart is empty.",
+"warning"
+);
 
-  document.getElementById("barcode").focus();
+return;
+
+}
+
+for(const item of stockCart){
+await apiRequest("saveProduct", item);
+}
+
+setButtonSuccess(
+btn,
+"✓ Saved"
+);
+
+showSuccess("All stock saved!");
+
+stockCart = [];
+renderStockCart();
+
+await loadProducts();
+await loadHistory();
+await loadDailyReports();
+await loadBestSellers();
+
+document.getElementById("barcode").focus();
+
 }
 
 let removeIndex = -1;
