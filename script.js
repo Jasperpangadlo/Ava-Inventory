@@ -2410,6 +2410,38 @@ storeData.map((store,index)=>`
 
 }
 
+function animateNumber(id, target, prefix=""){
+
+const el =
+document.getElementById(id);
+
+if(!el) return;
+
+let start = 0;
+const duration = 700;
+const startTime = performance.now();
+
+function update(now){
+
+const progress =
+Math.min((now - startTime) / duration, 1);
+
+const value =
+Math.floor(start + (target - start) * progress);
+
+el.textContent =
+prefix + value.toLocaleString();
+
+if(progress < 1){
+requestAnimationFrame(update);
+}
+
+}
+
+requestAnimationFrame(update);
+
+}
+
 
 window.onload = async () => {
 
