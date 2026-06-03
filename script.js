@@ -2267,6 +2267,30 @@ btn.innerHTML = originalText;
 
 }
 
+function setCurrentBestSellerFilters(){
+
+const monthInput =
+document.getElementById("bestSellerMonth");
+
+const weekSelect =
+document.getElementById("bestSellerWeek");
+
+if(!monthInput || !weekSelect) return;
+
+const today = new Date();
+
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth() + 1).padStart(2,"0");
+
+monthInput.value = `${yyyy}-${mm}`;
+
+const currentWeek =
+String(Math.ceil(today.getDate() / 7));
+
+weekSelect.value = currentWeek;
+
+}
+
 
 window.onload = async () => {
 
@@ -2276,6 +2300,7 @@ window.onload = async () => {
   }
 
   setTodayReportDate();
+  setCurrentBestSellerFilters();
   
   document.getElementById("barcode").focus();
   loadProducts();
