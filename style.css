@@ -1426,3 +1426,13 @@ to{
 transform:translate(-50%,-50%) rotate(360deg);
 }
 }
+
+.report-sales-total{
+background:#eef2ff;
+color:#4338ca;
+font-weight:800;
+padding:10px 14px;
+border-radius:16px;
+margin-bottom:14px;
+display:inline-block;
+}
