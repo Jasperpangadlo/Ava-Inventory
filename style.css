@@ -1589,6 +1589,35 @@ font-weight:700;
 font-size:14px;
 }
 
+.store-card-top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px;
+}
 
+.store-rank{
+font-size:24px;
+}
+
+.store-progress{
+height:10px;
+background:#e5e7eb;
+border-radius:999px;
+overflow:hidden;
+margin-top:15px;
+}
+
+.store-progress div{
+height:100%;
+width:0%;
+background:linear-gradient(
+135deg,
+#4f46e5,
+#7c3aed
+);
+border-radius:999px;
+transition:1s ease;
+}
 
 
