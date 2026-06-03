@@ -2359,6 +2359,21 @@ storeData[0].sales > 0 ? storeData[0].name : "-";
 document.getElementById("reportItemsSold").textContent =
 storeData.reduce((sum,s)=>sum+s.qty,0);
 
+  const totalItemsSold =
+storeData.reduce((sum,s)=>sum+s.qty,0);
+
+document.getElementById("kpiRevenue").textContent =
+"₱" + totalRevenue.toLocaleString();
+
+document.getElementById("kpiItemsSold").textContent =
+totalItemsSold;
+
+document.getElementById("kpiBestSeller").textContent =
+bestSeller ? bestSeller[0] : "-";
+
+document.getElementById("kpiTopStore").textContent =
+storeData[0].sales > 0 ? storeData[0].name : "-";
+
 document.getElementById("reportStore1Sales").textContent =
 "₱" + store1Total.toLocaleString();
 
