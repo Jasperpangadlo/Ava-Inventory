@@ -2208,12 +2208,25 @@ async function reloadReportsWithLoader(){
 
 showReportLoader();
 
+try{
+
 await loadDailyReports();
 await loadBestSellers();
 
-setTimeout(()=>{
+}catch(error){
+
+console.error("REPORT ERROR:", error);
+
+showMessage(
+error.message,
+"error"
+);
+
+}finally{
+
 hideReportLoader();
-},500);
+
+}
 
 }
 
