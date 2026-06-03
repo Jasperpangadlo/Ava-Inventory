@@ -1516,6 +1516,10 @@ let store1Sales = {};
 let store2Sales = {};
 let store3Sales = {};
 
+let store1Total = 0;
+let store2Total = 0;
+let store3Total = 0;
+
 filtered.forEach(item => {
 
 const row = `
@@ -1600,6 +1604,7 @@ remarks.startsWith("store 1") &&
 remarks.includes("walk")
 ){
 store1Walkin.innerHTML += row;
+store1Total += Number(item.total) || 0;
 }
 
 else if(
@@ -1607,6 +1612,7 @@ remarks.startsWith("store 2") &&
 remarks.includes("walk")
 ){
 store2Walkin.innerHTML += row;
+store2Total += Number(item.total) || 0;
 }
 
 else if(
@@ -1614,6 +1620,7 @@ remarks.startsWith("store 3") &&
 remarks.includes("walk")
 ){
 store3Walkin.innerHTML += row;
+store3Total += Number(item.total) || 0;
 }
 
 });
@@ -1657,6 +1664,15 @@ store2Walkin.innerHTML = `<div class="report-empty">No records</div>`;
 if(!store3Walkin.innerHTML){
 store3Walkin.innerHTML = `<div class="report-empty">No records</div>`;
 }
+
+document.getElementById("store1WalkinTotal").textContent =
+"₱" + store1Total.toLocaleString();
+
+document.getElementById("store2WalkinTotal").textContent =
+"₱" + store2Total.toLocaleString();
+
+document.getElementById("store3WalkinTotal").textContent =
+"₱" + store3Total.toLocaleString();
 
 updateBestSellerCard(
 store1Sales,
