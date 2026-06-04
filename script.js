@@ -1520,6 +1520,9 @@ let store1Total = 0;
 let store2Total = 0;
 let store3Total = 0;
 
+let colorSales = {};
+let sizeSales = {};
+
 filtered.forEach(item => {
 
 const row = `
@@ -1541,6 +1544,25 @@ const remarks =
 
   const product =
   item.product;
+
+const qty =
+Number(item.qty) || 0;
+
+const color =
+item.color || "Unknown";
+
+const size =
+item.size || "Unknown";
+
+if(remarks.includes("walk")){
+
+colorSales[color] =
+(colorSales[color] || 0) + qty;
+
+sizeSales[size] =
+(sizeSales[size] || 0) + qty;
+
+}
 
   if(
 remarks.includes("store 1") &&
@@ -1699,6 +1721,16 @@ store3Sales,
   store1Sales,
   store2Sales,
   store3Sales
+);
+
+  updateTopAnalytics(
+colorSales,
+"topColorsBox"
+);
+
+updateTopAnalytics(
+sizeSales,
+"topSizesBox"
 );
 
 }
@@ -2464,6 +2496,45 @@ requestAnimationFrame(update);
 
 }
 
+function updateTopAnalytics(data, boxId){
+
+const box =
+document.getElementById(boxId);
+
+if(!box) return;
+
+const entries =
+Object.entries(data)
+.sort((a,b)=>b[1]-a[1])
+.slice(0,5);
+
+if(entries.length === 0){
+
+box.innerHTML =
+`<div class="report-empty">No records</div>`;
+
+return;
+
+}
+
+const max =
+Math.max(...entries.map(item=>item[1]),1);
+
+box.innerHTML =
+entries.map(([name, qty], index)=>`
+<div class="analytics-row">
+  <div class="analytics-top">
+    <span>${index + 1}. ${name}</span>
+    <span>${qty} sold</span>
+  </div>
+  <div class="analytics-bar">
+    <div style="width:${(qty / max) * 100}%"></div>
+  </div>
+</div>
+`).join("");
+
+}
+
 
 window.onload = async () => {
 
@@ -2490,6 +2561,8 @@ window.onload = async () => {
   
   showTab("dashboard");
 };
+
+
 
 
 
