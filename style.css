@@ -1735,4 +1735,47 @@ transition:1s ease;
 box-shadow:0 0 18px rgba(124,58,237,.35);
 }
 
+.sales-trend-card{
+background:rgba(255,255,255,.78);
+backdrop-filter:blur(18px);
+border:1px solid rgba(255,255,255,.85);
+border-radius:28px;
+padding:26px;
+box-shadow:0 25px 60px rgba(79,70,229,.14);
+margin:24px 0;
+}
+
+.trend-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:16px;
+margin-bottom:20px;
+}
+
+.trend-header h3{
+font-size:24px;
+font-weight:900;
+color:#1e1b4b;
+margin:0;
+}
+
+.trend-header p{
+color:#64748b;
+font-weight:700;
+margin-top:6px;
+}
+
+#trendStoreFilter{
+max-width:220px;
+height:52px;
+border-radius:16px;
+font-weight:700;
+}
+
+.trend-chart-box{
+height:340px;
+width:100%;
+}
+
 
