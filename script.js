@@ -2666,6 +2666,33 @@ color:"rgba(15,23,42,.06)"
 
 }
 
+async function reloadSalesTrendWithLoader(){
+
+showReportLoader();
+
+try{
+
+await loadSalesTrendChart();
+
+}catch(error){
+
+console.error("SALES TREND ERROR:", error);
+
+showMessage(
+"May error sa pag-load ng Sales Trend.",
+"error"
+);
+
+}finally{
+
+setTimeout(()=>{
+hideReportLoader();
+},500);
+
+}
+
+}
+
 
 window.onload = async () => {
 
