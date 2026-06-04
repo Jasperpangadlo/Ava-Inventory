@@ -708,20 +708,33 @@ Deduct Stock
 
 </div>
 
-<div class="sales-trend-card">
-
 <div class="trend-header">
+
 <div>
 <h3>📈 Sales Trend</h3>
-<p>Daily revenue trend for selected month</p>
+<p>Daily revenue trend</p>
 </div>
 
-<select id="trendStoreFilter" onchange="loadSalesTrendChart()">
+<div class="trend-controls">
+
+<input
+type="month"
+id="trendMonth"
+onchange="loadSalesTrendChart()">
+
+<select
+id="trendStoreFilter"
+onchange="loadSalesTrendChart()">
+
 <option value="">All Stores</option>
 <option value="Store 1">Store 1</option>
 <option value="Store 2">Store 2</option>
 <option value="Store 3">Store 3</option>
+
 </select>
+
+</div>
+
 </div>
 
 <div class="trend-chart-box">
