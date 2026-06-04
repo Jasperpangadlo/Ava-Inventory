@@ -259,6 +259,7 @@ await loadDailyReports();
 await loadBestSellers();
 await updateStoreSalesToday();
 await updateBranchRanking();
+await loadTransactionTimeline();
 
 document.getElementById("outBarcode").value = "";
 document.getElementById("outQty").value = "";
@@ -603,6 +604,7 @@ await loadProducts();
 await loadStoreProducts();
 await loadHistory();
 await loadDailyReports();
+await loadTransactionTimeline();
 
 document.getElementById("transferBarcode").value = "";
 document.getElementById("transferQty").value = "";
@@ -755,6 +757,7 @@ async function refreshAllData() {
   await loadWeeklyStockChart();
   await updateStoreSalesToday();
   await updateBranchRanking();
+  await loadTransactionTimeline();
 }
 
 function togglePassword(){
@@ -1246,6 +1249,7 @@ await loadProducts();
 await loadHistory();
 await loadDailyReports();
 await loadBestSellers();
+await loadTransactionTimeline();
 
 document.getElementById("barcode").focus();
 
@@ -2693,6 +2697,106 @@ hideReportLoader();
 
 }
 
+async function loadTransactionTimeline(){
+
+const result =
+await apiRequest("getHistory");
+
+const records =
+result.records || [];
+
+const box =
+document.getElementById("transactionTimeline");
+
+if(!box) return;
+
+if(records.length === 0){
+
+box.innerHTML =
+`<div class="report-empty">No records</div>`;
+
+return;
+
+}
+
+const latest =
+records
+.slice()
+.sort((a,b)=>
+new Date(b.datetime || b.date) -
+new Date(a.datetime || a.date)
+)
+.slice(0,10);
+
+box.innerHTML =
+`<div class="timeline-list">` +
+latest.map(item=>{
+
+const remarks =
+String(item.remarks || "");
+
+const lower =
+remarks.toLowerCase();
+
+let icon = "📦";
+let badgeClass = "badge-stock";
+let badgeText = "Stock";
+
+if(lower.includes("walk") || lower.includes("online")){
+icon = "💰";
+badgeClass = "badge-sale";
+badgeText = "Sale";
+}
+
+if(lower.includes("warehouse") && lower.includes("store")){
+icon = "🚚";
+badgeClass = "badge-transfer";
+badgeText = "Transfer";
+}
+
+if(lower.includes("warehouse") && lower.includes("online")){
+icon = "💻";
+badgeClass = "badge-sale";
+badgeText = "Online";
+}
+
+const dateObj =
+new Date(item.datetime || item.date);
+
+const timeText =
+dateObj.toLocaleString();
+
+return `
+<div class="timeline-item">
+
+<div class="timeline-top">
+<div class="timeline-title">
+${icon} ${item.product || "Unknown Product"}
+</div>
+<div class="timeline-time">
+${timeText}
+</div>
+</div>
+
+<div class="timeline-details">
+${item.barcode || "-"}<br>
+Qty: ${item.qty || 0}
+${item.total ? `<br>Total: ₱${Number(item.total).toLocaleString()}` : ""}
+<br>${remarks}
+</div>
+
+<span class="timeline-badge ${badgeClass}">
+${badgeText}
+</span>
+
+</div>
+`;
+
+}).join("") +
+`</div>`;
+
+}
+
 
 window.onload = async () => {
 
@@ -2711,6 +2815,7 @@ window.onload = async () => {
 
   setTodayReportDate();
   setCurrentBestSellerFilters();
+  loadTransactionTimeline();
   
   document.getElementById("barcode").focus();
   loadProducts();
