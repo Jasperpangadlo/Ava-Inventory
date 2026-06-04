@@ -1,5 +1,6 @@
 let stockChart = null;
 let weeklyStockChart = null;
+let salesTrendChart = null;
 let allProducts = [];
 let storeProducts = [];
 
@@ -2244,6 +2245,7 @@ try{
 
 await loadDailyReports();
 await loadBestSellers();
+await loadSalesTrendChart();
 
 }catch(error){
 
@@ -2267,6 +2269,7 @@ async function reloadBestSellersWithLoader(){
 showReportLoader();
 
 await loadBestSellers();
+await loadSalesTrendChart();
 
 setTimeout(()=>{
 hideReportLoader();
@@ -2535,6 +2538,134 @@ entries.map(([name, qty], index)=>`
 
 }
 
+async function loadSalesTrendChart(){
+
+const result =
+await apiRequest("getHistory");
+
+const records =
+result.records || [];
+
+const monthInput =
+document.getElementById("bestSellerMonth");
+
+const selectedMonth =
+monthInput ? monthInput.value : "";
+
+const storeFilter =
+document.getElementById("trendStoreFilter").value;
+
+const trendData = {};
+
+records.forEach(item=>{
+
+const remarks =
+String(item.remarks || "").toLowerCase();
+
+if(!remarks.includes("walk")) return;
+
+if(storeFilter){
+if(!remarks.includes(storeFilter.toLowerCase())) return;
+}
+
+const dateObj =
+new Date(item.datetime || item.date);
+
+const month =
+dateObj.toISOString().slice(0,7);
+
+if(selectedMonth && month !== selectedMonth) return;
+
+const day =
+dateObj.toISOString().slice(5,10);
+
+trendData[day] =
+(trendData[day] || 0) + (Number(item.total) || 0);
+
+});
+
+const labels =
+Object.keys(trendData).sort();
+
+const values =
+labels.map(day => trendData[day]);
+
+const canvas =
+document.getElementById("salesTrendChart");
+
+if(!canvas) return;
+
+if(salesTrendChart){
+salesTrendChart.destroy();
+}
+
+const ctx =
+canvas.getContext("2d");
+
+const gradient =
+ctx.createLinearGradient(0,0,0,320);
+
+gradient.addColorStop(0,"rgba(79,70,229,.35)");
+gradient.addColorStop(1,"rgba(79,70,229,0)");
+
+salesTrendChart =
+new Chart(ctx,{
+type:"line",
+data:{
+labels,
+datasets:[{
+label:"Revenue",
+data:values,
+fill:true,
+backgroundColor:gradient,
+borderColor:"#4f46e5",
+borderWidth:4,
+tension:.45,
+pointRadius:5,
+pointHoverRadius:8,
+pointBackgroundColor:"#4f46e5"
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+legend:{
+display:false
+},
+tooltip:{
+backgroundColor:"#1e1b4b",
+padding:14,
+callbacks:{
+label:function(context){
+return "₱" + Number(context.raw).toLocaleString();
+}
+}
+}
+},
+scales:{
+x:{
+grid:{
+display:false
+}
+},
+y:{
+beginAtZero:true,
+ticks:{
+callback:function(value){
+return "₱" + Number(value).toLocaleString();
+}
+},
+grid:{
+color:"rgba(15,23,42,.06)"
+}
+}
+}
+}
+});
+
+}
+
 
 window.onload = async () => {
 
@@ -2554,6 +2685,7 @@ window.onload = async () => {
   loadStoreProducts();
   loadWeeklyStockChart();
   updateStoreSalesToday();
+  loadSalesTrendChart();
   
 
   updateClock();
