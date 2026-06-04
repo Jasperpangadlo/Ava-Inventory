@@ -1534,11 +1534,13 @@ const row = `
 
 <div class="report-item">
 
-<b>${item.product}</b><br>
+<b>${item.product}</b>
 
-${item.barcode}<br>
+<small>${item.barcode}</small>
 
-Qty: ${item.qty}
+<small>Qty: ${item.qty}</small>
+
+${item.total ? `<small>Total: ₱${Number(item.total).toLocaleString()}</small>` : ""}
 
 </div>
 
