@@ -2674,8 +2674,13 @@ window.onload = async () => {
   document.getElementById("loginScreen").style.display = "none";
   }
 
-  document.getElementById("trendMonth").value =
+  const trendMonth =
+  document.getElementById("trendMonth");
+  
+  if(trendMonth){
+  trendMonth.value =
   new Date().toISOString().slice(0,7);
+  }
 
   setTodayReportDate();
   setCurrentBestSellerFilters();
