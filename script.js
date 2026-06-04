@@ -2343,7 +2343,7 @@ btn.innerHTML = originalText;
 function setCurrentBestSellerFilters(){
 
 const monthInput =
-document.getElementById("bestSellerMonth");
+document.getElementById("trendMonth");
 
 const weekSelect =
 document.getElementById("bestSellerWeek");
@@ -2673,6 +2673,9 @@ window.onload = async () => {
 {
   document.getElementById("loginScreen").style.display = "none";
   }
+
+  document.getElementById("trendMonth").value =
+  new Date().toISOString().slice(0,7);
 
   setTodayReportDate();
   setCurrentBestSellerFilters();
