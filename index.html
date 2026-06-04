@@ -740,6 +740,25 @@ onchange="reloadSalesTrendWithLoader()">
 </div>
 
 </div>
+
+<div class="timeline-card">
+
+<div class="timeline-header">
+<div>
+<h3>⚡ Live Transaction Timeline</h3>
+<p>Latest inventory movement and sales activity</p>
+</div>
+
+<button
+class="btn"
+onclick="loadTransactionTimeline()">
+Refresh
+</button>
+</div>
+
+<div id="transactionTimeline"></div>
+
+</div>
         
 <select id="printType">
 <option value="all">All Reports</option>
