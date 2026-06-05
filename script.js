@@ -1944,11 +1944,7 @@ monthlyBox.innerHTML =
 
 }
 
-
 function printReports(){
-
-const reportSection =
-document.getElementById("reports");
 
 const printWindow =
 window.open("", "", "width=1200,height=800");
@@ -1956,6 +1952,8 @@ window.open("", "", "width=1200,height=800");
 const today =
 new Date().toLocaleString();
 
+const selectedDate =
+document.getElementById("reportDate")?.value || "";
 
 const printType =
 document.getElementById("printType").value;
@@ -1963,101 +1961,167 @@ document.getElementById("printType").value;
 let content = "";
 
 if(printType === "all"){
-  content =
-  document.querySelector(".daily-report-grid").outerHTML +
-  document.querySelector(".best-seller-grid").outerHTML;
+content =
+document.querySelector(".daily-report-grid").outerHTML +
+document.querySelector(".best-seller-grid").outerHTML;
 }
 
 if(printType === "daily"){
-  content = document.querySelector(".daily-report-grid").outerHTML;
+content =
+document.querySelector(".daily-report-grid").outerHTML;
 }
 
 if(printType === "weekly"){
-  content = document.querySelector("#weeklyBestSeller").parentElement.outerHTML;
+content =
+document.querySelector("#weeklyBestSeller").parentElement.outerHTML;
 }
 
 if(printType === "monthly"){
-  content = document.querySelector("#monthlyBestSeller").parentElement.outerHTML;
+content =
+document.querySelector("#monthlyBestSeller").parentElement.outerHTML;
 }
 
 if(printType === "best"){
-  content = document.querySelector(".best-seller-grid").outerHTML;
+content =
+document.querySelector(".best-seller-grid").outerHTML;
 }
-  
+
 printWindow.document.write(`
 <html>
 <head>
 <title>Ava Inventory Report</title>
 
 <style>
+*{
+box-sizing:border-box;
+}
+
 body{
 font-family:Arial,sans-serif;
-padding:35px;
+padding:32px;
 color:#111827;
+background:white;
 }
 
 .print-header{
 display:flex;
 justify-content:space-between;
-align-items:center;
-border-bottom:2px solid #e5e7eb;
+align-items:flex-start;
+border-bottom:3px solid #4f46e5;
 padding-bottom:18px;
-margin-bottom:25px;
+margin-bottom:26px;
 }
 
 .print-title h1{
 margin:0;
+font-size:28px;
 color:#1e1b4b;
 }
 
 .print-title p{
-margin:5px 0 0;
-color:#6b7280;
+margin:6px 0 0;
+color:#64748b;
+font-weight:600;
 }
 
-.print-date{
+.print-meta{
+text-align:right;
 font-size:13px;
-color:#6b7280;
-}
-
-.report-filters,
-.best-seller-filters,
-button{
-display:none !important;
+color:#475569;
+line-height:1.6;
 }
 
 .daily-report-grid,
 .best-seller-grid{
 display:grid;
 grid-template-columns:1fr 1fr;
-gap:18px;
+gap:16px;
 }
 
-.report-card{
+.report-card,
+.small-card{
 border:1px solid #e5e7eb;
-padding:18px;
-border-radius:12px;
-margin-bottom:18px;
+border-radius:14px;
+padding:16px;
 page-break-inside:avoid;
+box-shadow:none;
+background:white;
+height:auto !important;
+max-height:none !important;
+overflow:visible !important;
 }
 
 .report-card h4,
 .card-title{
-font-size:18px;
+font-size:17px;
+margin:0 0 12px;
 color:#1e1b4b;
-margin-bottom:14px;
+border-bottom:1px solid #e5e7eb;
+padding-bottom:10px;
+}
+
+.report-summary{
+display:flex;
+gap:8px;
+margin-bottom:12px;
+}
+
+.report-summary span{
+background:#eef2ff;
+color:#4338ca;
+padding:6px 10px;
+border-radius:999px;
+font-size:12px;
+font-weight:800;
 }
 
 .report-item,
 .best-seller-item{
+border-bottom:1px solid #eef2f7;
 padding:10px 0;
-border-bottom:1px solid #eee;
+box-shadow:none;
+background:white;
+border-radius:0;
+}
+
+.report-item:last-child,
+.best-seller-item:last-child{
+border-bottom:none;
+}
+
+.report-top{
+display:flex;
+justify-content:space-between;
+gap:10px;
+}
+
+.report-item b{
+font-size:14px;
+color:#111827;
+}
+
+.report-item small{
+display:block;
+font-size:12px;
+color:#475569;
+margin-top:3px;
+}
+
+.report-badge,
+.timeline-badge{
+border:1px solid #cbd5e1;
+color:#334155 !important;
+background:#f8fafc !important;
+padding:4px 8px;
+border-radius:999px;
+font-size:10px;
+font-weight:800;
 }
 
 .rank-badge{
 display:inline-flex;
-width:26px;
-height:26px;
+width:24px;
+height:24px;
 border-radius:50%;
 background:#4f46e5;
 color:white;
@@ -2067,42 +2131,83 @@ font-weight:bold;
 margin-right:8px;
 }
 
+.best-seller-item{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.best-seller-left{
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.best-seller-name{
+font-weight:800;
+}
+
 .best-seller-qty{
-float:right;
-font-weight:bold;
+font-weight:800;
 color:#4338ca;
 }
 
 .report-empty{
-color:#999;
-font-style:italic;
+border:1px dashed #cbd5e1;
+border-radius:12px;
+padding:18px;
+text-align:center;
+color:#94a3b8;
+font-weight:700;
 }
 
-.report-filters,
-.report-top,
-.best-seller-filters,
-.print-controls,
+button,
+select,
+input,
+.report-top > input,
 #printType,
-#printReportBtn{
+#printReportBtn,
+.best-seller-filters,
+.timeline-card,
+.sales-trend-card,
+.analytics-grid,
+.ranking-panel,
+.store-revenue-grid,
+.report-kpi-grid,
+.reports-hero{
 display:none !important;
 }
 
+@media print{
+body{
+padding:18px;
+}
+
+.daily-report-grid,
+.best-seller-grid{
+grid-template-columns:1fr 1fr;
+}
+
+.report-card{
+break-inside:avoid;
+}
+}
 </style>
 
 </head>
 
-
 <body>
 
 <div class="print-header">
-  <div class="print-title">
-    <h1>Ava Inventory Report</h1>
-    <p>Daily Movement & Best Seller Summary</p>
-  </div>
+<div class="print-title">
+<h1>Ava Inventory Report</h1>
+<p>Daily movement and best seller summary</p>
+</div>
 
-  <div class="print-date">
-    Generated: ${today}
-  </div>
+<div class="print-meta">
+<div><b>Selected Date:</b> ${selectedDate || "All dates"}</div>
+<div><b>Generated:</b> ${today}</div>
+</div>
 </div>
 
 ${content}
@@ -2119,6 +2224,8 @@ printWindow.close();
 },500);
 
 }
+
+
 
 function updateBestSellerCard(data,nameId,qtyId){
 
