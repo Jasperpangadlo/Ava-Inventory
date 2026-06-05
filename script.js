@@ -3105,6 +3105,11 @@ document.getElementById("soldSearchInput")
 const type =
 document.getElementById("soldTypeFilter").value;
 
+const location =
+document.getElementById("soldLocationFilter")
+.value
+.toLowerCase();
+
 let filtered =
 soldItemsData.filter(item=>{
 
@@ -3129,6 +3134,7 @@ const searchMatch =
 text.includes(keyword);
 
 let typeMatch = true;
+let locationMatch = true;
 
 if(type === "walk"){
 typeMatch = remarks.includes("walk");
@@ -3136,6 +3142,26 @@ typeMatch = remarks.includes("walk");
 
 if(type === "online"){
 typeMatch = remarks.includes("online");
+}
+
+if(location === "warehouse"){
+locationMatch =
+remarks.includes("warehouse");
+}
+
+if(location === "store 1"){
+locationMatch =
+remarks.includes("store 1");
+}
+
+if(location === "store 2"){
+locationMatch =
+remarks.includes("store 2");
+}
+
+if(location === "store 3"){
+locationMatch =
+remarks.includes("store 3");
 }
 
 return searchMatch && typeMatch;
