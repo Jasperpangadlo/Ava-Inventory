@@ -1982,4 +1982,37 @@ margin-bottom:14px;
 display:inline-block;
 }
 
+.report-top{
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+gap:10px;
+margin-bottom:8px;
+}
+
+.report-badge{
+padding:6px 12px;
+border-radius:999px;
+font-size:11px;
+font-weight:900;
+letter-spacing:.5px;
+color:white;
+}
+
+.badge-stock{
+background:linear-gradient(135deg,#f59e0b,#f97316);
+}
+
+.badge-transfer{
+background:linear-gradient(135deg,#4f46e5,#7c3aed);
+}
+
+.badge-sale{
+background:linear-gradient(135deg,#10b981,#22c55e);
+}
+
+.badge-online{
+background:linear-gradient(135deg,#06b6d4,#0ea5e9);
+}
+
 
