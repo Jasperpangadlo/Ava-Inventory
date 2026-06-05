@@ -678,17 +678,54 @@ function addItem(){
 }
 
 function renderCart(){
- const cartDiv=document.getElementById("cart");
 
- cartDiv.innerHTML=cart.map((x,i)=>{
-   const [code,name]=x.item.split("|");
+ const cartDiv =
+ document.getElementById("cart");
+
+ cartDiv.innerHTML = cart.map((x,i)=>{
+
+   const [code,name] =
+   x.item.split("|");
 
    return `
-   <div>
+   <div style="
+   display:flex;
+   justify-content:space-between;
+   align-items:center;
+   padding:4px 0;
+   border-bottom:1px solid #eee;
+   ">
+
+   <span>
    ${name} — ${x.qty} pcs
+   </span>
+
+   <button
+   onclick="removeItem(${i})"
+   style="
+   background:#ff4d4f;
+   color:white;
+   border:none;
+   border-radius:5px;
+   cursor:pointer;
+   padding:2px 8px;
+   ">
+   ✖
+   </button>
+
    </div>
    `;
+
  }).join("");
+
+}
+
+function removeItem(index){
+
+ cart.splice(index,1);
+
+ renderCart();
+
 }
 
 function generateLabels(){
