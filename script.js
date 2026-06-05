@@ -277,6 +277,7 @@ await loadBestSellers();
 await updateStoreSalesToday();
 await updateBranchRanking();
 await loadTransactionTimeline();
+await loadSoldItems();
 
 document.getElementById("outBarcode").value = "";
 document.getElementById("outQty").value = "";
@@ -775,6 +776,8 @@ async function refreshAllData() {
   await updateStoreSalesToday();
   await updateBranchRanking();
   await loadTransactionTimeline();
+  await loadSoldItems();
+  
 }
 
 function togglePassword(){
@@ -3162,6 +3165,7 @@ window.onload = async () => {
   setTodayReportDate();
   setCurrentBestSellerFilters();
   loadTransactionTimeline();
+  loadSoldItems();
   
   document.getElementById("barcode").focus();
   loadProducts();
