@@ -2036,3 +2036,39 @@ display:grid;
 grid-template-columns:2fr 1fr 1fr;
 gap:14px;
 }
+
+.date-filter-box{
+height:58px;
+border:1px solid #ddd;
+border-radius:16px;
+background:#fff;
+padding:7px 14px;
+display:flex;
+flex-direction:column;
+justify-content:center;
+}
+
+.date-filter-box label{
+font-size:12px;
+font-weight:800;
+color:#64748b;
+margin-bottom:3px;
+}
+
+.date-filter-box input{
+border:none;
+outline:none;
+padding:0;
+height:auto;
+font-size:16px;
+font-weight:700;
+background:transparent;
+width:100%;
+}
+
+#sold-items .product-filters{
+display:grid;
+grid-template-columns:2fr 1fr 1fr 1fr 1fr;
+gap:14px;
+align-items:center;
+}
