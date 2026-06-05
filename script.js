@@ -3023,6 +3023,127 @@ totalEl.textContent =
 }
 
 
+let soldItemsData = [];
+
+async function loadSoldItems(){
+
+const result =
+await apiRequest("getHistory");
+
+const records =
+result.records || [];
+
+soldItemsData =
+records.filter(item=>{
+
+const remarks =
+String(item.remarks || "").toLowerCase();
+
+return (
+remarks.includes("walk") ||
+remarks.includes("online")
+);
+
+});
+
+renderSoldItems(soldItemsData);
+
+}
+
+function renderSoldItems(data){
+
+const table =
+document.getElementById("soldItemsTable");
+
+if(!table) return;
+
+table.innerHTML = "";
+
+if(data.length === 0){
+
+table.innerHTML =
+`<tr>
+<td colspan="8">No sold items found.</td>
+</tr>`;
+
+return;
+
+}
+
+data.forEach(item=>{
+
+const remarks =
+String(item.remarks || "");
+
+table.innerHTML += `
+<tr>
+<td>${item.datetime || item.date || ""}</td>
+<td>${item.barcode || ""}</td>
+<td><b>${item.product || ""}</b></td>
+<td>${item.color || ""}</td>
+<td>${item.size || ""}</td>
+<td>${item.qty || 0}</td>
+<td>₱${Number(item.total || 0).toLocaleString()}</td>
+<td>${remarks}</td>
+</tr>
+`;
+
+});
+
+}
+
+function filterSoldItems(){
+
+const keyword =
+document.getElementById("soldSearchInput")
+.value
+.toLowerCase();
+
+const type =
+document.getElementById("soldTypeFilter").value;
+
+let filtered =
+soldItemsData.filter(item=>{
+
+const text =
+[
+item.datetime,
+item.barcode,
+item.product,
+item.color,
+item.size,
+item.qty,
+item.total,
+item.remarks
+]
+.join(" ")
+.toLowerCase();
+
+const remarks =
+String(item.remarks || "").toLowerCase();
+
+const searchMatch =
+text.includes(keyword);
+
+let typeMatch = true;
+
+if(type === "walk"){
+typeMatch = remarks.includes("walk");
+}
+
+if(type === "online"){
+typeMatch = remarks.includes("online");
+}
+
+return searchMatch && typeMatch;
+
+});
+
+renderSoldItems(filtered);
+
+}
+
+
 window.onload = async () => {
 
   if(localStorage.getItem("avaLoggedIn") === "true")
