@@ -1547,17 +1547,62 @@ let sizeSales = {};
 
 filtered.forEach(item => {
 
+let badgeClass = "badge-stock";
+let badgeText = "STOCK";
+
+const lowerRemarks =
+(item.remarks || "").toLowerCase();
+
+if(
+lowerRemarks.includes("walk")
+){
+badgeClass = "badge-sale";
+badgeText = "WALK-IN";
+}
+
+else if(
+lowerRemarks.includes("online")
+){
+badgeClass = "badge-online";
+badgeText = "ONLINE";
+}
+
+else if(
+lowerRemarks.includes("warehouse") &&
+lowerRemarks.includes("store")
+){
+badgeClass = "badge-transfer";
+badgeText = "TRANSFER";
+}
+
+else if(
+lowerRemarks.includes("add stock")
+){
+badgeClass = "badge-stock";
+badgeText = "ADD STOCK";
+}
+
 const row = `
 
 <div class="report-item">
 
+<div class="report-top">
+
 <b>${item.product}</b>
+
+<span class="report-badge ${badgeClass}">
+${badgeText}
+</span>
+
+</div>
 
 <small>${item.barcode}</small>
 
 <small>Qty: ${item.qty}</small>
 
-${item.total ? `<small>Total: ₱${Number(item.total).toLocaleString()}</small>` : ""}
+${item.total ?
+`<small>Total: ₱${Number(item.total).toLocaleString()}</small>`
+: ""}
 
 </div>
 
