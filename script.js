@@ -1790,14 +1790,6 @@ store3Walkin.innerHTML =
 `<div class="report-empty">No records</div>`;
 }
 
-document.getElementById("store1WalkinTotal").textContent =
-"₱" + store1Total.toLocaleString();
-
-document.getElementById("store2WalkinTotal").textContent =
-"₱" + store2Total.toLocaleString();
-
-document.getElementById("store3WalkinTotal").textContent =
-"₱" + store3Total.toLocaleString();
 
 updateReportSummary("addStock", summary.addStock);
 updateReportSummary("warehouseToStore", summary.warehouseToStore);
