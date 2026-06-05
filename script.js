@@ -3144,27 +3144,14 @@ if(type === "online"){
 typeMatch = remarks.includes("online");
 }
 
-if(location === "warehouse"){
+if(location){
 locationMatch =
-remarks.includes("warehouse");
+remarks.includes(location);
 }
 
-if(location === "store 1"){
-locationMatch =
-remarks.includes("store 1");
-}
-
-if(location === "store 2"){
-locationMatch =
-remarks.includes("store 2");
-}
-
-if(location === "store 3"){
-locationMatch =
-remarks.includes("store 3");
-}
-
-return searchMatch && typeMatch;
+      return searchMatch &&
+       typeMatch &&
+       locationMatch;
 
 });
 
