@@ -579,6 +579,59 @@ Deduct Stock
 </section>
 
 
+      <section class="panel tab-content" id="sold-items">
+
+<h3>🛍️ Sold Items</h3>
+
+<div class="product-filters">
+
+<div class="search-box">
+<span>🔍</span>
+<input
+id="soldSearchInput"
+type="text"
+placeholder="Search product, barcode, color, size, store..."
+oninput="filterSoldItems()"
+/>
+</div>
+
+<select id="soldTypeFilter" onchange="filterSoldItems()">
+<option value="">All Sales</option>
+<option value="walk">Walk-in Sales</option>
+<option value="online">Online Sales</option>
+</select>
+
+</div>
+
+<div class="table-scroll">
+
+<table>
+<thead>
+<tr>
+<th>Date/Time</th>
+<th>Barcode</th>
+<th>Product</th>
+<th>Color</th>
+<th>Size</th>
+<th>Qty Sold</th>
+<th>Total</th>
+<th>Sold From</th>
+</tr>
+</thead>
+
+<tbody id="soldItemsTable">
+<tr>
+<td colspan="8">No sold items yet.</td>
+</tr>
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
       
       <section class="panel tab-content" id="reports">
 
