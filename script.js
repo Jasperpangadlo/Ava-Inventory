@@ -1483,11 +1483,11 @@ document.getElementById("reportDate").value;
 const result = await apiRequest(
 "getDailyReports",
 {
-  date:
-  document.getElementById("reportDate").value,
-
-  remarks: ""
-});
+date:
+document.getElementById("reportDate").value,
+remarks: ""
+}
+);
 
 const history = result.records || [];
 
@@ -1519,7 +1519,7 @@ warehouseOnline.innerHTML = "";
 store1Walkin.innerHTML = "";
 store2Walkin.innerHTML = "";
 store3Walkin.innerHTML = "";
-  
+
 const filtered = history.filter(item => {
 
 if(!date) return true;
@@ -1533,7 +1533,6 @@ return itemDate === date;
 
 });
 
-
 let store1Sales = {};
 let store2Sales = {};
 let store3Sales = {};
@@ -1545,6 +1544,16 @@ let store3Total = 0;
 let colorSales = {};
 let sizeSales = {};
 
+let summary = {
+addStock:{qty:0,total:0},
+warehouseToStore:{qty:0,total:0},
+storeToWarehouse:{qty:0,total:0},
+warehouseOnline:{qty:0,total:0},
+store1Walkin:{qty:0,total:0},
+store2Walkin:{qty:0,total:0},
+store3Walkin:{qty:0,total:0}
+};
+
 filtered.forEach(item => {
 
 let badgeClass = "badge-stock";
@@ -1553,16 +1562,12 @@ let badgeText = "STOCK";
 const lowerRemarks =
 (item.remarks || "").toLowerCase();
 
-if(
-lowerRemarks.includes("walk")
-){
+if(lowerRemarks.includes("walk")){
 badgeClass = "badge-sale";
 badgeText = "WALK-IN";
 }
 
-else if(
-lowerRemarks.includes("online")
-){
+else if(lowerRemarks.includes("online")){
 badgeClass = "badge-online";
 badgeText = "ONLINE";
 }
@@ -1575,9 +1580,7 @@ badgeClass = "badge-transfer";
 badgeText = "TRANSFER";
 }
 
-else if(
-lowerRemarks.includes("add stock")
-){
+else if(lowerRemarks.includes("add stock")){
 badgeClass = "badge-stock";
 badgeText = "ADD STOCK";
 }
@@ -1611,11 +1614,14 @@ ${item.total ?
 const remarks =
 (item.remarks || "").toLowerCase();
 
-  const product =
-  item.product;
+const product =
+item.product;
 
 const qty =
 Number(item.qty) || 0;
+
+const total =
+Number(item.total) || 0;
 
 const color =
 item.color || "Unknown";
@@ -1633,14 +1639,13 @@ sizeSales[size] =
 
 }
 
-  if(
+if(
 remarks.includes("store 1") &&
 remarks.includes("walk")
 ){
 
 store1Sales[product] =
-(store1Sales[product] || 0) +
-(Number(item.qty) || 0);
+(store1Sales[product] || 0) + qty;
 
 }
 
@@ -1650,8 +1655,7 @@ remarks.includes("walk")
 ){
 
 store2Sales[product] =
-(store2Sales[product] || 0) +
-(Number(item.qty) || 0);
+(store2Sales[product] || 0) + qty;
 
 }
 
@@ -1661,99 +1665,129 @@ remarks.includes("walk")
 ){
 
 store3Sales[product] =
-(store3Sales[product] || 0) +
-(Number(item.qty) || 0);
+(store3Sales[product] || 0) + qty;
 
 }
-  
+
 if(remarks.includes("add stock")){
+
 addStock.innerHTML += row;
+
+summary.addStock.qty += qty;
+summary.addStock.total += total;
+
 }
 
 else if(
 remarks.startsWith("warehouse") &&
 remarks.includes("store")
 ){
+
 warehouseToStore.innerHTML += row;
+
+summary.warehouseToStore.qty += qty;
+summary.warehouseToStore.total += total;
+
 }
 
 else if(
 remarks.startsWith("store") &&
 remarks.includes("warehouse")
 ){
+
 storeToWarehouse.innerHTML += row;
+
+summary.storeToWarehouse.qty += qty;
+summary.storeToWarehouse.total += total;
+
 }
 
-else if(
-remarks.includes("online")
-){
+else if(remarks.includes("online")){
+
 warehouseOnline.innerHTML += row;
+
+summary.warehouseOnline.qty += qty;
+summary.warehouseOnline.total += total;
+
 }
 
 else if(
 remarks.startsWith("store 1") &&
 remarks.includes("walk")
 ){
+
 store1Walkin.innerHTML += row;
-store1Total += Number(item.total) || 0;
+
+store1Total += total;
+
+summary.store1Walkin.qty += qty;
+summary.store1Walkin.total += total;
+
 }
 
 else if(
 remarks.startsWith("store 2") &&
 remarks.includes("walk")
 ){
+
 store2Walkin.innerHTML += row;
-store2Total += Number(item.total) || 0;
+
+store2Total += total;
+
+summary.store2Walkin.qty += qty;
+summary.store2Walkin.total += total;
+
 }
 
 else if(
 remarks.startsWith("store 3") &&
 remarks.includes("walk")
 ){
+
 store3Walkin.innerHTML += row;
-store3Total += Number(item.total) || 0;
+
+store3Total += total;
+
+summary.store3Walkin.qty += qty;
+summary.store3Walkin.total += total;
+
 }
 
 });
 
 if(!addStock.innerHTML){
 addStock.innerHTML =
-`<div class="report-empty">
-No records
-</div>`;
+`<div class="report-empty">No records</div>`;
 }
 
 if(!warehouseToStore.innerHTML){
 warehouseToStore.innerHTML =
-`<div class="report-empty">
-No records
-</div>`;
+`<div class="report-empty">No records</div>`;
 }
 
 if(!storeToWarehouse.innerHTML){
 storeToWarehouse.innerHTML =
-`<div class="report-empty">
-No records
-</div>`;
+`<div class="report-empty">No records</div>`;
 }
 
 if(!warehouseOnline.innerHTML){
 warehouseOnline.innerHTML =
-`<div class="report-empty">
-No records
-</div>`;
+`<div class="report-empty">No records</div>`;
 }
 
 if(!store1Walkin.innerHTML){
-store1Walkin.innerHTML = `<div class="report-empty">No records</div>`;
+store1Walkin.innerHTML =
+`<div class="report-empty">No records</div>`;
 }
 
 if(!store2Walkin.innerHTML){
-store2Walkin.innerHTML = `<div class="report-empty">No records</div>`;
+store2Walkin.innerHTML =
+`<div class="report-empty">No records</div>`;
 }
 
 if(!store3Walkin.innerHTML){
-store3Walkin.innerHTML = `<div class="report-empty">No records</div>`;
+store3Walkin.innerHTML =
+`<div class="report-empty">No records</div>`;
 }
 
 document.getElementById("store1WalkinTotal").textContent =
@@ -1764,6 +1798,14 @@ document.getElementById("store2WalkinTotal").textContent =
 
 document.getElementById("store3WalkinTotal").textContent =
 "₱" + store3Total.toLocaleString();
+
+updateReportSummary("addStock", summary.addStock);
+updateReportSummary("warehouseToStore", summary.warehouseToStore);
+updateReportSummary("storeToWarehouse", summary.storeToWarehouse);
+updateReportSummary("warehouseOnline", summary.warehouseOnline);
+updateReportSummary("store1Walkin", summary.store1Walkin);
+updateReportSummary("store2Walkin", summary.store2Walkin);
+updateReportSummary("store3Walkin", summary.store3Walkin);
 
 updateBestSellerCard(
 store1Sales,
@@ -1783,16 +1825,390 @@ store3Sales,
 "store3BestSellerQty"
 );
 
-  updateReportOverview(
-  store1Total,
-  store2Total,
-  store3Total,
-  store1Sales,
-  store2Sales,
-  store3Sales
+updateReportOverview(
+store1Total,
+store2Total,
+store3Total,
+store1Sales,
+store2Sales,
+store3Sales
 );
 
-  updateTopAnalytics(
+updateTopAnalytics(
+colorSales,
+"topColorsBox"
+);
+
+updateTopAnalytics(
+sizeSales,
+"topSizesBox"
+);
+
+}
+
+
+
+.
+async function loadDailyReports(){
+
+const date =
+document.getElementById("reportDate").value;
+
+const result = await apiRequest(
+"getDailyReports",
+{
+date:
+document.getElementById("reportDate").value,
+remarks: ""
+}
+);
+
+const history = result.records || [];
+
+const addStock =
+document.getElementById("addStockReport");
+
+const warehouseToStore =
+document.getElementById("warehouseToStoreReport");
+
+const storeToWarehouse =
+document.getElementById("storeToWarehouseReport");
+
+const warehouseOnline =
+document.getElementById("warehouseOnlineReport");
+
+const store1Walkin =
+document.getElementById("store1WalkinReport");
+
+const store2Walkin =
+document.getElementById("store2WalkinReport");
+
+const store3Walkin =
+document.getElementById("store3WalkinReport");
+
+addStock.innerHTML = "";
+warehouseToStore.innerHTML = "";
+storeToWarehouse.innerHTML = "";
+warehouseOnline.innerHTML = "";
+store1Walkin.innerHTML = "";
+store2Walkin.innerHTML = "";
+store3Walkin.innerHTML = "";
+
+const filtered = history.filter(item => {
+
+if(!date) return true;
+
+const itemDate =
+new Date(item.date)
+.toISOString()
+.split("T")[0];
+
+return itemDate === date;
+
+});
+
+let store1Sales = {};
+let store2Sales = {};
+let store3Sales = {};
+
+let store1Total = 0;
+let store2Total = 0;
+let store3Total = 0;
+
+let colorSales = {};
+let sizeSales = {};
+
+let summary = {
+addStock:{qty:0,total:0},
+warehouseToStore:{qty:0,total:0},
+storeToWarehouse:{qty:0,total:0},
+warehouseOnline:{qty:0,total:0},
+store1Walkin:{qty:0,total:0},
+store2Walkin:{qty:0,total:0},
+store3Walkin:{qty:0,total:0}
+};
+
+filtered.forEach(item => {
+
+let badgeClass = "badge-stock";
+let badgeText = "STOCK";
+
+const lowerRemarks =
+(item.remarks || "").toLowerCase();
+
+if(lowerRemarks.includes("walk")){
+badgeClass = "badge-sale";
+badgeText = "WALK-IN";
+}
+
+else if(lowerRemarks.includes("online")){
+badgeClass = "badge-online";
+badgeText = "ONLINE";
+}
+
+else if(
+lowerRemarks.includes("warehouse") &&
+lowerRemarks.includes("store")
+){
+badgeClass = "badge-transfer";
+badgeText = "TRANSFER";
+}
+
+else if(lowerRemarks.includes("add stock")){
+badgeClass = "badge-stock";
+badgeText = "ADD STOCK";
+}
+
+const row = `
+
+<div class="report-item">
+
+<div class="report-top">
+
+<b>${item.product}</b>
+
+<span class="report-badge ${badgeClass}">
+${badgeText}
+</span>
+
+</div>
+
+<small>${item.barcode}</small>
+
+<small>Qty: ${item.qty}</small>
+
+${item.total ?
+`<small>Total: ₱${Number(item.total).toLocaleString()}</small>`
+: ""}
+
+</div>
+
+`;
+
+const remarks =
+(item.remarks || "").toLowerCase();
+
+const product =
+item.product;
+
+const qty =
+Number(item.qty) || 0;
+
+const total =
+Number(item.total) || 0;
+
+const color =
+item.color || "Unknown";
+
+const size =
+item.size || "Unknown";
+
+if(remarks.includes("walk")){
+
+colorSales[color] =
+(colorSales[color] || 0) + qty;
+
+sizeSales[size] =
+(sizeSales[size] || 0) + qty;
+
+}
+
+if(
+remarks.includes("store 1") &&
+remarks.includes("walk")
+){
+
+store1Sales[product] =
+(store1Sales[product] || 0) + qty;
+
+}
+
+if(
+remarks.includes("store 2") &&
+remarks.includes("walk")
+){
+
+store2Sales[product] =
+(store2Sales[product] || 0) + qty;
+
+}
+
+if(
+remarks.includes("store 3") &&
+remarks.includes("walk")
+){
+
+store3Sales[product] =
+(store3Sales[product] || 0) + qty;
+
+}
+
+if(remarks.includes("add stock")){
+
+addStock.innerHTML += row;
+
+summary.addStock.qty += qty;
+summary.addStock.total += total;
+
+}
+
+else if(
+remarks.startsWith("warehouse") &&
+remarks.includes("store")
+){
+
+warehouseToStore.innerHTML += row;
+
+summary.warehouseToStore.qty += qty;
+summary.warehouseToStore.total += total;
+
+}
+
+else if(
+remarks.startsWith("store") &&
+remarks.includes("warehouse")
+){
+
+storeToWarehouse.innerHTML += row;
+
+summary.storeToWarehouse.qty += qty;
+summary.storeToWarehouse.total += total;
+
+}
+
+else if(remarks.includes("online")){
+
+warehouseOnline.innerHTML += row;
+
+summary.warehouseOnline.qty += qty;
+summary.warehouseOnline.total += total;
+
+}
+
+else if(
+remarks.startsWith("store 1") &&
+remarks.includes("walk")
+){
+
+store1Walkin.innerHTML += row;
+
+store1Total += total;
+
+summary.store1Walkin.qty += qty;
+summary.store1Walkin.total += total;
+
+}
+
+else if(
+remarks.startsWith("store 2") &&
+remarks.includes("walk")
+){
+
+store2Walkin.innerHTML += row;
+
+store2Total += total;
+
+summary.store2Walkin.qty += qty;
+summary.store2Walkin.total += total;
+
+}
+
+else if(
+remarks.startsWith("store 3") &&
+remarks.includes("walk")
+){
+
+store3Walkin.innerHTML += row;
+
+store3Total += total;
+
+summary.store3Walkin.qty += qty;
+summary.store3Walkin.total += total;
+
+}
+
+});
+
+if(!addStock.innerHTML){
+addStock.innerHTML =
+`<div class="report-empty">No records</div>`;
+}
+
+if(!warehouseToStore.innerHTML){
+warehouseToStore.innerHTML =
+`<div class="report-empty">No records</div>`;
+}
+
+if(!storeToWarehouse.innerHTML){
+storeToWarehouse.innerHTML =
+`<div class="report-empty">No records</div>`;
+}
+
+if(!warehouseOnline.innerHTML){
+warehouseOnline.innerHTML =
+`<div class="report-empty">No records</div>`;
+}
+
+if(!store1Walkin.innerHTML){
+store1Walkin.innerHTML =
+`<div class="report-empty">No records</div>`;
+}
+
+if(!store2Walkin.innerHTML){
+store2Walkin.innerHTML =
+`<div class="report-empty">No records</div>`;
+}
+
+if(!store3Walkin.innerHTML){
+store3Walkin.innerHTML =
+`<div class="report-empty">No records</div>`;
+}
+
+document.getElementById("store1WalkinTotal").textContent =
+"₱" + store1Total.toLocaleString();
+
+document.getElementById("store2WalkinTotal").textContent =
+"₱" + store2Total.toLocaleString();
+
+document.getElementById("store3WalkinTotal").textContent =
+"₱" + store3Total.toLocaleString();
+
+updateReportSummary("addStock", summary.addStock);
+updateReportSummary("warehouseToStore", summary.warehouseToStore);
+updateReportSummary("storeToWarehouse", summary.storeToWarehouse);
+updateReportSummary("warehouseOnline", summary.warehouseOnline);
+updateReportSummary("store1Walkin", summary.store1Walkin);
+updateReportSummary("store2Walkin", summary.store2Walkin);
+updateReportSummary("store3Walkin", summary.store3Walkin);
+
+updateBestSellerCard(
+store1Sales,
+"store1BestSeller",
+"store1BestSellerQty"
+);
+
+updateBestSellerCard(
+store2Sales,
+"store2BestSeller",
+"store2BestSellerQty"
+);
+
+updateBestSellerCard(
+store3Sales,
+"store3BestSeller",
+"store3BestSellerQty"
+);
+
+updateReportOverview(
+store1Total,
+store2Total,
+store3Total,
+store1Sales,
+store2Sales,
+store3Sales
+);
+
+updateTopAnalytics(
 colorSales,
 "topColorsBox"
 );
@@ -2858,6 +3274,26 @@ ${badgeText}
 
 }).join("") +
 `</div>`;
+
+}
+
+function updateReportSummary(prefix, data){
+
+const qtyEl =
+document.getElementById(prefix + "Qty");
+
+const totalEl =
+document.getElementById(prefix + "Total") ||
+document.getElementById(prefix + "SummaryTotal");
+
+if(qtyEl){
+qtyEl.textContent = data.qty;
+}
+
+if(totalEl){
+totalEl.textContent =
+"₱" + Number(data.total).toLocaleString();
+}
 
 }
 
