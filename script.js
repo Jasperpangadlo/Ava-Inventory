@@ -13,12 +13,29 @@ action,
 data: JSON.stringify(payload)
 });
 
+const url =
+`${WEB_APP_URL}?${params}`;
+
 const response =
-await fetch(
-`${WEB_APP_URL}?${params}`
+await fetch(url);
+
+const text =
+await response.text();
+
+try{
+
+return JSON.parse(text);
+
+}catch(error){
+
+console.error("API URL:", url);
+console.error("API RESPONSE:", text);
+
+throw new Error(
+"API did not return JSON. Check Apps Script deployment or action: " + action
 );
 
-return await response.json();
+}
 
 }
 
