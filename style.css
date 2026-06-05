@@ -2031,3 +2031,8 @@ font-weight:800;
 font-size:13px;
 }
 
+.product-filters{
+display:grid;
+grid-template-columns:2fr 1fr 1fr;
+gap:14px;
+}
