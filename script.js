@@ -3110,6 +3110,12 @@ document.getElementById("soldLocationFilter")
 .value
 .toLowerCase();
 
+const dateFrom =
+document.getElementById("soldDateFrom").value;
+
+const dateTo =
+document.getElementById("soldDateTo").value;
+
 let filtered =
 soldItemsData.filter(item=>{
 
@@ -3135,6 +3141,7 @@ text.includes(keyword);
 
 let typeMatch = true;
 let locationMatch = true;
+let dateMatch = true;
 
 if(type === "walk"){
 typeMatch = remarks.includes("walk");
@@ -3149,9 +3156,26 @@ locationMatch =
 remarks.includes(location);
 }
 
+const itemDate =
+new Date(item.datetime || item.date);
+
+if(dateFrom){
+const from =
+new Date(dateFrom);
+dateMatch = dateMatch && itemDate >= from;
+}
+
+if(dateTo){
+const to =
+new Date(dateTo);
+to.setHours(23,59,59,999);
+dateMatch = dateMatch && itemDate <= to;
+}
+
       return searchMatch &&
        typeMatch &&
-       locationMatch;
+       locationMatch &&
+       dateMatch;
 
 });
 
