@@ -624,17 +624,16 @@ btn,
 
 showSuccess(result.message);
 
-await loadProducts();
-await loadStoreProducts();
-await loadHistory();
-await loadDailyReports();
-await loadTransactionTimeline();
-
 document.getElementById("transferBarcode").value = "";
 document.getElementById("transferQty").value = "";
 document.getElementById("toStore").selectedIndex = 0;
 document.getElementById("transferBarcode").focus();
 
+loadProducts();
+loadStoreProducts();
+loadHistory();
+loadDailyReports();
+loadTransactionTimeline();
 }
 
 
@@ -768,9 +767,16 @@ document.getElementById(
 "returnQty"
 ).value="";
 
+document.getElementById("returnBarcode").value = "";
+document.getElementById("returnQty").value = "";
+document.getElementById("fromStore").selectedIndex = 0;
+document.getElementById("returnBarcode").focus();
+
 loadProducts();
 loadStoreProducts();
 loadHistory();
+loadDailyReports();
+loadTransactionTimeline();
   
 }
 
