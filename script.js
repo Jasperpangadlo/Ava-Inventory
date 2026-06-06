@@ -1203,16 +1203,16 @@ if(e.key !== "Enter") return;
 
 e.preventDefault();
 
-await loadProducts();
-
 autoFillProduct();
 
 document.getElementById("stock").value = 1;
 
 setTimeout(() => {
-  updatePreview();
-  addStockToCart();
-}, 300);
+
+updatePreview();
+addStockToCart();
+
+},150);
 
 }
 
