@@ -787,11 +787,24 @@ async function refreshAllData() {
 
     setButtonSuccess(btn, "✓ Refreshed");
 
+    showMessage(
+      "Data refreshed successfully.",
+      "success"
+    );
+
   } catch(error) {
 
     console.error(error);
-    setButtonError(btn, "✕ Failed");
-    showMessage("Refresh failed. Please try again.", "error");
+
+    setButtonError(
+      btn,
+      "✕ Failed"
+    );
+
+    showMessage(
+      "Refresh failed.",
+      "error"
+    );
 
   }
 
