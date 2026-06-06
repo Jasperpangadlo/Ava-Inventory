@@ -1251,9 +1251,12 @@ return;
 
 }
 
-for(const item of stockCart){
-await apiRequest("saveProduct", item);
-}
+await apiRequest(
+  "saveStockCart",
+  {
+    items: stockCart
+  }
+);
 
 setButtonSuccess(
 btn,
@@ -1266,10 +1269,6 @@ stockCart = [];
 renderStockCart();
 
 await loadProducts();
-await loadHistory();
-await loadDailyReports();
-await loadBestSellers();
-await loadTransactionTimeline();
 
 document.getElementById("barcode").focus();
 
