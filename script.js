@@ -769,15 +769,32 @@ loadHistory();
 }
 
 async function refreshAllData() {
-  await loadProducts();
-  await loadHistory();
-  await loadStoreProducts();
-  await loadWeeklyStockChart();
-  await updateStoreSalesToday();
-  await updateBranchRanking();
-  await loadTransactionTimeline();
-  await loadSoldItems();
-  
+
+  const btn = document.getElementById("refreshBtn");
+
+  setButtonLoading(btn, true);
+
+  try {
+
+    await loadProducts();
+    await loadHistory();
+    await loadStoreProducts();
+    await loadWeeklyStockChart();
+    await updateStoreSalesToday();
+    await updateBranchRanking();
+    await loadTransactionTimeline();
+    await loadSoldItems();
+
+    setButtonSuccess(btn, "✓ Refreshed");
+
+  } catch(error) {
+
+    console.error(error);
+    setButtonError(btn, "✕ Failed");
+    showMessage("Refresh failed. Please try again.", "error");
+
+  }
+
 }
 
 function togglePassword(){
