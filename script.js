@@ -269,6 +269,12 @@ result.message,
 "success"
 );
 
+document.getElementById("outBarcode").value = "";
+document.getElementById("outQty").value = "";
+document.getElementById("deductFrom").selectedIndex = 0;
+document.getElementById("salesType").selectedIndex = 0;
+document.getElementById("outBarcode").focus();
+
 await loadProducts();
 await loadStoreProducts();
 await loadHistory();
