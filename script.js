@@ -476,7 +476,12 @@ async function loadHistory() {
   });
 }
 
+let currentTab = "dashboard";
+
 function showTab(tabId){
+
+  currentTab = tabId;
+
   const tabs = document.querySelectorAll(".tab-content");
 
   tabs.forEach(tab=>{
@@ -500,10 +505,11 @@ function showTab(tabId){
   }
 
   if(tabId === "add-stock"){
-  setTimeout(() => {
-    document.getElementById("barcode").focus();
-  }, 100);
-}
+    setTimeout(() => {
+      document.getElementById("barcode").focus();
+    }, 100);
+  }
+
 }
 
 
@@ -788,14 +794,56 @@ async function refreshAllData() {
 
   try {
 
-    await loadProducts();
-    await loadHistory();
-    await loadStoreProducts();
-    await loadWeeklyStockChart();
-    await updateStoreSalesToday();
-    await updateBranchRanking();
-    await loadTransactionTimeline();
-    await loadSoldItems();
+    const products = document.getElementById("products");
+    const history = document.getElementById("history");
+    const soldItems = document.getElementById("sold-items");
+    const reports = document.getElementById("reports");
+    const store = document.getElementById("store");
+    const dashboard = document.getElementById("dashboard");
+
+    if(products && products.style.display !== "none"){
+
+      await loadProducts();
+
+    }
+
+    else if(history && history.style.display !== "none"){
+
+      await loadHistory();
+
+    }
+
+    else if(soldItems && soldItems.style.display !== "none"){
+
+      await loadSoldItems();
+
+    }
+
+    else if(store && store.style.display !== "none"){
+
+      await loadStoreProducts();
+
+    }
+
+    else if(reports && reports.style.display !== "none"){
+
+      await Promise.all([
+        loadDailyReports(),
+        loadBestSellers()
+      ]);
+
+    }
+
+    else if(dashboard && dashboard.style.display !== "none"){
+
+      await Promise.all([
+        loadWeeklyStockChart(),
+        updateStoreSalesToday(),
+        updateBranchRanking(),
+        loadTransactionTimeline()
+      ]);
+
+    }
 
     setButtonSuccess(btn, "✓ Refreshed");
 
