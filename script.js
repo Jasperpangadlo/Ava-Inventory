@@ -485,21 +485,26 @@ function autoFillProduct() {
 
 
 async function loadHistory() {
-  const result = await apiRequest("getHistory");
-  const records = result.records || [];
-  const table = document.getElementById("historyTable");
+
+  const records = historyCache;
+
+  const table =
+  document.getElementById("historyTable");
 
   if (!table) return;
 
   if (records.length === 0) {
+
     table.innerHTML =
     "<tr><td colspan='9'>No stock out history yet.</td></tr>";
+
     return;
   }
 
   let html = "";
 
   records.forEach(item => {
+
     html += `
       <tr>
         <td>${item.datetime}</td>
@@ -513,9 +518,11 @@ async function loadHistory() {
         <td>${item.remarks}</td>
       </tr>
     `;
+
   });
 
   table.innerHTML = html;
+
 }
 
 let currentTab = "dashboard";
@@ -1008,8 +1015,8 @@ new Date()
 .toLocaleString();
 
 async function loadWeeklyStockChart() {
-  const result = await apiRequest("getHistory");
-  const records = result.records || [];
+  
+ const records = historyCache;
 
   const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
   const totals = [0,0,0,0,0,0,0];
@@ -2443,8 +2450,7 @@ async function updateStoreSalesToday(){
 
 if(!document.getElementById("store1Sales")) return;
 
-const result = await apiRequest("getHistory");
-const records = result.records || [];
+const records = historyCache;
 
 let store1 = 0;
 let store2 = 0;
@@ -2941,11 +2947,7 @@ entries.map(([name, qty], index)=>`
 
 async function loadSalesTrendChart(){
 
-const result =
-await apiRequest("getHistory");
-
-const records =
-result.records || [];
+const records = historyCache;
 
 const monthInput =
 document.getElementById("bestSellerMonth");
@@ -3099,11 +3101,7 @@ hideReportLoader();
 
 async function loadTransactionTimeline(){
 
-const result =
-await apiRequest("getHistory");
-
-const records =
-result.records || [];
+const records = historyCache;
 
 const box =
 document.getElementById("transactionTimeline");
