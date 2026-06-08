@@ -78,21 +78,25 @@ document.getElementById("price").value = "";
 async function loadProducts() {
   const result = await apiRequest("getProducts");
   const products = result.products || [];
-  allProducts = products;
-  const table = document.getElementById("productTable");
 
-  table.innerHTML = "";
+  allProducts = products;
+
+  const table = document.getElementById("productTable");
 
   let totalStock = 0;
   let lowStock = 0;
   let outStock = 0;
+  let html = "";
 
   if (products.length === 0) {
-    table.innerHTML = "<tr><td colspan='8'>Wala pang products sa database.</td></tr>";
+    table.innerHTML =
+    "<tr><td colspan='8'>Wala pang products sa database.</td></tr>";
+    return;
   }
 
   products.forEach(item => {
     const stock = Number(item.stock) || 0;
+
     totalStock += stock;
 
     let statusText = "In Stock";
@@ -108,7 +112,7 @@ async function loadProducts() {
       lowStock++;
     }
 
-    table.innerHTML += `
+    html += `
       <tr>
         <td>${item.barcode}</td>
         <td>${item.product}</td>
@@ -117,58 +121,65 @@ async function loadProducts() {
         <td>${item.size}</td>
         <td>${item.stock}</td>
         <td>₱${item.price}</td>
-        <td><span class="status ${statusClass}">${statusText}</span></td>
+        <td>
+          <span class="status ${statusClass}">
+            ${statusText}
+          </span>
+        </td>
       </tr>
     `;
   });
+
+  table.innerHTML = html;
 
   document.getElementById("totalProducts").textContent = products.length;
   document.getElementById("totalStock").textContent = totalStock;
   document.getElementById("lowStock").textContent = lowStock;
   document.getElementById("outStock").textContent = outStock;
 
-    if (products.length > 0 && document.getElementById("stockChart")) {
-  const labels = products.map(item =>
-    item.product + " " + item.size
-  );
+  if (products.length > 0 && document.getElementById("stockChart")) {
+    const labels = products.map(item =>
+      item.product + " " + item.size
+    );
 
-  const stockData = products.map(item =>
-    Number(item.stock) || 0
-  );
+    const stockData = products.map(item =>
+      Number(item.stock) || 0
+    );
 
-  if (stockChart) {
-    stockChart.destroy();
-  }
+    if (stockChart) {
+      stockChart.destroy();
+    }
 
-  const ctx = document
-    .getElementById("stockChart")
-    .getContext("2d");
+    const ctx = document
+      .getElementById("stockChart")
+      .getContext("2d");
 
-  stockChart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: labels,
-      datasets: [{
-        label: "Stock Quantity",
-        data: stockData
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: true
-        }
+    stockChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "Stock Quantity",
+          data: stockData
+        }]
       },
-      scales: {
-        y: {
-          beginAtZero: true
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
         }
       }
-    }
-  });
-}
+    });
+  }
+
   populateFilters(products);
   filterProducts();
 }
@@ -285,11 +296,33 @@ await updateBranchRanking();
 await loadTransactionTimeline();
 await loadSoldItems();
 
-document.getElementById("outBarcode").value = "";
-document.getElementById("outQty").value = "";
-document.getElementById("deductFrom").selectedIndex = 0;
-document.getElementById("salesType").selectedIndex = 0;
-document.getElementById("outBarcode").focus();
+await Promise.all([
+    loadProducts(),
+    loadStoreProducts(),
+    loadHistory()
+  ]);
+
+  
+  if(currentTab === "reports"){
+    await Promise.all([
+      loadDailyReports(),
+      loadBestSellers()
+    ]);
+  }
+
+  
+  if(currentTab === "sold-items"){
+    await loadSoldItems();
+  }
+
+  
+  if(currentTab === "dashboard"){
+    await Promise.all([
+      updateStoreSalesToday(),
+      updateBranchRanking(),
+      loadTransactionTimeline()
+    ]);
+  }
 
 }
 
@@ -452,15 +485,18 @@ async function loadHistory() {
   const records = result.records || [];
   const table = document.getElementById("historyTable");
 
-  table.innerHTML = "";
+  if (!table) return;
 
   if (records.length === 0) {
-    table.innerHTML = "<tr><td colspan='9'>No stock out history yet.</td></tr>";
+    table.innerHTML =
+    "<tr><td colspan='9'>No stock out history yet.</td></tr>";
     return;
   }
 
+  let html = "";
+
   records.forEach(item => {
-    table.innerHTML += `
+    html += `
       <tr>
         <td>${item.datetime}</td>
         <td>${item.barcode}</td>
@@ -474,6 +510,8 @@ async function loadHistory() {
       </tr>
     `;
   });
+
+  table.innerHTML = html;
 }
 
 let currentTab = "dashboard";
@@ -549,42 +587,61 @@ async function showTab(tabId){
 
 }
 
-
 async function loadStoreProducts() {
+
   const result = await apiRequest("getStoreInventory");
   const products = result.products || [];
 
   storeProducts = products;
 
   const table = document.getElementById("storeTable");
-  table.innerHTML = "";
+
+  if (!table) return;
 
   if (products.length === 0) {
+
     table.innerHTML =
     "<tr><td colspan='6'>No store products yet.</td></tr>";
+
     return;
   }
 
+  let html = "";
+
   products.forEach(item => {
+
     const stock = Number(item.stock) || 0;
 
     let stockBadge = "";
 
     if (stock <= 0) {
-      stockBadge = `<span class="stock-out">❌ Out</span>`;
+
+      stockBadge =
+      `<span class="stock-out">❌ Out</span>`;
+
     } else if (stock <= 5) {
-      stockBadge = `<span class="stock-low">⚠️ Low</span>`;
+
+      stockBadge =
+      `<span class="stock-low">⚠️ Low</span>`;
+
     } else {
-      stockBadge = `<span class="stock-ok">✔ In Stock</span>`;
+
+      stockBadge =
+      `<span class="stock-ok">✔ In Stock</span>`;
     }
 
-    table.innerHTML += `
+    html += `
       <tr data-stock="${stock}">
         <td>${item.barcode}</td>
         <td>${item.product}</td>
         <td>${item.color}</td>
         <td>${item.size}</td>
-        <td><span class="stock-number">${stock}</span>${stockBadge}</td>
+        <td>
+          <span class="stock-number">
+            ${stock}
+          </span>
+          ${stockBadge}
+        </td>
         <td>
           <span class="location-tag">
             🏪 ${item.location}
@@ -594,12 +651,13 @@ async function loadStoreProducts() {
     `;
   });
 
+  table.innerHTML = html;
+
   updateStoreCards(products);
   populateStoreFilters(products);
   updateColorFilter();
   filterStoreProducts();
 }
-
 
 async function sendToStore(){
 
@@ -672,11 +730,12 @@ document.getElementById("transferQty").value = "";
 document.getElementById("toStore").selectedIndex = 0;
 document.getElementById("transferBarcode").focus();
 
-loadProducts();
-loadStoreProducts();
-loadHistory();
-loadDailyReports();
-loadTransactionTimeline();
+await Promise.all([
+  loadProducts(),
+  loadStoreProducts(),
+  loadHistory()
+]);
+  
 }
 
 
@@ -815,11 +874,11 @@ document.getElementById("returnQty").value = "";
 document.getElementById("fromStore").selectedIndex = 0;
 document.getElementById("returnBarcode").focus();
 
-loadProducts();
-loadStoreProducts();
-loadHistory();
-loadDailyReports();
-loadTransactionTimeline();
+await Promise.all([
+  loadProducts(),
+  loadStoreProducts(),
+  loadHistory()
+]);
   
 }
 
@@ -3193,43 +3252,44 @@ renderSoldItems(soldItemsData);
 
 function renderSoldItems(data){
 
-const table =
-document.getElementById("soldItemsTable");
+  const table =
+  document.getElementById("soldItemsTable");
 
-if(!table) return;
+  if(!table) return;
 
-table.innerHTML = "";
+  if(data.length === 0){
 
-if(data.length === 0){
+    table.innerHTML =
+    `<tr>
+      <td colspan="8">No sold items found.</td>
+    </tr>`;
 
-table.innerHTML =
-`<tr>
-<td colspan="8">No sold items found.</td>
-</tr>`;
+    return;
+  }
 
-return;
+  let html = "";
 
-}
+  data.forEach(item=>{
 
-data.forEach(item=>{
+    const remarks =
+    String(item.remarks || "");
 
-const remarks =
-String(item.remarks || "");
+    html += `
+      <tr>
+        <td>${item.datetime || item.date || ""}</td>
+        <td>${item.barcode || ""}</td>
+        <td><b>${item.product || ""}</b></td>
+        <td>${item.color || ""}</td>
+        <td>${item.size || ""}</td>
+        <td>${item.qty || 0}</td>
+        <td>₱${Number(item.total || 0).toLocaleString()}</td>
+        <td>${remarks}</td>
+      </tr>
+    `;
 
-table.innerHTML += `
-<tr>
-<td>${item.datetime || item.date || ""}</td>
-<td>${item.barcode || ""}</td>
-<td><b>${item.product || ""}</b></td>
-<td>${item.color || ""}</td>
-<td>${item.size || ""}</td>
-<td>${item.qty || 0}</td>
-<td>₱${Number(item.total || 0).toLocaleString()}</td>
-<td>${remarks}</td>
-</tr>
-`;
+  });
 
-});
+  table.innerHTML = html;
 
 }
 
