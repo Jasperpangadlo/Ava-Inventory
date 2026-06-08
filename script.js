@@ -3,6 +3,7 @@ let weeklyStockChart = null;
 let salesTrendChart = null;
 let allProducts = [];
 let storeProducts = [];
+let historyCache = [];
 
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6K3N58inD_aZdmVA6yilTyxSSEE34ng_GXNviFvDTBLdXocmhBppWeCv4U9bcKr-3/exec";
 
@@ -37,6 +38,17 @@ throw new Error(
 
 }
 
+}
+
+async function loadHistoryCache(){
+
+  const result =
+  await apiRequest("getHistory");
+
+  historyCache =
+  result.records || [];
+
+  return historyCache;
 }
 
 async function saveProduct() {
@@ -295,6 +307,7 @@ await updateStoreSalesToday();
 await updateBranchRanking();
 await loadTransactionTimeline();
 await loadSoldItems();
+await loadHistoryCache();
 
 await Promise.all([
     loadProducts(),
@@ -730,6 +743,7 @@ document.getElementById("transferQty").value = "";
 document.getElementById("toStore").selectedIndex = 0;
 document.getElementById("transferBarcode").focus();
 
+await loadHistoryCache();
 await Promise.all([
   loadProducts(),
   loadStoreProducts(),
@@ -874,6 +888,7 @@ document.getElementById("returnQty").value = "";
 document.getElementById("fromStore").selectedIndex = 0;
 document.getElementById("returnBarcode").focus();
 
+await loadHistoryCache();
 await Promise.all([
   loadProducts(),
   loadStoreProducts(),
@@ -1670,16 +1685,7 @@ if(!document.getElementById("addStockReport")) return;
 const date =
 document.getElementById("reportDate").value;
 
-const result = await apiRequest(
-"getDailyReports",
-{
-date:
-document.getElementById("reportDate").value,
-remarks: ""
-}
-);
-
-const history = result.records || [];
+const history = historyCache;
 
 const addStock =
 document.getElementById("addStockReport");
@@ -1744,8 +1750,44 @@ store2Walkin:{qty:0,total:0},
 store3Walkin:{qty:0,total:0}
 };
 
+let addStockHtml = "";
+let warehouseToStoreHtml = "";
+let storeToWarehouseHtml = "";
+let warehouseOnlineHtml = "";
+let store1WalkinHtml = "";
+let store2WalkinHtml = "";
+let store3WalkinHtml = "";
+  
 filtered.forEach(item => {
 
+addStock.innerHTML =
+  addStockHtml ||
+  `<div class="report-empty">No records</div>`;
+
+warehouseToStore.innerHTML =
+  warehouseToStoreHtml ||
+  `<div class="report-empty">No records</div>`;
+
+storeToWarehouse.innerHTML =
+  storeToWarehouseHtml ||
+  `<div class="report-empty">No records</div>`;
+
+warehouseOnline.innerHTML =
+  warehouseOnlineHtml ||
+  `<div class="report-empty">No records</div>`;
+
+store1Walkin.innerHTML =
+  store1WalkinHtml ||
+  `<div class="report-empty">No records</div>`;
+
+store2Walkin.innerHTML =
+  store2WalkinHtml ||
+  `<div class="report-empty">No records</div>`;
+
+store3Walkin.innerHTML =
+  store3WalkinHtml ||
+  `<div class="report-empty">No records</div>`;
+  
 let badgeClass = "badge-stock";
 let badgeText = "STOCK";
 
@@ -1861,7 +1903,7 @@ store3Sales[product] =
 
 if(remarks.includes("add stock")){
 
-addStock.innerHTML += row;
+addStockHtml += row;
 
 summary.addStock.qty += qty;
 summary.addStock.total += total;
@@ -1873,7 +1915,7 @@ remarks.startsWith("warehouse") &&
 remarks.includes("store")
 ){
 
-warehouseToStore.innerHTML += row;
+warehouseToStoreHtml += row;
 
 summary.warehouseToStore.qty += qty;
 summary.warehouseToStore.total += total;
@@ -1885,7 +1927,7 @@ remarks.startsWith("store") &&
 remarks.includes("warehouse")
 ){
 
-storeToWarehouse.innerHTML += row;
+storeToWarehouseHtml += row;
 
 summary.storeToWarehouse.qty += qty;
 summary.storeToWarehouse.total += total;
@@ -1894,7 +1936,7 @@ summary.storeToWarehouse.total += total;
 
 else if(remarks.includes("online")){
 
-warehouseOnline.innerHTML += row;
+warehouseOnlineHtml += row;
 
 summary.warehouseOnline.qty += qty;
 summary.warehouseOnline.total += total;
@@ -1906,7 +1948,7 @@ remarks.startsWith("store 1") &&
 remarks.includes("walk")
 ){
 
-store1Walkin.innerHTML += row;
+store1WalkinHtml += row;
 
 store1Total += total;
 
@@ -1920,7 +1962,7 @@ remarks.startsWith("store 2") &&
 remarks.includes("walk")
 ){
 
-store2Walkin.innerHTML += row;
+store2WalkinHtml += row;
 
 store2Total += total;
 
@@ -1934,7 +1976,7 @@ remarks.startsWith("store 3") &&
 remarks.includes("walk")
 ){
 
-store3Walkin.innerHTML += row;
+store3WalkinHtml += row;
 
 store3Total += total;
 
@@ -1944,41 +1986,6 @@ summary.store3Walkin.total += total;
 }
 
 });
-
-if(!addStock.innerHTML){
-addStock.innerHTML =
-`<div class="report-empty">No records</div>`;
-}
-
-if(!warehouseToStore.innerHTML){
-warehouseToStore.innerHTML =
-`<div class="report-empty">No records</div>`;
-}
-
-if(!storeToWarehouse.innerHTML){
-storeToWarehouse.innerHTML =
-`<div class="report-empty">No records</div>`;
-}
-
-if(!warehouseOnline.innerHTML){
-warehouseOnline.innerHTML =
-`<div class="report-empty">No records</div>`;
-}
-
-if(!store1Walkin.innerHTML){
-store1Walkin.innerHTML =
-`<div class="report-empty">No records</div>`;
-}
-
-if(!store2Walkin.innerHTML){
-store2Walkin.innerHTML =
-`<div class="report-empty">No records</div>`;
-}
-
-if(!store3Walkin.innerHTML){
-store3Walkin.innerHTML =
-`<div class="report-empty">No records</div>`;
-}
 
 
 updateReportSummary("addStock", summary.addStock);
@@ -2028,111 +2035,109 @@ sizeSales,
 
 }
 
+
+
+
+
+
+
+
 async function loadBestSellers(){
 
-const result =
-await apiRequest("getHistory");
+  const records =
+  historyCache || [];
 
-const records =
-result.records || [];
+  const selectedMonth =
+  document.getElementById("bestSellerMonth")?.value || "";
 
-const selectedMonth =
-document.getElementById("bestSellerMonth").value;
+  const selectedWeek =
+  document.getElementById("bestSellerWeek")?.value || "";
 
-const selectedWeek =
-document.getElementById("bestSellerWeek").value;
+  const weeklyBox =
+  document.getElementById("weeklyBestSeller");
 
-const weeklyBox =
-document.getElementById("weeklyBestSeller");
+  const monthlyBox =
+  document.getElementById("monthlyBestSeller");
 
-const monthlyBox =
-document.getElementById("monthlyBestSeller");
+  if(!weeklyBox || !monthlyBox) return;
 
-weeklyBox.innerHTML = "";
-monthlyBox.innerHTML = "";
+  const sales = {};
 
-const sales = {};
+  records.forEach(item=>{
 
-records.forEach(item=>{
+    const remarks =
+    String(item.remarks || "").toLowerCase();
 
-const remarks =
-String(item.remarks || "").toLowerCase();
+    if(!remarks.includes("walk")) return;
 
-if(!remarks.includes("walk")) return;
+    const date =
+    new Date(item.datetime || item.date);
 
-const date =
-new Date(item.datetime);
+    const month =
+    date.toISOString().slice(0,7);
 
-const month =
-date.toISOString().slice(0,7);
+    const week =
+    String(Math.ceil(date.getDate() / 7));
 
-const week =
-String(Math.ceil(date.getDate() / 7));
+    if(selectedMonth && month !== selectedMonth) return;
 
-if(selectedMonth && month !== selectedMonth) return;
+    if(selectedWeek && week !== selectedWeek) return;
 
-if(selectedWeek && week !== selectedWeek) return;
+    const product =
+    item.product || "Unknown Product";
 
-const product =
-item.product;
+    const qty =
+    Number(item.qty) || 0;
 
-const qty =
-Number(item.qty) || 0;
+    sales[product] =
+    (sales[product] || 0) + qty;
 
-sales[product] =
-(sales[product] || 0) + qty;
+  });
 
-});
+  let rank = 1;
+  let html = "";
 
-let rank = 1;
+  Object.entries(sales)
+  .sort((a,b)=>b[1]-a[1])
+  .slice(0,5)
+  .forEach(item=>{
 
-Object.entries(sales)
-.sort((a,b)=>b[1]-a[1])
-.slice(0,5)
-.forEach(item=>{
+    html += `
+      <div class="best-seller-item">
 
-const row = `
+        <div class="best-seller-left">
 
-<div class="best-seller-item">
+          <div class="rank-badge">
+            ${rank}
+          </div>
 
-<div class="best-seller-left">
+          <div class="best-seller-name">
+            ${item[0]}
+          </div>
 
-<div class="rank-badge">
-${rank}
-</div>
+        </div>
 
-<div class="best-seller-name">
-${item[0]}
-</div>
+        <div class="best-seller-qty">
+          ${item[1]} sold
+        </div>
 
-</div>
+      </div>
+    `;
 
-<div class="best-seller-qty">
-${item[1]} sold
-</div>
+    rank++;
 
-</div>
+  });
 
-`;
+  if(!html){
+    html =
+    `<div class="report-empty">No records</div>`;
+  }
 
-weeklyBox.innerHTML += row;
-monthlyBox.innerHTML += row;
-
-rank++;
-
-});
-
-if(!weeklyBox.innerHTML){
-weeklyBox.innerHTML =
-`<div class="report-empty">No records</div>`;
-}
-
-if(!monthlyBox.innerHTML){
-monthlyBox.innerHTML =
-`<div class="report-empty">No records</div>`;
-}
+  weeklyBox.innerHTML = html;
+  monthlyBox.innerHTML = html;
 
 }
+
 
 function printReports(){
 
@@ -3227,26 +3232,22 @@ let soldItemsData = [];
 
 async function loadSoldItems(){
 
-const result =
-await apiRequest("getHistory");
+  const records = historyCache;
 
-const records =
-result.records || [];
+  soldItemsData =
+  records.filter(item=>{
 
-soldItemsData =
-records.filter(item=>{
+    const remarks =
+    String(item.remarks || "").toLowerCase();
 
-const remarks =
-String(item.remarks || "").toLowerCase();
+    return (
+      remarks.includes("walk") ||
+      remarks.includes("online")
+    );
 
-return (
-remarks.includes("walk") ||
-remarks.includes("online")
-);
+  });
 
-});
-
-renderSoldItems(soldItemsData);
+  renderSoldItems(soldItemsData);
 
 }
 
@@ -3402,16 +3403,9 @@ window.onload = async () => {
   updateClock();
   setInterval(updateClock,1000);
 
-  showTab("dashboard");
-
-  await Promise.all([
-    loadWeeklyStockChart(),
-    updateStoreSalesToday(),
-    loadTransactionTimeline()
-  ]);
+  await showTab("dashboard");
 
 };
-
 
 
 
