@@ -298,6 +298,8 @@ document.getElementById("deductFrom").selectedIndex = 0;
 document.getElementById("salesType").selectedIndex = 0;
 document.getElementById("outBarcode").focus();
 
+await loadHistoryCache();
+
 await Promise.all([
     loadProducts(),
     loadStoreProducts(),
