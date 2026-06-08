@@ -298,17 +298,6 @@ document.getElementById("deductFrom").selectedIndex = 0;
 document.getElementById("salesType").selectedIndex = 0;
 document.getElementById("outBarcode").focus();
 
-await loadProducts();
-await loadStoreProducts();
-await loadHistory();
-await loadDailyReports();
-await loadBestSellers();
-await updateStoreSalesToday();
-await updateBranchRanking();
-await loadTransactionTimeline();
-await loadSoldItems();
-await loadHistoryCache();
-
 await Promise.all([
     loadProducts(),
     loadStoreProducts(),
@@ -1759,34 +1748,6 @@ let store2WalkinHtml = "";
 let store3WalkinHtml = "";
   
 filtered.forEach(item => {
-
-addStock.innerHTML =
-  addStockHtml ||
-  `<div class="report-empty">No records</div>`;
-
-warehouseToStore.innerHTML =
-  warehouseToStoreHtml ||
-  `<div class="report-empty">No records</div>`;
-
-storeToWarehouse.innerHTML =
-  storeToWarehouseHtml ||
-  `<div class="report-empty">No records</div>`;
-
-warehouseOnline.innerHTML =
-  warehouseOnlineHtml ||
-  `<div class="report-empty">No records</div>`;
-
-store1Walkin.innerHTML =
-  store1WalkinHtml ||
-  `<div class="report-empty">No records</div>`;
-
-store2Walkin.innerHTML =
-  store2WalkinHtml ||
-  `<div class="report-empty">No records</div>`;
-
-store3Walkin.innerHTML =
-  store3WalkinHtml ||
-  `<div class="report-empty">No records</div>`;
   
 let badgeClass = "badge-stock";
 let badgeText = "STOCK";
@@ -1987,6 +1948,33 @@ summary.store3Walkin.total += total;
 
 });
 
+addStock.innerHTML =
+  addStockHtml ||
+  `<div class="report-empty">No records</div>`;
+
+warehouseToStore.innerHTML =
+  warehouseToStoreHtml ||
+  `<div class="report-empty">No records</div>`;
+
+storeToWarehouse.innerHTML =
+  storeToWarehouseHtml ||
+  `<div class="report-empty">No records</div>`;
+
+warehouseOnline.innerHTML =
+  warehouseOnlineHtml ||
+  `<div class="report-empty">No records</div>`;
+
+store1Walkin.innerHTML =
+  store1WalkinHtml ||
+  `<div class="report-empty">No records</div>`;
+
+store2Walkin.innerHTML =
+  store2WalkinHtml ||
+  `<div class="report-empty">No records</div>`;
+
+store3Walkin.innerHTML =
+  store3WalkinHtml ||
+  `<div class="report-empty">No records</div>`;
 
 updateReportSummary("addStock", summary.addStock);
 updateReportSummary("warehouseToStore", summary.warehouseToStore);
@@ -3403,7 +3391,8 @@ window.onload = async () => {
   updateClock();
   setInterval(updateClock,1000);
 
-  await showTab("dashboard");
+await loadHistoryCache();
+await showTab("dashboard");
 
 };
 
