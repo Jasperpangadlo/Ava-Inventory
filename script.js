@@ -1712,7 +1712,7 @@ const filtered = history.filter(item => {
 if(!date) return true;
 
 const itemDate =
-new Date(item.date)
+new Date(item.datetime || item.date)
 .toISOString()
 .split("T")[0];
 
