@@ -78,10 +78,15 @@ document.getElementById("size").value = "";
 document.getElementById("stock").value = "";
 document.getElementById("price").value = "";
 
-  resetPreview();
+  await Promise.all([
+    loadProducts(),
+    loadHistoryCache()
+  ]);
   
-  loadProducts();
-  document.getElementById("barcode").value = "";
+  loadHistory();
+  loadDailyReports();
+  loadBestSellers();
+  loadTransactionTimeline();
   
   document.getElementById("barcode").focus();
   
