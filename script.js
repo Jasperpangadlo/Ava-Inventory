@@ -1373,11 +1373,21 @@ document.getElementById("barcode").focus();
 }
 
 function renderStockCart() {
-  const tbody = document.getElementById("stockCartTable");
-  tbody.innerHTML = "";
+  const tbody =
+  document.getElementById("stockCartTable");
+
+  if(!tbody) return;
+
+  if(stockCart.length === 0){
+    tbody.innerHTML = "";
+    return;
+  }
+
+  let html = "";
 
   stockCart.forEach((item, index) => {
-    tbody.innerHTML += `
+
+    html += `
       <tr>
         <td>${item.barcode}</td>
         <td>${item.product}</td>
@@ -1388,12 +1398,15 @@ function renderStockCart() {
         <td>
           <button class="remove-btn"
           onclick="removeStockCartQty(${index})">
-          Remove
+            Remove
           </button>
         </td>
       </tr>
     `;
+
   });
+
+  tbody.innerHTML = html;
 }
 
 async function autoAddScan(e){
