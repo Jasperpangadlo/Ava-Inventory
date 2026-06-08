@@ -478,11 +478,12 @@ async function loadHistory() {
 
 let currentTab = "dashboard";
 
-function showTab(tabId){
+async function showTab(tabId){
 
   currentTab = tabId;
 
-  const tabs = document.querySelectorAll(".tab-content");
+  const tabs =
+  document.querySelectorAll(".tab-content");
 
   tabs.forEach(tab=>{
     tab.style.display="none";
@@ -490,24 +491,60 @@ function showTab(tabId){
 
   document.getElementById(tabId).style.display="block";
 
-  const links = document.querySelectorAll("aside a");
+  const links =
+  document.querySelectorAll("aside a");
 
   links.forEach(link=>{
     link.classList.remove("active");
   });
 
-  const activeLink = document.querySelector(
-    `aside a[onclick="showTab('${tabId}')"]`
+  const activeLink =
+  document.querySelector(
+  `aside a[onclick="showTab('${tabId}')"]`
   );
 
   if(activeLink){
     activeLink.classList.add("active");
   }
 
+  // LOAD DATA ONLY WHEN OPENED
+
+  if(tabId === "products"){
+    await loadProducts();
+  }
+
+  if(tabId === "history"){
+    await loadHistory();
+  }
+
+  if(tabId === "store"){
+    await loadStoreProducts();
+  }
+
+  if(tabId === "sold-items"){
+    await loadSoldItems();
+  }
+
+  if(tabId === "reports"){
+    await Promise.all([
+      loadDailyReports(),
+      loadBestSellers(),
+      loadSalesTrendChart()
+    ]);
+  }
+
+  if(tabId === "dashboard"){
+    await Promise.all([
+      loadWeeklyStockChart(),
+      updateStoreSalesToday(),
+      loadTransactionTimeline()
+    ]);
+  }
+
   if(tabId === "add-stock"){
-    setTimeout(() => {
+    setTimeout(()=>{
       document.getElementById("barcode").focus();
-    }, 100);
+    },100);
   }
 
 }
@@ -1569,6 +1606,8 @@ colorFilter.innerHTML += `
 
 async function loadDailyReports(){
 
+if(!document.getElementById("addStockReport")) return;
+
 const date =
 document.getElementById("reportDate").value;
 
@@ -2348,6 +2387,8 @@ document.getElementById(qtyId)
 
 async function updateStoreSalesToday(){
 
+if(!document.getElementById("store1Sales")) return;
+
 const result = await apiRequest("getHistory");
 const records = result.records || [];
 
@@ -2406,6 +2447,9 @@ document.getElementById("store3ItemsSold").textContent = store3Qty;
 
 function updateStoreCards(products){
 
+if(!document.getElementById("store1Count")) return;
+
+
 let store1 = 0;
 let store2 = 0;
 let store3 = 0;
@@ -2455,6 +2499,8 @@ el.style.color = "#166534";
 }
 
 function updateBranchRanking(){
+
+if(!document.getElementById("branchRanking")) return;
 
 const s1 =
 Number(
@@ -2853,8 +2899,11 @@ document.getElementById("bestSellerMonth");
 const selectedMonth =
 monthInput ? monthInput.value : "";
 
+const trendStore =
+document.getElementById("trendStoreFilter");
+
 const storeFilter =
-document.getElementById("trendStoreFilter").value;
+trendStore ? trendStore.value : "";
 
 const trendData = {};
 
@@ -3275,39 +3324,32 @@ renderSoldItems(filtered);
 
 window.onload = async () => {
 
-  if(localStorage.getItem("avaLoggedIn") === "true")
-{
-  document.getElementById("loginScreen").style.display = "none";
+  if(localStorage.getItem("avaLoggedIn") === "true"){
+    document.getElementById("loginScreen").style.display = "none";
   }
 
   const trendMonth =
   document.getElementById("trendMonth");
-  
+
   if(trendMonth){
-  trendMonth.value =
-  new Date().toISOString().slice(0,7);
+    trendMonth.value =
+    new Date().toISOString().slice(0,7);
   }
 
   setTodayReportDate();
   setCurrentBestSellerFilters();
-  loadTransactionTimeline();
-  loadSoldItems();
-  
-  document.getElementById("barcode").focus();
-  loadProducts();
-  loadHistory();
-  loadDailyReports();
-  loadBestSellers();
-  loadStoreProducts();
-  loadWeeklyStockChart();
-  updateStoreSalesToday();
-  loadSalesTrendChart();
-  
 
   updateClock();
-  setInterval(updateClock, 1000);
-  
+  setInterval(updateClock,1000);
+
   showTab("dashboard");
+
+  await Promise.all([
+    loadWeeklyStockChart(),
+    updateStoreSalesToday(),
+    loadTransactionTimeline()
+  ]);
+
 };
 
 
