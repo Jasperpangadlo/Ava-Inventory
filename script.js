@@ -1696,12 +1696,17 @@ colorFilter.innerHTML += `
 
 async function loadDailyReports(){
 
-if(!document.getElementById("addStockReport")) return;
+const reportDate =
+document.getElementById("reportDate");
+
+if(!reportDate) return;
 
 const date =
-document.getElementById("reportDate").value;
+reportDate.value;
+  
+if(!document.getElementById("addStockReport")) return;
 
-const history = historyCache;
+const history = historyCache || [];
 
 const addStock =
 document.getElementById("addStockReport");
@@ -1723,6 +1728,18 @@ document.getElementById("store2WalkinReport");
 
 const store3Walkin =
 document.getElementById("store3WalkinReport");
+
+if(
+  !addStock ||
+  !warehouseToStore ||
+  !storeToWarehouse ||
+  !warehouseOnline ||
+  !store1Walkin ||
+  !store2Walkin ||
+  !store3Walkin
+){
+  return;
+}
 
 addStock.innerHTML = "";
 warehouseToStore.innerHTML = "";
