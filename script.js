@@ -922,7 +922,7 @@ async function refreshAllData() {
     }
 
     else if(history && history.style.display !== "none"){
-
+      await loadHistoryCache();
       await loadHistory();
 
     }
