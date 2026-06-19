@@ -1470,8 +1470,8 @@ function handleBarcodeScan(event, fieldId, actionFn){
   _scanDone[fieldId] = true;
   field.setAttribute("readonly", true);
 
-  // Run the action
-  actionFn();
+  // Run the action (null = barcode-only field like outBarcode)
+  if(actionFn) actionFn();
 
   // Unlock after 800ms — ready for next scan
   setTimeout(()=>{
