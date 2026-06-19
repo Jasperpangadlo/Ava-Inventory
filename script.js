@@ -201,140 +201,158 @@ async function loadProducts() {
   filterProducts();
 }
 
-async function stockOut() {
+// ── Sales Cart ───────────────────────────────────────────────────────────────
+let salesCart = [];
 
-const btn =
-document.getElementById("deductbtn");
+function addToSalesCart(){
+  const field = document.getElementById("outBarcode");
+  const barcode = cleanDuplicateBarcode(field.value).trim();
 
-setButtonLoading(btn,true);
+  if(!barcode){
+    showMessage("Please scan a barcode first.", "warning");
+    return;
+  }
 
-const barcode =
-cleanDuplicateBarcode(document.getElementById("outBarcode").value);
-document.getElementById("outBarcode").value = barcode;
+  const found = allProducts.find(p =>
+    String(p.barcode).trim() === barcode
+  );
 
-const qty =
-Number(document.getElementById("outQty").value);
+  // If already in cart, just increment qty
+  const existing = salesCart.find(i => i.barcode === barcode);
+  if(existing){
+    existing.qty += 1;
+    renderSalesCart();
+    field.value = "";
+    field.focus();
+    return;
+  }
 
-const deductFrom =
-document.getElementById("deductFrom").value;
+  salesCart.push({
+    barcode,
+    product: found ? found.product : barcode,
+    qty: 1,
+    deductFrom: "Store 1",
+    salesType: "Walk-in Sales"
+  });
 
-const salesType =
-document.getElementById("salesType").value;
-
-if(!barcode || !qty){
-
-setButtonLoading(btn,false);
-
-showMessage(
-"Please input barcode and quantity out.",
-"warning"
-);
-
-return;
-
+  renderSalesCart();
+  field.value = "";
+  field.focus();
 }
 
-if(!deductFrom || !salesType){
+function renderSalesCart(){
+  const tbody = document.getElementById("salesCartTable");
+  if(!tbody) return;
 
-setButtonLoading(btn,false);
+  const emptyRow = document.getElementById("cartEmptyRow");
 
-showMessage(
-"Please select sales destination",
-"warning"
-);
+  if(salesCart.length === 0){
+    if(!emptyRow){
+      tbody.innerHTML = `<tr id="cartEmptyRow"><td colspan="6" style="text-align:center;color:#aaa;padding:16px;">Cart is empty — scan a barcode to add items</td></tr>`;
+    }
+    return;
+  }
 
-return;
-
+  tbody.innerHTML = salesCart.map((item, i) => `
+    <tr style="border-bottom:1px solid #eee;">
+      <td style="padding:8px;">${item.barcode}</td>
+      <td style="padding:8px;">${item.product}</td>
+      <td style="padding:8px;">
+        <input type="number" min="1" value="${item.qty}"
+          style="width:60px;padding:4px 6px;border:1px solid #ddd;border-radius:6px;"
+          onchange="updateCartQty(${i}, this.value)">
+      </td>
+      <td style="padding:8px;">
+        <select style="padding:4px 6px;border:1px solid #ddd;border-radius:6px;"
+          onchange="updateCartField(${i},'deductFrom',this.value)">
+          <option value="Warehouse" ${item.deductFrom==="Warehouse"?"selected":""}>Warehouse</option>
+          <option value="Store 1" ${item.deductFrom==="Store 1"?"selected":""}>Store 1</option>
+          <option value="Store 2" ${item.deductFrom==="Store 2"?"selected":""}>Store 2</option>
+          <option value="Store 3" ${item.deductFrom==="Store 3"?"selected":""}>Store 3</option>
+        </select>
+      </td>
+      <td style="padding:8px;">
+        <select style="padding:4px 6px;border:1px solid #ddd;border-radius:6px;"
+          onchange="updateCartField(${i},'salesType',this.value)">
+          <option value="Walk-in Sales" ${item.salesType==="Walk-in Sales"?"selected":""}>Walk-in Sales</option>
+          <option value="Online Sales" ${item.salesType==="Online Sales"?"selected":""}>Online Sales</option>
+        </select>
+      </td>
+      <td style="padding:8px;">
+        <button style="background:#e74c3c;color:white;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;"
+          onclick="removeCartItem(${i})">✕</button>
+      </td>
+    </tr>
+  `).join("");
 }
 
-let remarks = "";
-
-if(deductFrom === "Warehouse"){
-
-remarks =
-"Warehouse - " + salesType;
-
-}else{
-
-remarks =
-deductFrom + " - Walk-in";
-
+function updateCartQty(index, value){
+  salesCart[index].qty = Math.max(1, Number(value));
 }
 
-const result =
-await apiRequest(
-"stockOut",
-{
-barcode,
-qty,
-remarks,
-deductFrom
-}
-);
-
-if(result.message.includes("Not enough")){
-
-setButtonError(
-btn,
-"✕ No Stock"
-);
-
-showMessage(
-result.message,
-"error"
-);
-
-return;
-
+function updateCartField(index, field, value){
+  salesCart[index][field] = value;
 }
 
-setButtonSuccess(
-btn,
-"✓ Deducted"
-);
+function removeCartItem(index){
+  salesCart.splice(index, 1);
+  renderSalesCart();
+}
 
-showMessage(
-result.message,
-"success"
-);
+async function submitSalesCart(){
+  if(salesCart.length === 0){
+    showMessage("Cart is empty.", "warning");
+    return;
+  }
 
-document.getElementById("outBarcode").value = "";
-document.getElementById("outQty").value = "";
-document.getElementById("deductFrom").selectedIndex = 0;
-document.getElementById("salesType").selectedIndex = 0;
-document.getElementById("outBarcode").focus();
+  const btn = document.getElementById("deductbtn");
+  setButtonLoading(btn, true);
 
-await loadHistoryCache();
+  let hasError = false;
 
-await Promise.all([
-    loadProducts(),
-    loadStoreProducts(),
-    loadHistory()
-  ]);
+  for(const item of salesCart){
+    const remarks = item.deductFrom === "Warehouse"
+      ? "Warehouse - " + item.salesType
+      : item.deductFrom + " - Walk-in";
 
-  
+    const result = await apiRequest("stockOut", {
+      barcode: item.barcode,
+      qty: item.qty,
+      remarks,
+      deductFrom: item.deductFrom
+    });
+
+    if(result.message && result.message.includes("Not enough")){
+      showMessage("Not enough stock: " + item.barcode, "error");
+      hasError = true;
+    }
+  }
+
+  if(!hasError){
+    setButtonSuccess(btn, "✓ Deducted");
+    showMessage("All items deducted successfully!", "success");
+    salesCart = [];
+    renderSalesCart();
+  } else {
+    setButtonLoading(btn, false);
+  }
+
+  await loadHistoryCache();
+  await Promise.all([loadProducts(), loadStoreProducts(), loadHistory()]);
+
   if(currentTab === "reports"){
-    await Promise.all([
-      loadDailyReports(),
-      loadBestSellers()
-    ]);
+    await Promise.all([loadDailyReports(), loadBestSellers()]);
   }
-
-  
-  if(currentTab === "sold-items"){
-    await loadSoldItems();
-  }
-
-  
+  if(currentTab === "sold-items") await loadSoldItems();
   if(currentTab === "dashboard"){
-    await Promise.all([
-      updateStoreSalesToday(),
-      updateBranchRanking(),
-      loadTransactionTimeline()
-    ]);
+    await Promise.all([updateStoreSalesToday(), updateBranchRanking(), loadTransactionTimeline()]);
   }
-
 }
+
+async function stockOut(){
+  await submitSalesCart();
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 
 function populateFilters(products){
