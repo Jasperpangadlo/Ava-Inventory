@@ -1466,19 +1466,17 @@ function handleBarcodeScan(event, fieldId, actionFn){
   if(event.key !== "Enter") return;
   event.preventDefault();
 
-  // Lock the field immediately
+  // Lock the field immediately to block duplicate scan characters
   _scanDone[fieldId] = true;
   field.setAttribute("readonly", true);
 
-  // Run the action (null = barcode-only field like outBarcode)
+  // Run the action if provided
   if(actionFn) actionFn();
 
-  // Unlock after 800ms — ready for next scan
+  // Unlock after 800ms — field value stays, user clicks button to submit
   setTimeout(()=>{
     _scanDone[fieldId] = false;
     field.removeAttribute("readonly");
-    field.value = "";
-    field.focus();
   }, 800);
 }
 // ────────────────────────────────────────────────────────────────────────────
