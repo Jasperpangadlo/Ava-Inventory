@@ -1466,14 +1466,28 @@ function handleBarcodeScan(event, fieldId, actionFn){
   if(event.key !== "Enter") return;
   event.preventDefault();
 
-  // Lock the field immediately to block duplicate scan characters
+  // Lock the field immediately
   _scanDone[fieldId] = true;
   field.setAttribute("readonly", true);
 
-  // Run the action if provided
+  // Run the action (null = barcode-only field like outBarcode)
   if(actionFn) actionFn();
 
-  // Unlock after 800ms — field value stays, user clicks button to submit
+  // Auto-fill qty with 1 after scan if qty field is empty
+  const qtyMap = {
+    "outBarcode": "outQty",
+    "transferBarcode": "transferQty",
+    "returnBarcode": "returnQty"
+  };
+  const qtyFieldId = qtyMap[fieldId];
+  if(qtyFieldId){
+    const qtyField = document.getElementById(qtyFieldId);
+    if(qtyField && !qtyField.value){
+      qtyField.value = 1;
+    }
+  }
+
+  // Unlock after 800ms — field value stays, no auto-clear
   setTimeout(()=>{
     _scanDone[fieldId] = false;
     field.removeAttribute("readonly");
