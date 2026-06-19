@@ -209,7 +209,8 @@ document.getElementById("deductbtn");
 setButtonLoading(btn,true);
 
 const barcode =
-document.getElementById("outBarcode").value.trim();
+cleanDuplicateBarcode(document.getElementById("outBarcode").value);
+document.getElementById("outBarcode").value = barcode;
 
 const qty =
 Number(document.getElementById("outQty").value);
@@ -683,7 +684,8 @@ document.getElementById("sendStoreBtn");
 setButtonLoading(btn,true);
 
 const barcode =
-document.getElementById("transferBarcode").value.trim();
+cleanDuplicateBarcode(document.getElementById("transferBarcode").value);
+document.getElementById("transferBarcode").value = barcode;
 
 const store =
 document.getElementById("toStore").value;
@@ -832,9 +834,10 @@ document.getElementById("returnBtn");
 setButtonLoading(btn,true);
 
 const barcode=
-document.getElementById(
+cleanDuplicateBarcode(document.getElementById(
 "returnBarcode"
-).value.trim();
+).value);
+document.getElementById("returnBarcode").value = barcode;
 
 const store=
 document.getElementById(
@@ -3517,4 +3520,3 @@ btn.innerHTML = "Processing...";
   btn.innerHTML = originalText;
 
 }
-
