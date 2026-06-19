@@ -511,39 +511,38 @@ Return To Warehouse
 
 <h3>Sales / Stock Out</h3>
 
-<div class="form-grid">
+<div class="form-grid" style="grid-template-columns: 1fr auto; gap: 10px;">
+  <input
+    id="outBarcode"
+    placeholder="Scan Barcode"
+    onkeydown="handleBarcodeScan(event,'outBarcode',addToSalesCart)">
+  <button class="btn" onclick="addToSalesCart()">➕ Add to Cart</button>
+</div>
 
-<input
-id="outBarcode"
-placeholder="Scan Barcode"
-onkeydown="handleBarcodeScan(event,'outBarcode',null)"
+<div style="margin-top:16px;">
+  <table style="width:100%;border-collapse:collapse;font-size:14px;">
+    <thead>
+      <tr style="background:#f0f0f8;text-align:left;">
+        <th style="padding:8px;">Barcode</th>
+        <th style="padding:8px;">Product</th>
+        <th style="padding:8px;">Qty</th>
+        <th style="padding:8px;">Deduct From</th>
+        <th style="padding:8px;">Sales Type</th>
+        <th style="padding:8px;"></th>
+      </tr>
+    </thead>
+    <tbody id="salesCartTable">
+      <tr id="cartEmptyRow">
+        <td colspan="6" style="text-align:center;color:#aaa;padding:16px;">Cart is empty — scan a barcode to add items</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
-<input
-id="outQty"
-placeholder="Quantity Out">
-
-  <select id="deductFrom" onchange="toggleSalesType()">
-  <option value="">Deduct From</option>
-  <option value="Warehouse">Warehouse</option>
-  <option value="Store 1">Store 1</option>
-  <option value="Store 2">Store 2</option>
-  <option value="Store 3">Store 3</option>
-
-  </select>
-
-  <select id="salesType">
-  <option value="">Sales Type</option>
-  <option value="Online Sales">Online Sales</option>
-  <option value="Walk-in Sales">Walk-in Sales</option>
-  </select>
-
-<button
-id="deductbtn"
-class="btn"
-onclick="stockOut()">
-Deduct Stock
-</button>
-
+<div style="margin-top:12px;display:flex;justify-content:flex-end;">
+  <button id="deductbtn" class="btn" onclick="submitSalesCart()">
+    💰 Deduct All Stock
+  </button>
 </div>
 
 </div>
