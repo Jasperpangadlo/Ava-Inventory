@@ -1451,43 +1451,37 @@ function cleanDuplicateBarcode(value){
   return value;
 }
 
-// Stores the last accepted barcode and timestamp per field
-const _lastScan = {};
+// ── Barcode scanner duplicate fix ──────────────────────────────────────────
+const _scanDone = {};
 
-// Called on oninput — detects if scanner is repeating characters and trims it
-function cleanLiveBarcode(value, fieldId){
-  const last = _lastScan[fieldId];
-  if(!last) return value;
+function handleBarcodeScan(event, fieldId, actionFn){
+  const field = document.getElementById(fieldId);
 
-  const clean = value.trim();
-
-  // If the new value starts with the last accepted barcode repeated, trim it
-  if(clean.length > last.length && clean.startsWith(last + last.slice(0, clean.length - last.length))){
-    return last;
+  // Block all keystrokes while locked (scanner still sending characters)
+  if(_scanDone[fieldId]){
+    event.preventDefault();
+    return;
   }
 
-  return value;
-}
-
-// Called on onkeydown — triggers action on Enter and marks barcode as accepted
-function handleBarcodeScan(event, fieldId, actionFn){
   if(event.key !== "Enter") return;
   event.preventDefault();
 
-  const field = document.getElementById(fieldId);
-  const barcode = cleanDuplicateBarcode(field.value);
-  field.value = barcode;
+  // Lock the field immediately
+  _scanDone[fieldId] = true;
+  field.setAttribute("readonly", true);
 
-  // Save the accepted barcode so cleanLiveBarcode can detect duplicates
-  _lastScan[fieldId] = barcode;
-
-  // Clear after short delay so next scan starts fresh
-  setTimeout(()=>{
-    _lastScan[fieldId] = null;
-  }, 1000);
-
+  // Run the action
   actionFn();
+
+  // Unlock after 800ms — ready for next scan
+  setTimeout(()=>{
+    _scanDone[fieldId] = false;
+    field.removeAttribute("readonly");
+    field.value = "";
+    field.focus();
+  }, 800);
 }
+// ────────────────────────────────────────────────────────────────────────────
 
 async function saveStockCart(){
 
