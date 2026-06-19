@@ -454,7 +454,7 @@ oninput="filterProducts()"
 <div class="form-grid">
 
 <input id="transferBarcode" type="text" placeholder="Scan Barcode"
-  onkeydown="handleBarcodeScan(event,'transferBarcode',sendToStore)">
+  onkeydown="handleBarcodeScan(event,'transferBarcode',null)">
 
 <select id="toStore">
 <option>Store 1</option>
@@ -482,7 +482,7 @@ Send To Store
 <div class="form-grid">
 
 <input id="returnBarcode" placeholder="Scan Barcode"
-  onkeydown="handleBarcodeScan(event,'returnBarcode',returnToWarehouse)">
+  onkeydown="handleBarcodeScan(event,'returnBarcode',null)">
 
 <select id="fromStore">
 <option>Store 1</option>
@@ -516,7 +516,7 @@ Return To Warehouse
 <input
 id="outBarcode"
 placeholder="Scan Barcode"
-onkeydown="handleBarcodeScan(event,'outBarcode',null)">
+onkeydown="handleBarcodeScan(event,'outBarcode',null)"
 
 <input
 id="outQty"
