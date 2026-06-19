@@ -1451,6 +1451,44 @@ function cleanDuplicateBarcode(value){
   return value;
 }
 
+// Stores the last accepted barcode and timestamp per field
+const _lastScan = {};
+
+// Called on oninput — detects if scanner is repeating characters and trims it
+function cleanLiveBarcode(value, fieldId){
+  const last = _lastScan[fieldId];
+  if(!last) return value;
+
+  const clean = value.trim();
+
+  // If the new value starts with the last accepted barcode repeated, trim it
+  if(clean.length > last.length && clean.startsWith(last + last.slice(0, clean.length - last.length))){
+    return last;
+  }
+
+  return value;
+}
+
+// Called on onkeydown — triggers action on Enter and marks barcode as accepted
+function handleBarcodeScan(event, fieldId, actionFn){
+  if(event.key !== "Enter") return;
+  event.preventDefault();
+
+  const field = document.getElementById(fieldId);
+  const barcode = cleanDuplicateBarcode(field.value);
+  field.value = barcode;
+
+  // Save the accepted barcode so cleanLiveBarcode can detect duplicates
+  _lastScan[fieldId] = barcode;
+
+  // Clear after short delay so next scan starts fresh
+  setTimeout(()=>{
+    _lastScan[fieldId] = null;
+  }, 1000);
+
+  actionFn();
+}
+
 async function saveStockCart(){
 
 const btn =
