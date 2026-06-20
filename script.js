@@ -230,9 +230,7 @@ function addToSalesCart(){
   salesCart.push({
     barcode,
     product: found ? found.product : barcode,
-    qty: 1,
-    deductFrom: "Store 1",
-    salesType: "Walk-in Sales"
+    qty: 1
   });
 
   renderSalesCart();
@@ -244,12 +242,8 @@ function renderSalesCart(){
   const tbody = document.getElementById("salesCartTable");
   if(!tbody) return;
 
-  const emptyRow = document.getElementById("cartEmptyRow");
-
   if(salesCart.length === 0){
-    if(!emptyRow){
-      tbody.innerHTML = `<tr id="cartEmptyRow"><td colspan="6" style="text-align:center;color:#aaa;padding:16px;">Cart is empty — scan a barcode to add items</td></tr>`;
-    }
+    tbody.innerHTML = `<tr id="cartEmptyRow"><td colspan="4" style="text-align:center;color:#aaa;padding:16px;">Cart is empty — scan a barcode to add items</td></tr>`;
     return;
   }
 
@@ -263,22 +257,6 @@ function renderSalesCart(){
           onchange="updateCartQty(${i}, this.value)">
       </td>
       <td style="padding:8px;">
-        <select style="padding:4px 6px;border:1px solid #ddd;border-radius:6px;"
-          onchange="updateCartField(${i},'deductFrom',this.value)">
-          <option value="Warehouse" ${item.deductFrom==="Warehouse"?"selected":""}>Warehouse</option>
-          <option value="Store 1" ${item.deductFrom==="Store 1"?"selected":""}>Store 1</option>
-          <option value="Store 2" ${item.deductFrom==="Store 2"?"selected":""}>Store 2</option>
-          <option value="Store 3" ${item.deductFrom==="Store 3"?"selected":""}>Store 3</option>
-        </select>
-      </td>
-      <td style="padding:8px;">
-        <select style="padding:4px 6px;border:1px solid #ddd;border-radius:6px;"
-          onchange="updateCartField(${i},'salesType',this.value)">
-          <option value="Walk-in Sales" ${item.salesType==="Walk-in Sales"?"selected":""}>Walk-in Sales</option>
-          <option value="Online Sales" ${item.salesType==="Online Sales"?"selected":""}>Online Sales</option>
-        </select>
-      </td>
-      <td style="padding:8px;">
         <button style="background:#e74c3c;color:white;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;"
           onclick="removeCartItem(${i})">✕</button>
       </td>
@@ -288,10 +266,6 @@ function renderSalesCart(){
 
 function updateCartQty(index, value){
   salesCart[index].qty = Math.max(1, Number(value));
-}
-
-function updateCartField(index, field, value){
-  salesCart[index][field] = value;
 }
 
 function removeCartItem(index){
@@ -305,21 +279,24 @@ async function submitSalesCart(){
     return;
   }
 
+  const deductFrom = document.getElementById("deductFrom").value;
+  const salesType = document.getElementById("salesType").value;
+
   const btn = document.getElementById("deductbtn");
   setButtonLoading(btn, true);
 
   let hasError = false;
 
   for(const item of salesCart){
-    const remarks = item.deductFrom === "Warehouse"
-      ? "Warehouse - " + item.salesType
-      : item.deductFrom + " - Walk-in";
+    const remarks = deductFrom === "Warehouse"
+      ? "Warehouse - " + salesType
+      : deductFrom + " - Walk-in";
 
     const result = await apiRequest("stockOut", {
       barcode: item.barcode,
       qty: item.qty,
       remarks,
-      deductFrom: item.deductFrom
+      deductFrom
     });
 
     if(result.message && result.message.includes("Not enough")){
@@ -333,6 +310,7 @@ async function submitSalesCart(){
     showMessage("All items deducted successfully!", "success");
     salesCart = [];
     renderSalesCart();
+    document.getElementById("outBarcode").focus();
   } else {
     setButtonLoading(btn, false);
   }
