@@ -2381,3 +2381,42 @@ font-size:13px;
   text-align: center;
 }
 /* ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── POS Filter Buttons ─────────────────────────────────────────────────── */
+.pos-filter-btn {
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: rgba(255,255,255,.15);
+  color: #e0e7ff;
+  transition: all .2s;
+}
+.pos-filter-btn.active {
+  background: #4f46e5;
+  color: white;
+}
+.pos-filter-btn.low { color: #fcd34d; }
+.pos-filter-btn.low.active { background: #f59e0b; color: white; }
+.pos-filter-btn.out { color: #fca5a5; }
+.pos-filter-btn.out.active { background: #ef4444; color: white; }
+
+.pos-stock-item {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 10px 12px;
+}
+.pos-stock-meta {
+  font-size: 11px;
+  color: #a5b4fc;
+}
+.pos-stock-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+/* ─────────────────────────────────────────────────────────────────────────── */
