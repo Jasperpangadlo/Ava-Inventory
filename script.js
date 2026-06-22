@@ -3415,22 +3415,137 @@ function showPosScreen(){
   document.getElementById("posStoreName").textContent = store;
   document.getElementById("posWelcome").textContent = "Hi, " + user + " 👋";
 
+  // Update history store name too
+  const histName = document.getElementById("posHistoryStoreName");
+  if(histName) histName.textContent = store;
+
+  // Set today's date on history date picker
+  const histDate = document.getElementById("posHistoryDate");
+  if(histDate) histDate.value = new Date().toISOString().split("T")[0];
+
   // Hide admin layout
   document.querySelector(".layout").style.display = "none";
 
   loadPosStocks();
   loadPosSalesStats();
 
-  // Focus barcode input
   setTimeout(()=>{
     const inp = document.getElementById("posBarcodeInput");
     if(inp) inp.focus();
   }, 200);
 
-  // Clock
   updatePosClock();
   setInterval(updatePosClock, 1000);
 }
+
+// ── POS Tab Switching ────────────────────────────────────────────────────────
+function showPosTab(tab){
+  document.querySelectorAll(".pos-tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".pos-tab-content").forEach(c => c.style.display = "none");
+
+  if(tab === "pos"){
+    document.getElementById("posTab").style.display = "block";
+    document.querySelectorAll(".pos-tab-btn")[0].classList.add("active");
+    setTimeout(()=>{
+      const inp = document.getElementById("posBarcodeInput");
+      if(inp) inp.focus();
+    }, 100);
+  } else if(tab === "history"){
+    document.getElementById("posHistoryTab").style.display = "block";
+    document.querySelectorAll(".pos-tab-btn")[1].classList.add("active");
+    loadPosHistory();
+  }
+}
+
+// ── POS History ───────────────────────────────────────────────────────────────
+let _posHistoryData = [];
+
+async function loadPosHistory(){
+  const store    = localStorage.getItem("avaStore") || "Store 1";
+  const dateEl   = document.getElementById("posHistoryDate");
+  const date     = dateEl ? dateEl.value : "";
+  const tbody    = document.getElementById("posHistoryTableBody");
+
+  if(tbody){
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#aaa;padding:24px;">Loading...</td></tr>`;
+  }
+
+  // Use cached history if available, otherwise fetch
+  let history = historyCache || [];
+  if(!history.length){
+    const result = await apiRequest("getHistory");
+    history = result.records || [];
+  }
+
+  // Filter by store and date
+  _posHistoryData = history.filter(item => {
+    const remarks = String(item.remarks || "").toLowerCase();
+    const matchStore = remarks.includes(store.toLowerCase());
+
+    if(!matchStore) return false;
+
+    if(date){
+      const itemDate = new Date(item.datetime || item.date)
+        .toISOString().split("T")[0];
+      return itemDate === date;
+    }
+
+    return true;
+  });
+
+  renderPosHistory(_posHistoryData);
+}
+
+function renderPosHistory(records){
+  const tbody = document.getElementById("posHistoryTableBody");
+  if(!tbody) return;
+
+  // Update summary cards
+  const total = records.reduce((s, r) => s + (Number(r.total) || 0), 0);
+  const items = records.reduce((s, r) => s + (Number(r.qty)   || 0), 0);
+
+  const totalEl = document.getElementById("posHistoryTotal");
+  const itemsEl = document.getElementById("posHistoryItems");
+  const transEl = document.getElementById("posHistoryTrans");
+
+  if(totalEl) totalEl.textContent = "₱ " + total.toLocaleString("en-PH", {minimumFractionDigits:2});
+  if(itemsEl) itemsEl.textContent = items;
+  if(transEl) transEl.textContent = records.length;
+
+  if(!records.length){
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#aaa;padding:32px;">No transactions found</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = records.map(r => `
+    <tr>
+      <td style="white-space:nowrap;font-size:12px;color:#6b7280;">${r.datetime || "-"}</td>
+      <td style="font-size:12px;color:#818cf8;">${r.barcode || "-"}</td>
+      <td><strong>${r.product || "-"}</strong></td>
+      <td>${r.color || "-"}</td>
+      <td>${r.size  || "-"}</td>
+      <td style="text-align:center;font-weight:700;">${r.qty || 0}</td>
+      <td>₱ ${Number(r.price || 0).toLocaleString("en-PH", {minimumFractionDigits:2})}</td>
+      <td style="font-weight:700;color:#059669;">₱ ${Number(r.total || 0).toLocaleString("en-PH", {minimumFractionDigits:2})}</td>
+    </tr>
+  `).join("");
+}
+
+function filterPosHistory(){
+  const query = (document.getElementById("posHistorySearch")?.value || "").toLowerCase();
+  if(!query){
+    renderPosHistory(_posHistoryData);
+    return;
+  }
+  const filtered = _posHistoryData.filter(r =>
+    String(r.product || "").toLowerCase().includes(query) ||
+    String(r.barcode || "").toLowerCase().includes(query) ||
+    String(r.color   || "").toLowerCase().includes(query) ||
+    String(r.size    || "").toLowerCase().includes(query)
+  );
+  renderPosHistory(filtered);
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 function updatePosClock(){
   const el = document.getElementById("posClock");
