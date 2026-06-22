@@ -1739,374 +1739,152 @@ colorFilter.innerHTML += `
 
 async function loadDailyReports(){
 
-const reportDate =
-document.getElementById("reportDate");
-
+const reportDate = document.getElementById("reportDate");
 if(!reportDate) return;
 
-const date =
-reportDate.value;
+const date = reportDate.value;
   
 if(!document.getElementById("addStockReport")) return;
 
-const history = historyCache || [];
+// Use date range filter if set, otherwise fall back to single date
+const history = getFilteredHistory();
 
-const addStock =
-document.getElementById("addStockReport");
+const addStock = document.getElementById("addStockReport");
+const warehouseToStore = document.getElementById("warehouseToStoreReport");
+const storeToWarehouse = document.getElementById("storeToWarehouseReport");
+const warehouseOnline  = document.getElementById("warehouseOnlineReport");
+const store1Walkin = document.getElementById("store1WalkinReport");
+const store2Walkin = document.getElementById("store2WalkinReport");
+const store3Walkin = document.getElementById("store3WalkinReport");
 
-const warehouseToStore =
-document.getElementById("warehouseToStoreReport");
+if(!addStock||!warehouseToStore||!storeToWarehouse||!warehouseOnline||!store1Walkin||!store2Walkin||!store3Walkin) return;
 
-const storeToWarehouse =
-document.getElementById("storeToWarehouseReport");
-
-const warehouseOnline =
-document.getElementById("warehouseOnlineReport");
-
-const store1Walkin =
-document.getElementById("store1WalkinReport");
-
-const store2Walkin =
-document.getElementById("store2WalkinReport");
-
-const store3Walkin =
-document.getElementById("store3WalkinReport");
-
-if(
-  !addStock ||
-  !warehouseToStore ||
-  !storeToWarehouse ||
-  !warehouseOnline ||
-  !store1Walkin ||
-  !store2Walkin ||
-  !store3Walkin
-){
-  return;
-}
-
-addStock.innerHTML = "";
-warehouseToStore.innerHTML = "";
-storeToWarehouse.innerHTML = "";
-warehouseOnline.innerHTML = "";
-store1Walkin.innerHTML = "";
-store2Walkin.innerHTML = "";
-store3Walkin.innerHTML = "";
-
-const filtered = history.filter(item => {
-
-if(!date) return true;
-
-const itemDate =
-new Date(item.datetime || item.date)
-.toISOString()
-.split("T")[0];
-
-return itemDate === date;
-
-});
+addStock.innerHTML="";warehouseToStore.innerHTML="";storeToWarehouse.innerHTML="";
+warehouseOnline.innerHTML="";store1Walkin.innerHTML="";store2Walkin.innerHTML="";store3Walkin.innerHTML="";
 
 let store1Sales = {};
 let store2Sales = {};
 let store3Sales = {};
 
-let store1Total = 0;
-let store2Total = 0;
-let store3Total = 0;
+let store1Total = 0, store2Total = 0, store3Total = 0;
+let onlineTotal = 0;
+let walkinTotal = 0;
 
 let colorSales = {};
-let sizeSales = {};
+let sizeSales  = {};
+let returnData = {}; // for return analytics
 
 let summary = {
-addStock:{qty:0,total:0},
-warehouseToStore:{qty:0,total:0},
-storeToWarehouse:{qty:0,total:0},
-warehouseOnline:{qty:0,total:0},
-store1Walkin:{qty:0,total:0},
-store2Walkin:{qty:0,total:0},
-store3Walkin:{qty:0,total:0}
+  addStock:{qty:0,total:0},
+  warehouseToStore:{qty:0,total:0},
+  storeToWarehouse:{qty:0,total:0},
+  warehouseOnline:{qty:0,total:0},
+  store1Walkin:{qty:0,total:0},
+  store2Walkin:{qty:0,total:0},
+  store3Walkin:{qty:0,total:0}
 };
 
-let addStockHtml = "";
-let warehouseToStoreHtml = "";
-let storeToWarehouseHtml = "";
-let warehouseOnlineHtml = "";
-let store1WalkinHtml = "";
-let store2WalkinHtml = "";
-let store3WalkinHtml = "";
-  
-filtered.forEach(item => {
-  
+let addStockHtml="",warehouseToStoreHtml="",storeToWarehouseHtml="",warehouseOnlineHtml="";
+let store1WalkinHtml="",store2WalkinHtml="",store3WalkinHtml="";
+
+history.forEach(item => {
+
 let badgeClass = "badge-stock";
-let badgeText = "STOCK";
+let badgeText  = "STOCK";
 
-const lowerRemarks =
-(item.remarks || "").toLowerCase();
+const lowerRemarks = (item.remarks || "").toLowerCase();
 
-if(lowerRemarks.includes("walk")){
-badgeClass = "badge-sale";
-badgeText = "WALK-IN";
-}
-
-else if(lowerRemarks.includes("online")){
-badgeClass = "badge-online";
-badgeText = "ONLINE";
-}
-
-else if(
-lowerRemarks.includes("warehouse") &&
-lowerRemarks.includes("store")
-){
-badgeClass = "badge-transfer";
-badgeText = "TRANSFER";
-}
-
-else if(lowerRemarks.includes("add stock")){
-badgeClass = "badge-stock";
-badgeText = "ADD STOCK";
-}
+if(lowerRemarks.includes("walk")){ badgeClass="badge-sale"; badgeText="WALK-IN"; }
+else if(lowerRemarks.includes("online")){ badgeClass="badge-online"; badgeText="ONLINE"; }
+else if(lowerRemarks.includes("warehouse") && lowerRemarks.includes("store")){ badgeClass="badge-transfer"; badgeText="TRANSFER"; }
+else if(lowerRemarks.includes("add stock")){ badgeClass="badge-stock"; badgeText="ADD STOCK"; }
 
 const row = `
-
 <div class="report-item">
-
 <div class="report-top">
-
 <b>${item.product}</b>
-
-<span class="report-badge ${badgeClass}">
-${badgeText}
-</span>
-
+<span class="report-badge ${badgeClass}">${badgeText}</span>
 </div>
-
 <small>${item.barcode}</small>
-
 <small>Qty: ${item.qty}</small>
+${item.total?`<small>Total: ₱${Number(item.total).toLocaleString()}</small>`:""}
+</div>`;
 
-${item.total ?
-`<small>Total: ₱${Number(item.total).toLocaleString()}</small>`
-: ""}
-
-</div>
-
-`;
-
-const remarks =
-(item.remarks || "").toLowerCase();
-
-const product =
-item.product;
-
-const qty =
-Number(item.qty) || 0;
-
-const total =
-Number(item.total) || 0;
-
-const color =
-item.color || "Unknown";
-
-const size =
-item.size || "Unknown";
+const remarks = (item.remarks || "").toLowerCase();
+const product = item.product;
+const qty     = Number(item.qty)   || 0;
+const total   = Number(item.total) || 0;
+const color   = item.color || "Unknown";
+const size    = item.size  || "Unknown";
 
 if(remarks.includes("walk")){
-
-colorSales[color] =
-(colorSales[color] || 0) + qty;
-
-sizeSales[size] =
-(sizeSales[size] || 0) + qty;
-
+  colorSales[color] = (colorSales[color]||0)+qty;
+  sizeSales[size]   = (sizeSales[size]||0)+qty;
+  walkinTotal += total;
 }
 
-if(
-remarks.includes("store 1") &&
-remarks.includes("walk")
-){
+if(remarks.includes("online")) onlineTotal += total;
 
-store1Sales[product] =
-(store1Sales[product] || 0) + qty;
-
-}
-
-if(
-remarks.includes("store 2") &&
-remarks.includes("walk")
-){
-
-store2Sales[product] =
-(store2Sales[product] || 0) + qty;
-
-}
-
-if(
-remarks.includes("store 3") &&
-remarks.includes("walk")
-){
-
-store3Sales[product] =
-(store3Sales[product] || 0) + qty;
-
-}
+if(remarks.includes("store 1")&&remarks.includes("walk")) store1Sales[product]=(store1Sales[product]||0)+qty;
+if(remarks.includes("store 2")&&remarks.includes("walk")) store2Sales[product]=(store2Sales[product]||0)+qty;
+if(remarks.includes("store 3")&&remarks.includes("walk")) store3Sales[product]=(store3Sales[product]||0)+qty;
 
 if(remarks.includes("add stock")){
-
-addStockHtml += row;
-
-summary.addStock.qty += qty;
-summary.addStock.total += total;
-
+  addStockHtml+=row; summary.addStock.qty+=qty; summary.addStock.total+=total;
 }
-
-else if(
-remarks.startsWith("warehouse") &&
-remarks.includes("store")
-){
-
-warehouseToStoreHtml += row;
-
-summary.warehouseToStore.qty += qty;
-summary.warehouseToStore.total += total;
-
+else if(remarks.startsWith("warehouse")&&remarks.includes("store")){
+  warehouseToStoreHtml+=row; summary.warehouseToStore.qty+=qty; summary.warehouseToStore.total+=total;
 }
-
-else if(
-remarks.startsWith("store") &&
-remarks.includes("warehouse")
-){
-
-storeToWarehouseHtml += row;
-
-summary.storeToWarehouse.qty += qty;
-summary.storeToWarehouse.total += total;
-
+else if(remarks.startsWith("store")&&remarks.includes("warehouse")){
+  storeToWarehouseHtml+=row; summary.storeToWarehouse.qty+=qty; summary.storeToWarehouse.total+=total;
+  // Track returns per product
+  returnData[product] = (returnData[product]||0)+qty;
 }
-
 else if(remarks.includes("online")){
-
-warehouseOnlineHtml += row;
-
-summary.warehouseOnline.qty += qty;
-summary.warehouseOnline.total += total;
-
+  warehouseOnlineHtml+=row; summary.warehouseOnline.qty+=qty; summary.warehouseOnline.total+=total;
 }
-
-else if(
-remarks.startsWith("store 1") &&
-remarks.includes("walk")
-){
-
-store1WalkinHtml += row;
-
-store1Total += total;
-
-summary.store1Walkin.qty += qty;
-summary.store1Walkin.total += total;
-
+else if(remarks.startsWith("store 1")&&remarks.includes("walk")){
+  store1WalkinHtml+=row; store1Total+=total; summary.store1Walkin.qty+=qty; summary.store1Walkin.total+=total;
 }
-
-else if(
-remarks.startsWith("store 2") &&
-remarks.includes("walk")
-){
-
-store2WalkinHtml += row;
-
-store2Total += total;
-
-summary.store2Walkin.qty += qty;
-summary.store2Walkin.total += total;
-
+else if(remarks.startsWith("store 2")&&remarks.includes("walk")){
+  store2WalkinHtml+=row; store2Total+=total; summary.store2Walkin.qty+=qty; summary.store2Walkin.total+=total;
 }
-
-else if(
-remarks.startsWith("store 3") &&
-remarks.includes("walk")
-){
-
-store3WalkinHtml += row;
-
-store3Total += total;
-
-summary.store3Walkin.qty += qty;
-summary.store3Walkin.total += total;
-
+else if(remarks.startsWith("store 3")&&remarks.includes("walk")){
+  store3WalkinHtml+=row; store3Total+=total; summary.store3Walkin.qty+=qty; summary.store3Walkin.total+=total;
 }
 
 });
 
-addStock.innerHTML =
-  addStockHtml ||
-  `<div class="report-empty">No records</div>`;
+addStock.innerHTML       = addStockHtml       || `<div class="report-empty">No records</div>`;
+warehouseToStore.innerHTML = warehouseToStoreHtml || `<div class="report-empty">No records</div>`;
+storeToWarehouse.innerHTML = storeToWarehouseHtml || `<div class="report-empty">No records</div>`;
+warehouseOnline.innerHTML  = warehouseOnlineHtml  || `<div class="report-empty">No records</div>`;
+store1Walkin.innerHTML     = store1WalkinHtml     || `<div class="report-empty">No records</div>`;
+store2Walkin.innerHTML     = store2WalkinHtml     || `<div class="report-empty">No records</div>`;
+store3Walkin.innerHTML     = store3WalkinHtml     || `<div class="report-empty">No records</div>`;
 
-warehouseToStore.innerHTML =
-  warehouseToStoreHtml ||
-  `<div class="report-empty">No records</div>`;
-
-storeToWarehouse.innerHTML =
-  storeToWarehouseHtml ||
-  `<div class="report-empty">No records</div>`;
-
-warehouseOnline.innerHTML =
-  warehouseOnlineHtml ||
-  `<div class="report-empty">No records</div>`;
-
-store1Walkin.innerHTML =
-  store1WalkinHtml ||
-  `<div class="report-empty">No records</div>`;
-
-store2Walkin.innerHTML =
-  store2WalkinHtml ||
-  `<div class="report-empty">No records</div>`;
-
-store3Walkin.innerHTML =
-  store3WalkinHtml ||
-  `<div class="report-empty">No records</div>`;
-
-updateReportSummary("addStock", summary.addStock);
-updateReportSummary("warehouseToStore", summary.warehouseToStore);
-updateReportSummary("storeToWarehouse", summary.storeToWarehouse);
+updateReportSummary("addStock",        summary.addStock);
+updateReportSummary("warehouseToStore",summary.warehouseToStore);
+updateReportSummary("storeToWarehouse",summary.storeToWarehouse);
 updateReportSummary("warehouseOnline", summary.warehouseOnline);
-updateReportSummary("store1Walkin", summary.store1Walkin);
-updateReportSummary("store2Walkin", summary.store2Walkin);
-updateReportSummary("store3Walkin", summary.store3Walkin);
+updateReportSummary("store1Walkin",    summary.store1Walkin);
+updateReportSummary("store2Walkin",    summary.store2Walkin);
+updateReportSummary("store3Walkin",    summary.store3Walkin);
 
-updateBestSellerCard(
-store1Sales,
-"store1BestSeller",
-"store1BestSellerQty"
-);
+updateBestSellerCard(store1Sales,"store1BestSeller","store1BestSellerQty");
+updateBestSellerCard(store2Sales,"store2BestSeller","store2BestSellerQty");
+updateBestSellerCard(store3Sales,"store3BestSeller","store3BestSellerQty");
 
-updateBestSellerCard(
-store2Sales,
-"store2BestSeller",
-"store2BestSellerQty"
-);
+// Revenue now includes online sales too
+updateReportOverview(store1Total,store2Total,store3Total,store1Sales,store2Sales,store3Sales,onlineTotal);
 
-updateBestSellerCard(
-store3Sales,
-"store3BestSeller",
-"store3BestSellerQty"
-);
+updateTopAnalytics(colorSales,"topColorsBox");
+updateTopAnalytics(sizeSales,"topSizesBox");
 
-updateReportOverview(
-store1Total,
-store2Total,
-store3Total,
-store1Sales,
-store2Sales,
-store3Sales
-);
-
-updateTopAnalytics(
-colorSales,
-"topColorsBox"
-);
-
-updateTopAnalytics(
-sizeSales,
-"topSizesBox"
-);
+// New charts
+loadStoreComparisonChart(store1Total,store2Total,store3Total);
+loadSalesBreakdownChart(walkinTotal, onlineTotal);
+updateReturnAnalytics(returnData);
 
 }
 
@@ -2119,100 +1897,259 @@ sizeSales,
 
 async function loadBestSellers(){
 
-  const records =
-  historyCache || [];
+  const records = historyCache || [];
 
-  const selectedMonth =
-  document.getElementById("bestSellerMonth")?.value || "";
+  const selectedMonth = document.getElementById("bestSellerMonth")?.value || "";
+  const selectedWeek  = document.getElementById("bestSellerWeek")?.value || "";
 
-  const selectedWeek =
-  document.getElementById("bestSellerWeek")?.value || "";
-
-  const weeklyBox =
-  document.getElementById("weeklyBestSeller");
-
-  const monthlyBox =
-  document.getElementById("monthlyBestSeller");
+  const weeklyBox  = document.getElementById("weeklyBestSeller");
+  const monthlyBox = document.getElementById("monthlyBestSeller");
 
   if(!weeklyBox || !monthlyBox) return;
 
-  const sales = {};
+  // ── WEEKLY sales: filter by selectedMonth + selectedWeek ──────────────
+  const weeklySales = {};
+  // ── MONTHLY sales: filter by selectedMonth only (ignore week filter) ──
+  const monthlySales = {};
 
   records.forEach(item=>{
 
-    const remarks =
-    String(item.remarks || "").toLowerCase();
-
+    const remarks = String(item.remarks || "").toLowerCase();
     if(!remarks.includes("walk")) return;
 
-    const date =
-    new Date(item.datetime || item.date);
-
-    const month =
-    date.toISOString().slice(0,7);
-
-    const week =
-    String(Math.ceil(date.getDate() / 7));
+    const date  = new Date(item.datetime || item.date);
+    const month = date.toISOString().slice(0,7);
+    const week  = String(Math.ceil(date.getDate() / 7));
 
     if(selectedMonth && month !== selectedMonth) return;
 
-    if(selectedWeek && week !== selectedWeek) return;
+    const product = item.product || "Unknown Product";
+    const qty     = Number(item.qty) || 0;
 
-    const product =
-    item.product || "Unknown Product";
+    // Monthly: every record that passes month filter
+    monthlySales[product] = (monthlySales[product] || 0) + qty;
 
-    const qty =
-    Number(item.qty) || 0;
-
-    sales[product] =
-    (sales[product] || 0) + qty;
-
-  });
-
-  let rank = 1;
-  let html = "";
-
-  Object.entries(sales)
-  .sort((a,b)=>b[1]-a[1])
-  .slice(0,5)
-  .forEach(item=>{
-
-    html += `
-      <div class="best-seller-item">
-
-        <div class="best-seller-left">
-
-          <div class="rank-badge">
-            ${rank}
-          </div>
-
-          <div class="best-seller-name">
-            ${item[0]}
-          </div>
-
-        </div>
-
-        <div class="best-seller-qty">
-          ${item[1]} sold
-        </div>
-
-      </div>
-    `;
-
-    rank++;
+    // Weekly: additionally filter by week
+    if(!selectedWeek || week === selectedWeek){
+      weeklySales[product] = (weeklySales[product] || 0) + qty;
+    }
 
   });
 
-  if(!html){
-    html =
-    `<div class="report-empty">No records</div>`;
+  function buildHtml(sales){
+    const entries = Object.entries(sales).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    if(!entries.length) return `<div class="report-empty">No records</div>`;
+    let rank = 1;
+    return entries.map(([name, qty])=>{
+      const medals = ["","🥇","🥈","🥉","4️⃣","5️⃣"];
+      const row = `
+        <div class="best-seller-item">
+          <div class="best-seller-left">
+            <div class="rank-badge">${medals[rank] || rank}</div>
+            <div class="best-seller-name">${name}</div>
+          </div>
+          <div class="best-seller-qty">${qty} sold</div>
+        </div>`;
+      rank++;
+      return row;
+    }).join("");
   }
 
-  weeklyBox.innerHTML = html;
-  monthlyBox.innerHTML = html;
+  weeklyBox.innerHTML  = buildHtml(weeklySales);
+  monthlyBox.innerHTML = buildHtml(monthlySales);
 
 }
 
+
+// ── Date Range Filter ─────────────────────────────────────────────────────
+let _activeDateRange = { from: null, to: null };
+
+function setDateRange(type, btn){
+  document.querySelectorAll(".range-btn").forEach(b=>b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+
+  const customBox = document.getElementById("customRangeBox");
+  if(type === "custom"){
+    customBox.style.display = "flex";
+    return;
+  }
+  customBox.style.display = "none";
+
+  const today = new Date();
+  let from, to;
+
+  if(type === "today"){
+    from = to = today;
+  } else if(type === "week"){
+    const day = today.getDay();
+    from = new Date(today); from.setDate(today.getDate() - day);
+    to   = new Date(today);
+  } else if(type === "month"){
+    from = new Date(today.getFullYear(), today.getMonth(), 1);
+    to   = today;
+  }
+
+  _activeDateRange = { from: formatDate(from), to: formatDate(to) };
+
+  const rd = document.getElementById("reportDate");
+  if(rd) rd.value = _activeDateRange.from;
+
+  const label = type === "today" ? "Today" : type === "week" ? "This Week" : "This Month";
+  const span = document.getElementById("reportDateText");
+  if(span) span.textContent = label;
+
+  reloadReportsWithLoader();
+}
+
+function applyCustomRange(){
+  const from = document.getElementById("dateRangeFrom")?.value;
+  const to   = document.getElementById("dateRangeTo")?.value;
+  if(!from || !to) return;
+  _activeDateRange = { from, to };
+  const rd = document.getElementById("reportDate");
+  if(rd) rd.value = from;
+  const span = document.getElementById("reportDateText");
+  if(span) span.textContent = `${from} to ${to}`;
+  reloadReportsWithLoader();
+}
+
+function formatDate(d){
+  const yyyy = d.getFullYear();
+  const mm   = String(d.getMonth()+1).padStart(2,"0");
+  const dd   = String(d.getDate()).padStart(2,"0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function getFilteredHistory(){
+  const history = historyCache || [];
+  const { from, to } = _activeDateRange;
+  if(!from && !to) return history;
+  return history.filter(item=>{
+    const itemDate = new Date(item.datetime || item.date).toISOString().split("T")[0];
+    if(from && itemDate < from) return false;
+    if(to   && itemDate > to)   return false;
+    return true;
+  });
+}
+
+// ── CSV Export ────────────────────────────────────────────────────────────
+function exportReportsCSV(){
+  const history = getFilteredHistory();
+  if(!history.length){ showMessage("Walang data para i-export.", "warning"); return; }
+
+  const rows = [["Date/Time","Barcode","Product","Color","Size","Qty","Price","Total","Remarks"]];
+  history.forEach(item=>{
+    rows.push([
+      item.datetime||item.date||"", item.barcode||"", item.product||"",
+      item.color||"", item.size||"", item.qty||0, item.price||0,
+      item.total||0, item.remarks||""
+    ]);
+  });
+
+  const csvContent = rows.map(r=>r.map(cell=>`"${String(cell).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob(["\uFEFF"+csvContent],{type:"text/csv;charset=utf-8;"});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `ava-report-${_activeDateRange.from||formatDate(new Date())}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showMessage("CSV exported successfully!", "success");
+}
+
+// ── Store Comparison Bar Chart ────────────────────────────────────────────
+let storeComparisonChart = null;
+let salesBreakdownChart  = null;
+
+function loadStoreComparisonChart(s1, s2, s3){
+  const canvas = document.getElementById("storeComparisonChart");
+  if(!canvas) return;
+  if(storeComparisonChart) storeComparisonChart.destroy();
+  storeComparisonChart = new Chart(canvas,{
+    type:"bar",
+    data:{
+      labels:["Store 1","Store 2","Store 3"],
+      datasets:[{
+        label:"Revenue",
+        data:[s1,s2,s3],
+        backgroundColor:["rgba(79,70,229,.85)","rgba(16,185,129,.85)","rgba(245,158,11,.85)"],
+        borderRadius:14, borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:"#1e1b4b",padding:12,callbacks:{label:ctx=>"₱"+Number(ctx.raw).toLocaleString()}}
+      },
+      scales:{
+        x:{grid:{display:false}},
+        y:{beginAtZero:true,ticks:{callback:v=>"₱"+Number(v).toLocaleString()},grid:{color:"rgba(0,0,0,.05)"}}
+      },
+      animation:{duration:900}
+    }
+  });
+}
+
+// ── Online vs Walk-in Donut Chart ─────────────────────────────────────────
+function loadSalesBreakdownChart(walkinTotal, onlineTotal){
+  const canvas = document.getElementById("salesBreakdownChart");
+  const legend = document.getElementById("salesBreakdownLegend");
+  if(!canvas) return;
+  if(salesBreakdownChart) salesBreakdownChart.destroy();
+  const total = walkinTotal + onlineTotal;
+  if(total === 0){
+    canvas.style.display="none";
+    if(legend) legend.innerHTML=`<span style="color:#94a3b8;font-weight:700;">No sales data</span>`;
+    return;
+  }
+  canvas.style.display="";
+  const walkPct=Math.round((walkinTotal/total)*100);
+  const onlinePct=100-walkPct;
+  salesBreakdownChart = new Chart(canvas,{
+    type:"doughnut",
+    data:{
+      labels:["Walk-in","Online"],
+      datasets:[{data:[walkinTotal,onlineTotal],backgroundColor:["#4f46e5","#10b981"],borderWidth:0,hoverOffset:10}]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:"68%",
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:"#1e1b4b",padding:12,callbacks:{
+          label:ctx=>`₱${Number(ctx.raw).toLocaleString()} (${ctx.dataIndex===0?walkPct:onlinePct}%)`
+        }}
+      }
+    }
+  });
+  if(legend) legend.innerHTML=`
+    <div style="display:flex;align-items:center;gap:6px;font-weight:700;color:#1e1b4b;">
+      <span style="width:12px;height:12px;border-radius:50%;background:#4f46e5;display:inline-block;"></span>Walk-in ${walkPct}%
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;font-weight:700;color:#1e1b4b;">
+      <span style="width:12px;height:12px;border-radius:50%;background:#10b981;display:inline-block;"></span>Online ${onlinePct}%
+    </div>`;
+}
+
+// ── Return Analytics ──────────────────────────────────────────────────────
+function updateReturnAnalytics(returnData){
+  const box = document.getElementById("returnAnalyticsBox");
+  if(!box) return;
+  const entries = Object.entries(returnData).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if(!entries.length){ box.innerHTML=""; return; }
+  const max = Math.max(...entries.map(e=>e[1]),1);
+  box.innerHTML=`
+    <p style="font-weight:800;color:#64748b;font-size:13px;margin-bottom:10px;">📌 Most Returned Products</p>
+    ${entries.map(([name,qty])=>`
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;font-weight:800;font-size:13px;color:#1e1b4b;margin-bottom:4px;">
+          <span>${name}</span><span>${qty} returned</span>
+        </div>
+        <div style="height:8px;background:#f1f5f9;border-radius:999px;overflow:hidden;">
+          <div style="height:100%;width:${(qty/max)*100}%;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:999px;"></div>
+        </div>
+      </div>`).join("")}`;
+}
 
 function printReports(){
 
@@ -2855,22 +2792,23 @@ store2Total,
 store3Total,
 store1Sales,
 store2Sales,
-store3Sales
+store3Sales,
+onlineTotal
 ){
 
-const totalRevenue =
-store1Total + store2Total + store3Total;
+onlineTotal = onlineTotal || 0;
+
+// Revenue = walkin + online
+const totalRevenue = store1Total + store2Total + store3Total + onlineTotal;
 
 const allSales = {};
-
 [store1Sales, store2Sales, store3Sales].forEach(store=>{
 Object.entries(store).forEach(([product, qty])=>{
 allSales[product] = (allSales[product] || 0) + qty;
 });
 });
 
-const bestSeller =
-Object.entries(allSales).sort((a,b)=>b[1]-a[1])[0];
+const bestSeller = Object.entries(allSales).sort((a,b)=>b[1]-a[1])[0];
 
 const storeData = [
 {name:"Store 1", sales:store1Total, qty:Object.values(store1Sales).reduce((a,b)=>a+b,0)},
@@ -2880,68 +2818,47 @@ const storeData = [
 
 storeData.sort((a,b)=>b.sales-a.sales);
 
-document.getElementById("reportRevenue").textContent =
-"₱" + totalRevenue.toLocaleString();
+document.getElementById("reportRevenue").textContent = "₱" + totalRevenue.toLocaleString();
+document.getElementById("reportBestSeller").textContent = bestSeller ? `${bestSeller[0]} (${bestSeller[1]} sold)` : "-";
+document.getElementById("reportTopStore").textContent = storeData[0].sales > 0 ? storeData[0].name : "-";
 
-document.getElementById("reportBestSeller").textContent =
-bestSeller ? `${bestSeller[0]} (${bestSeller[1]} sold)` : "-";
+const totalItemsSold = storeData.reduce((sum,s)=>sum+s.qty,0);
+document.getElementById("reportItemsSold").textContent = totalItemsSold;
 
-document.getElementById("reportTopStore").textContent =
-storeData[0].sales > 0 ? storeData[0].name : "-";
+document.getElementById("kpiRevenue").textContent   = "₱" + totalRevenue.toLocaleString();
+document.getElementById("kpiItemsSold").textContent = totalItemsSold;
+document.getElementById("kpiBestSeller").textContent = bestSeller ? bestSeller[0] : "-";
+document.getElementById("kpiTopStore").textContent   = storeData[0].sales > 0 ? storeData[0].name : "-";
 
-document.getElementById("reportItemsSold").textContent =
-storeData.reduce((sum,s)=>sum+s.qty,0);
+animateNumber("reportStore1Sales", store1Total, "₱");
+animateNumber("reportStore2Sales", store2Total, "₱");
+animateNumber("reportStore3Sales", store3Total, "₱");
 
-  const totalItemsSold =
-storeData.reduce((sum,s)=>sum+s.qty,0);
+document.getElementById("reportStore1Qty").textContent = storeData.find(s=>s.name==="Store 1").qty + " items sold";
+document.getElementById("reportStore2Qty").textContent = storeData.find(s=>s.name==="Store 2").qty + " items sold";
+document.getElementById("reportStore3Qty").textContent = storeData.find(s=>s.name==="Store 3").qty + " items sold";
 
-document.getElementById("kpiRevenue").textContent =
-"₱" + totalRevenue.toLocaleString();
+const max = Math.max(store1Total, store2Total, store3Total, 1);
 
-document.getElementById("kpiItemsSold").textContent =
-totalItemsSold;
+// ── Dynamic progress bars ──
+document.getElementById("store1Progress").style.width = (store1Total/max*100)+"%";
+document.getElementById("store2Progress").style.width = (store2Total/max*100)+"%";
+document.getElementById("store3Progress").style.width = (store3Total/max*100)+"%";
 
-document.getElementById("kpiBestSeller").textContent =
-bestSeller ? bestSeller[0] : "-";
+// ── Dynamic rank badges (fix hardcoded) ──
+const medals = ["🥇","🥈","🥉"];
+storeData.forEach((store, index)=>{
+  const num = store.name.replace("Store ","");
+  const el  = document.getElementById("storeRank"+num);
+  if(el) el.textContent = medals[index];
+});
 
-document.getElementById("kpiTopStore").textContent =
-storeData[0].sales > 0 ? storeData[0].name : "-";
-
-animateNumber(
-"reportStore1Sales",
-store1Total,
-"₱"
-);
-
-animateNumber(
-"reportStore2Sales",
-store2Total,
-"₱"
-);
-
-animateNumber(
-"reportStore3Sales",
-store3Total,
-"₱"
-);
-
-document.getElementById("reportStore1Qty").textContent =
-storeData.find(s=>s.name==="Store 1").qty + " items sold";
-
-document.getElementById("reportStore2Qty").textContent =
-storeData.find(s=>s.name==="Store 2").qty + " items sold";
-
-document.getElementById("reportStore3Qty").textContent =
-storeData.find(s=>s.name==="Store 3").qty + " items sold";
-
-const max =
-Math.max(store1Total, store2Total, store3Total, 1);
-
+// ── Store ranking panel ──
 document.getElementById("reportStoreRanking").innerHTML =
 storeData.map((store,index)=>`
 <div class="ranking-row">
   <div class="ranking-top">
-    <span>${index + 1}. ${store.name}</span>
+    <span>${medals[index]} ${store.name}</span>
     <span>₱${store.sales.toLocaleString()}</span>
   </div>
   <div class="ranking-bar">
@@ -3469,6 +3386,10 @@ window.onload = async () => {
 
   setTodayReportDate();
   setCurrentBestSellerFilters();
+
+  // Initialize date range to today
+  const todayStr = formatDate(new Date());
+  _activeDateRange = { from: todayStr, to: todayStr };
 
   updateClock();
   setInterval(updateClock,1000);
