@@ -3453,6 +3453,10 @@ window.onload = async () => {
 
   if(localStorage.getItem("avaLoggedIn") === "true"){
     document.getElementById("loginScreen").style.display = "none";
+    if(localStorage.getItem("avaRole") === "user"){
+      showPosScreen();
+      return;
+    }
   }
 
   const trendMonth =
@@ -3478,6 +3482,227 @@ await showTab("dashboard");
 
 
 
+// ── POS System ───────────────────────────────────────────────────────────────
+let posCart = [];
+let posStoreProducts = [];
+
+function showPosScreen(){
+  const store = localStorage.getItem("avaStore") || "Store 1";
+  const user  = localStorage.getItem("avaUser")  || "";
+
+  document.getElementById("posScreen").style.display = "block";
+  document.getElementById("posStoreName").textContent = store;
+  document.getElementById("posWelcome").textContent = "Hi, " + user + " 👋";
+
+  // Hide admin layout
+  document.querySelector(".layout").style.display = "none";
+
+  loadPosStocks();
+  loadPosSalesStats();
+
+  // Focus barcode input
+  setTimeout(()=>{
+    const inp = document.getElementById("posBarcodeInput");
+    if(inp) inp.focus();
+  }, 200);
+
+  // Clock
+  updatePosClock();
+  setInterval(updatePosClock, 1000);
+}
+
+function updatePosClock(){
+  const el = document.getElementById("posClock");
+  if(!el) return;
+  el.textContent = new Date().toLocaleTimeString("en-PH", {
+    hour:"2-digit", minute:"2-digit", second:"2-digit"
+  });
+}
+
+async function loadPosStocks(){
+  const store = localStorage.getItem("avaStore") || "Store 1";
+  const result = await apiRequest("getStoreProducts", { store });
+  posStoreProducts = result.products || [];
+  renderPosStocks(posStoreProducts);
+}
+
+function renderPosStocks(products){
+  const list = document.getElementById("posStockList");
+  if(!list) return;
+
+  if(!products || products.length === 0){
+    list.innerHTML = `<p style="color:#aaa;text-align:center;">No stocks found</p>`;
+    return;
+  }
+
+  list.innerHTML = products.map(p => {
+    const qty = Number(p.storeQty || p.qty || 0);
+    const badgeClass = qty === 0 ? "out" : qty <= 5 ? "low" : "";
+    return `
+      <div class="pos-stock-item">
+        <span title="${p.product}">${p.product}</span>
+        <span class="pos-stock-badge ${badgeClass}">${qty}</span>
+      </div>
+    `;
+  }).join("");
+}
+
+function filterPosStocks(query){
+  const filtered = posStoreProducts.filter(p =>
+    p.product.toLowerCase().includes(query.toLowerCase()) ||
+    String(p.barcode).toLowerCase().includes(query.toLowerCase())
+  );
+  renderPosStocks(filtered);
+}
+
+async function loadPosSalesStats(){
+  const store = localStorage.getItem("avaStore") || "Store 1";
+  const today = new Date().toLocaleDateString("en-PH");
+
+  const result = await apiRequest("getSalesStats", { store, date: today });
+
+  const salesToday   = result.salesToday   || 0;
+  const transToday   = result.transToday   || 0;
+  const itemsSold    = result.itemsSold     || 0;
+
+  document.getElementById("posSalesToday").textContent    = "₱ " + Number(salesToday).toLocaleString("en-PH", {minimumFractionDigits:2});
+  document.getElementById("posTransToday").textContent    = transToday;
+  document.getElementById("posItemsSoldToday").textContent = itemsSold;
+}
+
+function addToPosCart(){
+  const field   = document.getElementById("posBarcodeInput");
+  const barcode = cleanDuplicateBarcode(field.value).trim();
+
+  if(!barcode) return;
+
+  // Find in store products
+  const found = posStoreProducts.find(p =>
+    String(p.barcode).trim() === barcode
+  );
+
+  // If already in cart, increment qty
+  const existing = posCart.find(i => i.barcode === barcode);
+  if(existing){
+    existing.qty += 1;
+    renderPosCart();
+    field.value = "";
+    field.focus();
+    return;
+  }
+
+  posCart.push({
+    barcode,
+    product : found ? found.product  : barcode,
+    price   : found ? Number(found.price || 0) : 0,
+    qty     : 1
+  });
+
+  renderPosCart();
+  field.value = "";
+  field.focus();
+}
+
+function renderPosCart(){
+  const tbody = document.getElementById("posCartTable");
+  if(!tbody) return;
+
+  if(posCart.length === 0){
+    tbody.innerHTML = `<tr id="posCartEmpty"><td colspan="6" style="text-align:center;color:#aaa;padding:32px;">Scan a barcode to start</td></tr>`;
+    updatePosTotals();
+    return;
+  }
+
+  tbody.innerHTML = posCart.map((item, i) => `
+    <tr>
+      <td style="color:#9ca3af;">${i + 1}</td>
+      <td><strong>${item.product}</strong><br><small style="color:#9ca3af;">${item.barcode}</small></td>
+      <td>₱ ${item.price.toLocaleString("en-PH", {minimumFractionDigits:2})}</td>
+      <td>
+        <input type="number" min="1" value="${item.qty}" class="pos-qty-input"
+          onchange="updatePosCartQty(${i}, this.value)">
+      </td>
+      <td>₱ ${(item.price * item.qty).toLocaleString("en-PH", {minimumFractionDigits:2})}</td>
+      <td>
+        <button onclick="removePosCartItem(${i})"
+          style="background:#ef4444;color:white;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;">✕</button>
+      </td>
+    </tr>
+  `).join("");
+
+  updatePosTotals();
+}
+
+function updatePosCartQty(index, value){
+  posCart[index].qty = Math.max(1, Number(value));
+  renderPosCart();
+}
+
+function removePosCartItem(index){
+  posCart.splice(index, 1);
+  renderPosCart();
+}
+
+function clearPosCart(){
+  if(posCart.length === 0) return;
+  if(!confirm("Clear all items in cart?")) return;
+  posCart = [];
+  renderPosCart();
+}
+
+function updatePosTotals(){
+  const totalItems  = posCart.reduce((s, i) => s + i.qty, 0);
+  const totalAmount = posCart.reduce((s, i) => s + (i.price * i.qty), 0);
+
+  document.getElementById("posTotalItems").textContent  = totalItems;
+  document.getElementById("posTotalAmount").textContent =
+    totalAmount.toLocaleString("en-PH", {minimumFractionDigits:2});
+}
+
+async function posCheckout(){
+  if(posCart.length === 0){
+    showMessage("Cart is empty.", "warning");
+    return;
+  }
+
+  const store     = localStorage.getItem("avaStore") || "Store 1";
+  const btn       = document.getElementById("posCheckoutBtn");
+  const origText  = btn.innerHTML;
+  btn.innerHTML   = "Processing...";
+  btn.disabled    = true;
+
+  let hasError = false;
+
+  for(const item of posCart){
+    const result = await apiRequest("stockOut", {
+      barcode    : item.barcode,
+      qty        : item.qty,
+      remarks    : store + " - Walk-in Sales",
+      deductFrom : store
+    });
+
+    if(result.message && result.message.includes("Not enough")){
+      showMessage("Not enough stock: " + item.product, "error");
+      hasError = true;
+    }
+  }
+
+  if(!hasError){
+    showMessage("Checkout successful!", "success");
+    posCart = [];
+    renderPosCart();
+    await loadPosStocks();
+    await loadPosSalesStats();
+  }
+
+  btn.innerHTML = origText;
+  btn.disabled  = false;
+
+  const inp = document.getElementById("posBarcodeInput");
+  if(inp) inp.focus();
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function loginUser() {
 const btn =
 document.getElementById("loginbtn");
@@ -3499,12 +3724,16 @@ btn.innerHTML = "Processing...";
 
   if (result.success) {
 
-    localStorage.setItem(
-        "avaLoggedIn",
-        "true"
-    );
+    localStorage.setItem("avaLoggedIn", "true");
+    localStorage.setItem("avaUser",  result.username || username);
+    localStorage.setItem("avaRole",  result.role     || "admin");
+    localStorage.setItem("avaStore", result.store    || "");
 
     document.getElementById("loginScreen").style.display = "none";
+
+    if(result.role === "user"){
+      showPosScreen();
+    }
 
 } else {
 
@@ -3542,6 +3771,16 @@ btn.innerHTML = "Processing...";
 
   localStorage.removeItem("avaLoggedIn");
   localStorage.removeItem("avaUser");
+  localStorage.removeItem("avaRole");
+  localStorage.removeItem("avaStore");
+
+  // Hide POS if showing
+  const posScreen = document.getElementById("posScreen");
+  if(posScreen) posScreen.style.display = "none";
+
+  // Show admin layout back
+  const layout = document.querySelector(".layout");
+  if(layout) layout.style.display = "grid";
 
   document.getElementById(
     "loginScreen"
