@@ -109,6 +109,108 @@ Login
 
 <body>
 
+<!-- ── POS Screen (Store Users only) ───────────────────────────────────── -->
+<div id="posScreen" style="display:none;">
+
+  <div class="pos-layout">
+
+    <!-- LEFT: Scanner + Cart -->
+    <div class="pos-left">
+
+      <div class="pos-header">
+        <div>
+          <h2 id="posStoreName">Store 1</h2>
+          <span id="posClock" class="pos-clock"></span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span id="posWelcome" style="color:#6b7280;font-size:14px;"></span>
+          <button class="btn red" onclick="logoutUser()" style="padding:8px 16px;">Logout</button>
+        </div>
+      </div>
+
+      <div class="pos-scan-box">
+        <input id="posBarcodeInput" class="pos-barcode-input"
+          placeholder="Scan Barcode..."
+          onkeydown="handleBarcodeScan(event,'posBarcodeInput',addToPosCart)">
+      </div>
+
+      <div class="pos-cart-wrapper">
+        <table class="pos-cart-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Qty</th>
+              <th>Subtotal</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="posCartTable">
+            <tr id="posCartEmpty">
+              <td colspan="6" style="text-align:center;color:#aaa;padding:32px;">
+                Scan a barcode to start
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pos-footer">
+        <div class="pos-total-box">
+          <span>Total Items: <strong id="posTotalItems">0</strong></span>
+          <span class="pos-total-amount">&#8369; <strong id="posTotalAmount">0.00</strong></span>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn" onclick="clearPosCart()"
+            style="background:#6b7280;">Clear</button>
+          <button class="btn" id="posCheckoutBtn" onclick="posCheckout()"
+            style="background:linear-gradient(135deg,#10b981,#059669);font-size:16px;padding:12px 32px;">
+            Checkout
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Stats + Stocks -->
+    <div class="pos-right">
+
+      <div class="pos-stat-card">
+        <div class="pos-stat-icon">💰</div>
+        <p>Sales Today</p>
+        <h3 id="posSalesToday">&#8369; 0.00</h3>
+      </div>
+
+      <div class="pos-stat-card">
+        <div class="pos-stat-icon">🛍️</div>
+        <p>Transactions Today</p>
+        <h3 id="posTransToday">0</h3>
+      </div>
+
+      <div class="pos-stat-card">
+        <div class="pos-stat-icon">📦</div>
+        <p>Items Sold Today</p>
+        <h3 id="posItemsSoldToday">0</h3>
+      </div>
+
+      <div class="pos-stocks-card">
+        <h4>Store Stocks</h4>
+        <input id="posStockSearch" placeholder="Search product..."
+          oninput="filterPosStocks(this.value)"
+          style="width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;margin:10px 0;font-size:13px;">
+        <div id="posStockList" class="pos-stock-list">
+          <p style="color:#aaa;text-align:center;">Loading stocks...</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+<!-- ── End POS Screen ───────────────────────────────────────────────────── -->
+
   <div class="layout">
     <aside>
       <h1>Inventory System</h1>
