@@ -112,6 +112,14 @@ Login
 <!-- ── POS Screen (Store Users only) ───────────────────────────────────── -->
 <div id="posScreen" style="display:none;">
 
+  <!-- POS Tab Navigation -->
+  <div class="pos-tabs">
+    <button class="pos-tab-btn active" onclick="showPosTab('pos')">🛒 POS</button>
+    <button class="pos-tab-btn" onclick="showPosTab('history')">📜 History</button>
+  </div>
+
+  <!-- POS Tab -->
+  <div id="posTab" class="pos-tab-content">
   <div class="pos-layout">
 
     <!-- LEFT: Scanner + Cart -->
@@ -212,6 +220,71 @@ Login
 
     </div>
 
+  </div>
+  </div>
+
+  <!-- History Tab -->
+  <div id="posHistoryTab" class="pos-tab-content" style="display:none;">
+    <div class="pos-history-layout">
+
+      <div class="pos-history-header">
+        <div>
+          <h2 id="posHistoryStoreName">Store 1</h2>
+          <p style="color:#6b7280;font-size:13px;">Transaction History</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <input type="date" id="posHistoryDate" onchange="loadPosHistory()"
+            style="padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;">
+          <button class="btn" onclick="loadPosHistory()">🔄 Refresh</button>
+          <button class="btn red" onclick="logoutUser()">Logout</button>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="pos-history-stats">
+        <div class="pos-hstat-card">
+          <p>💰 Total Sales</p>
+          <h3 id="posHistoryTotal">₱ 0.00</h3>
+        </div>
+        <div class="pos-hstat-card">
+          <p>📦 Items Sold</p>
+          <h3 id="posHistoryItems">0</h3>
+        </div>
+        <div class="pos-hstat-card">
+          <p>🛍️ Transactions</p>
+          <h3 id="posHistoryTrans">0</h3>
+        </div>
+      </div>
+
+      <!-- Transaction Table -->
+      <div class="pos-history-table-wrap">
+        <input id="posHistorySearch" placeholder="🔍 Search product or barcode..."
+          oninput="filterPosHistory()"
+          style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;margin-bottom:14px;">
+        <table class="pos-history-table">
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>Barcode</th>
+              <th>Product</th>
+              <th>Color</th>
+              <th>Size</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="posHistoryTableBody">
+            <tr>
+              <td colspan="8" style="text-align:center;color:#aaa;padding:32px;">
+                Select a date to view history
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
   </div>
 
 </div>
