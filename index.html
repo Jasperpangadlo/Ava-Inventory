@@ -197,8 +197,14 @@ Login
       <div class="pos-stocks-card">
         <h4>Store Stocks</h4>
         <input id="posStockSearch" placeholder="Search product..."
-          oninput="filterPosStocks(this.value)"
-          style="width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;margin:10px 0;font-size:13px;">
+          oninput="filterPosStocks()"
+          style="width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;margin:10px 0;font-size:13px;color:#111;background:white;">
+        <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+          <button class="pos-filter-btn active" onclick="setPosFilter('all',this)">All</button>
+          <button class="pos-filter-btn" onclick="setPosFilter('in',this)">In Stock</button>
+          <button class="pos-filter-btn low" onclick="setPosFilter('low',this)">Low</button>
+          <button class="pos-filter-btn out" onclick="setPosFilter('out',this)">Out</button>
+        </div>
         <div id="posStockList" class="pos-stock-list">
           <p style="color:#aaa;text-align:center;">Loading stocks...</p>
         </div>
