@@ -3523,7 +3523,40 @@ async function loadPosStocks(){
   const store = localStorage.getItem("avaStore") || "Store 1";
   const result = await apiRequest("getStoreProducts", { store });
   posStoreProducts = result.products || [];
-  renderPosStocks(posStoreProducts);
+  filterPosStocks();
+}
+
+let _posStockFilter = "all";
+
+function setPosFilter(filter, btn){
+  _posStockFilter = filter;
+  document.querySelectorAll(".pos-filter-btn").forEach(b => b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+  filterPosStocks();
+}
+
+function filterPosStocks(){
+  const query  = (document.getElementById("posStockSearch")?.value || "").toLowerCase();
+  const filter = _posStockFilter;
+
+  let filtered = posStoreProducts.filter(p => {
+    const qty = Number(p.storeQty || p.qty || 0);
+    const matchSearch =
+      p.product.toLowerCase().includes(query) ||
+      String(p.barcode).toLowerCase().includes(query) ||
+      String(p.color || "").toLowerCase().includes(query) ||
+      String(p.size  || "").toLowerCase().includes(query);
+
+    const matchFilter =
+      filter === "all" ? true :
+      filter === "out" ? qty === 0 :
+      filter === "low" ? qty > 0 && qty <= 5 :
+      filter === "in"  ? qty > 5 : true;
+
+    return matchSearch && matchFilter;
+  });
+
+  renderPosStocks(filtered);
 }
 
 function renderPosStocks(products){
@@ -3531,28 +3564,28 @@ function renderPosStocks(products){
   if(!list) return;
 
   if(!products || products.length === 0){
-    list.innerHTML = `<p style="color:#aaa;text-align:center;">No stocks found</p>`;
+    list.innerHTML = `<p style="color:#aaa;text-align:center;padding:16px;">No products found</p>`;
     return;
   }
 
   list.innerHTML = products.map(p => {
-    const qty = Number(p.storeQty || p.qty || 0);
+    const qty        = Number(p.storeQty || p.qty || 0);
     const badgeClass = qty === 0 ? "out" : qty <= 5 ? "low" : "";
+    const color      = p.color ? p.color : "";
+    const size       = p.size  ? p.size  : "";
+    const meta       = [color, size].filter(Boolean).join(" · ");
+
     return `
       <div class="pos-stock-item">
-        <span title="${p.product}">${p.product}</span>
-        <span class="pos-stock-badge ${badgeClass}">${qty}</span>
+        <div class="pos-stock-row">
+          <span style="color:#e0e7ff;font-weight:600;font-size:13px;">${p.product}</span>
+          <span class="pos-stock-badge ${badgeClass}">${qty}</span>
+        </div>
+        ${meta ? `<div class="pos-stock-meta">${meta}</div>` : ""}
+        <div class="pos-stock-meta" style="color:#818cf8;font-size:11px;">${p.barcode}</div>
       </div>
     `;
   }).join("");
-}
-
-function filterPosStocks(query){
-  const filtered = posStoreProducts.filter(p =>
-    p.product.toLowerCase().includes(query.toLowerCase()) ||
-    String(p.barcode).toLowerCase().includes(query.toLowerCase())
-  );
-  renderPosStocks(filtered);
 }
 
 async function loadPosSalesStats(){
@@ -3581,9 +3614,32 @@ function addToPosCart(){
     String(p.barcode).trim() === barcode
   );
 
-  // If already in cart, increment qty
+  // Block if not found in store
+  if(!found){
+    showMessage("Barcode not found in this store.", "warning");
+    field.value = "";
+    field.focus();
+    return;
+  }
+
+  // Block if no stock
+  const availableStock = Number(found.storeQty || found.qty || 0);
+  if(availableStock <= 0){
+    showMessage(`${found.product} is out of stock!`, "warning");
+    field.value = "";
+    field.focus();
+    return;
+  }
+
+  // If already in cart, check if adding more exceeds stock
   const existing = posCart.find(i => i.barcode === barcode);
   if(existing){
+    if(existing.qty >= availableStock){
+      showMessage(`Only ${availableStock} available for ${found.product}.`, "warning");
+      field.value = "";
+      field.focus();
+      return;
+    }
     existing.qty += 1;
     renderPosCart();
     field.value = "";
@@ -3593,9 +3649,12 @@ function addToPosCart(){
 
   posCart.push({
     barcode,
-    product : found ? found.product  : barcode,
-    price   : found ? Number(found.price || 0) : 0,
-    qty     : 1
+    product      : found.product,
+    color        : found.color  || "",
+    size         : found.size   || "",
+    price        : Number(found.price || 0),
+    qty          : 1,
+    maxQty       : availableStock
   });
 
   renderPosCart();
@@ -3616,11 +3675,16 @@ function renderPosCart(){
   tbody.innerHTML = posCart.map((item, i) => `
     <tr>
       <td style="color:#9ca3af;">${i + 1}</td>
-      <td><strong>${item.product}</strong><br><small style="color:#9ca3af;">${item.barcode}</small></td>
+      <td>
+        <strong>${item.product}</strong>
+        ${item.color || item.size ? `<br><small style="color:#9ca3af;">${[item.color, item.size].filter(Boolean).join(" · ")}</small>` : ""}
+        <br><small style="color:#c4b5fd;">${item.barcode}</small>
+      </td>
       <td>₱ ${item.price.toLocaleString("en-PH", {minimumFractionDigits:2})}</td>
       <td>
-        <input type="number" min="1" value="${item.qty}" class="pos-qty-input"
+        <input type="number" min="1" max="${item.maxQty}" value="${item.qty}" class="pos-qty-input"
           onchange="updatePosCartQty(${i}, this.value)">
+        <div style="font-size:11px;color:#9ca3af;">max: ${item.maxQty}</div>
       </td>
       <td>₱ ${(item.price * item.qty).toLocaleString("en-PH", {minimumFractionDigits:2})}</td>
       <td>
@@ -3634,7 +3698,14 @@ function renderPosCart(){
 }
 
 function updatePosCartQty(index, value){
-  posCart[index].qty = Math.max(1, Number(value));
+  const newQty = Math.max(1, Number(value));
+  const maxQty = posCart[index].maxQty;
+  if(newQty > maxQty){
+    showMessage(`Only ${maxQty} available in store.`, "warning");
+    posCart[index].qty = maxQty;
+  } else {
+    posCart[index].qty = newQty;
+  }
   renderPosCart();
 }
 
@@ -3663,6 +3734,20 @@ async function posCheckout(){
   if(posCart.length === 0){
     showMessage("Cart is empty.", "warning");
     return;
+  }
+
+  // Final stock check before checkout
+  for(const item of posCart){
+    const found = posStoreProducts.find(p => String(p.barcode).trim() === item.barcode);
+    const available = found ? Number(found.storeQty || found.qty || 0) : 0;
+    if(available <= 0){
+      showMessage(`${item.product} is out of stock! Please remove it from cart.`, "warning");
+      return;
+    }
+    if(item.qty > available){
+      showMessage(`Only ${available} available for ${item.product}. Please adjust quantity.`, "warning");
+      return;
+    }
   }
 
   const store     = localStorage.getItem("avaStore") || "Store 1";
