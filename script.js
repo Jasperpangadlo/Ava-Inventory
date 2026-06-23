@@ -1737,6 +1737,17 @@ colorFilter.innerHTML += `
 
 }
 
+// ── KPI Store Filter ─────────────────────────────────────────────────────────
+let _kpiStoreFilter = "all";
+
+function setKpiStoreFilter(filter, btn){
+  _kpiStoreFilter = filter;
+  document.querySelectorAll(".kpi-store-btn").forEach(b => b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+  loadDailyReports();
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function loadDailyReports(){
 
 const reportDate = document.getElementById("reportDate");
@@ -1765,9 +1776,11 @@ warehouseOnline.innerHTML="";store1Walkin.innerHTML="";store2Walkin.innerHTML=""
 let store1Sales = {};
 let store2Sales = {};
 let store3Sales = {};
+let onlineSales = {};
 
 let store1Total = 0, store2Total = 0, store3Total = 0;
 let onlineTotal = 0;
+let onlineItemsSold = 0;
 let walkinTotal = 0;
 
 let colorSales = {};
@@ -1840,8 +1853,12 @@ else if(remarks.startsWith("store")&&remarks.includes("warehouse")){
   // Track returns per product
   returnData[product] = (returnData[product]||0)+qty;
 }
-else if(remarks.includes("online")){
+if(remarks.includes("online")){
+  onlineTotal += total;
+  onlineItemsSold += qty;
+  onlineSales[product] = (onlineSales[product]||0) + qty;
   warehouseOnlineHtml+=row; summary.warehouseOnline.qty+=qty; summary.warehouseOnline.total+=total;
+}
 }
 else if(remarks.startsWith("store 1")&&remarks.includes("walk")){
   store1WalkinHtml+=row; store1Total+=total; summary.store1Walkin.qty+=qty; summary.store1Walkin.total+=total;
@@ -2818,6 +2835,45 @@ const storeData = [
 
 storeData.sort((a,b)=>b.sales-a.sales);
 
+// ── Apply KPI Store Filter ──────────────────────────────────────────────────
+const kf = _kpiStoreFilter || "all";
+
+let kpiRev      = totalRevenue;
+let kpiItems    = storeData.reduce((sum,s)=>sum+s.qty,0);
+let kpiBest     = bestSeller ? bestSeller[0] : "-";
+let kpiTop      = storeData[0].sales > 0 ? storeData[0].name : "-";
+let kpiLabel    = "Walk-in + Online sales";
+
+if(kf === "store 1"){
+  kpiRev   = store1Total;
+  kpiItems = storeData.find(s=>s.name==="Store 1").qty;
+  const b  = Object.entries(store1Sales).sort((a,b)=>b[1]-a[1])[0];
+  kpiBest  = b ? b[0] : "-";
+  kpiTop   = "Store 1";
+  kpiLabel = "Store 1 Walk-in sales";
+} else if(kf === "store 2"){
+  kpiRev   = store2Total;
+  kpiItems = storeData.find(s=>s.name==="Store 2").qty;
+  const b  = Object.entries(store2Sales).sort((a,b)=>b[1]-a[1])[0];
+  kpiBest  = b ? b[0] : "-";
+  kpiTop   = "Store 2";
+  kpiLabel = "Store 2 Walk-in sales";
+} else if(kf === "store 3"){
+  kpiRev   = store3Total;
+  kpiItems = storeData.find(s=>s.name==="Store 3").qty;
+  const b  = Object.entries(store3Sales).sort((a,b)=>b[1]-a[1])[0];
+  kpiBest  = b ? b[0] : "-";
+  kpiTop   = "Store 3";
+  kpiLabel = "Store 3 Walk-in sales";
+} else if(kf === "online"){
+  kpiRev   = onlineTotal;
+  kpiItems = 0; // computed below
+  kpiBest  = "-";
+  kpiTop   = "-";
+  kpiLabel = "Online sales only";
+}
+// ───────────────────────────────────────────────────────────────────────────
+
 document.getElementById("reportRevenue").textContent = "₱" + totalRevenue.toLocaleString();
 document.getElementById("reportBestSeller").textContent = bestSeller ? `${bestSeller[0]} (${bestSeller[1]} sold)` : "-";
 document.getElementById("reportTopStore").textContent = storeData[0].sales > 0 ? storeData[0].name : "-";
@@ -2825,10 +2881,12 @@ document.getElementById("reportTopStore").textContent = storeData[0].sales > 0 ?
 const totalItemsSold = storeData.reduce((sum,s)=>sum+s.qty,0);
 document.getElementById("reportItemsSold").textContent = totalItemsSold;
 
-document.getElementById("kpiRevenue").textContent   = "₱" + totalRevenue.toLocaleString();
-document.getElementById("kpiItemsSold").textContent = totalItemsSold;
-document.getElementById("kpiBestSeller").textContent = bestSeller ? bestSeller[0] : "-";
-document.getElementById("kpiTopStore").textContent   = storeData[0].sales > 0 ? storeData[0].name : "-";
+document.getElementById("kpiRevenue").textContent    = "₱" + kpiRev.toLocaleString();
+document.getElementById("kpiItemsSold").textContent  = kf === "online" ? onlineItemsSold : kpiItems;
+document.getElementById("kpiBestSeller").textContent = kpiBest;
+document.getElementById("kpiTopStore").textContent   = kpiTop;
+const kpiLabelEl = document.getElementById("kpiRevenueLabel");
+if(kpiLabelEl) kpiLabelEl.textContent = kpiLabel;
 
 animateNumber("reportStore1Sales", store1Total, "₱");
 animateNumber("reportStore2Sales", store2Total, "₱");
@@ -2867,7 +2925,44 @@ storeData.map((store,index)=>`
 </div>
 `).join("");
 
+// ── Online Sales Section ───────────────────────────────────────────────────
+updateOnlineSalesSection(onlineSales, onlineTotal);
+
 }
+
+// ── Online Sales Section ──────────────────────────────────────────────────────
+function updateOnlineSalesSection(onlineSales, onlineTotal){
+  const revenueEl  = document.getElementById("onlineRevenue");
+  const itemsEl    = document.getElementById("onlineItemsSold");
+  const bestEl     = document.getElementById("onlineBestSeller");
+  const listEl     = document.getElementById("onlineBestSellerList");
+
+  const totalItems = Object.values(onlineSales).reduce((a,b)=>a+b,0);
+  const sorted     = Object.entries(onlineSales).sort((a,b)=>b[1]-a[1]);
+  const top        = sorted[0];
+
+  if(revenueEl) revenueEl.textContent = "₱" + onlineTotal.toLocaleString();
+  if(itemsEl)   itemsEl.textContent   = totalItems;
+  if(bestEl)    bestEl.textContent    = top ? top[0] : "-";
+
+  if(listEl){
+    if(!sorted.length){
+      listEl.innerHTML = `<div class="report-empty">No online sales in this period</div>`;
+      return;
+    }
+    const medals = ["🥇","🥈","🥉","4️⃣","5️⃣"];
+    listEl.innerHTML = sorted.slice(0,5).map(([name, qty], i)=>`
+      <div class="best-seller-item">
+        <div class="best-seller-left">
+          <div class="rank-badge">${medals[i] || (i+1)}</div>
+          <div class="best-seller-name">${name}</div>
+        </div>
+        <div class="best-seller-qty">${qty} sold</div>
+      </div>
+    `).join("");
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 function animateNumber(id, target, prefix=""){
 
