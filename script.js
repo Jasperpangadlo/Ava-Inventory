@@ -1853,12 +1853,11 @@ else if(remarks.startsWith("store")&&remarks.includes("warehouse")){
   // Track returns per product
   returnData[product] = (returnData[product]||0)+qty;
 }
-if(remarks.includes("online")){
+else if(remarks.includes("online")){
   onlineTotal += total;
   onlineItemsSold += qty;
   onlineSales[product] = (onlineSales[product]||0) + qty;
   warehouseOnlineHtml+=row; summary.warehouseOnline.qty+=qty; summary.warehouseOnline.total+=total;
-}
 }
 else if(remarks.startsWith("store 1")&&remarks.includes("walk")){
   store1WalkinHtml+=row; store1Total+=total; summary.store1Walkin.qty+=qty; summary.store1Walkin.total+=total;
