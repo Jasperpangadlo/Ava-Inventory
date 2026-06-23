@@ -1892,7 +1892,7 @@ updateBestSellerCard(store2Sales,"store2BestSeller","store2BestSellerQty");
 updateBestSellerCard(store3Sales,"store3BestSeller","store3BestSellerQty");
 
 // Revenue now includes online sales too
-updateReportOverview(store1Total,store2Total,store3Total,store1Sales,store2Sales,store3Sales,onlineTotal);
+updateReportOverview(store1Total,store2Total,store3Total,store1Sales,store2Sales,store3Sales,onlineTotal,onlineSales,onlineItemsSold);
 
 updateTopAnalytics(colorSales,"topColorsBox");
 updateTopAnalytics(sizeSales,"topSizesBox");
@@ -2809,10 +2809,14 @@ store3Total,
 store1Sales,
 store2Sales,
 store3Sales,
-onlineTotal
+onlineTotal,
+onlineSales,
+onlineItemsSold
 ){
 
-onlineTotal = onlineTotal || 0;
+onlineTotal      = onlineTotal      || 0;
+onlineSales      = onlineSales      || {};
+onlineItemsSold  = onlineItemsSold  || 0;
 
 // Revenue = walkin + online
 const totalRevenue = store1Total + store2Total + store3Total + onlineTotal;
@@ -2880,8 +2884,8 @@ document.getElementById("reportTopStore").textContent = storeData[0].sales > 0 ?
 const totalItemsSold = storeData.reduce((sum,s)=>sum+s.qty,0);
 document.getElementById("reportItemsSold").textContent = totalItemsSold;
 
-document.getElementById("kpiRevenue").textContent    = "₱" + kpiRev.toLocaleString();
-document.getElementById("kpiItemsSold").textContent  = kf === "online" ? onlineItemsSold : kpiItems;
+document.getElementById("kpiRevenue").textContent    = "₱" + Number(kpiRev).toLocaleString();
+document.getElementById("kpiItemsSold").textContent  = kf === "online" ? Number(onlineItemsSold) : Number(kpiItems);
 document.getElementById("kpiBestSeller").textContent = kpiBest;
 document.getElementById("kpiTopStore").textContent   = kpiTop;
 const kpiLabelEl = document.getElementById("kpiRevenueLabel");
