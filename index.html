@@ -932,12 +932,24 @@ onchange="filterSoldItems()">
   </div>
 </div>
 
+<!-- ══ KPI STORE FILTER ════════════════════════════════════════════════════ -->
+<div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+  <span style="font-size:13px;font-weight:700;color:#6b7280;">Filter by:</span>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;">
+    <button class="kpi-store-btn active" onclick="setKpiStoreFilter('all',this)">🏪 All Stores</button>
+    <button class="kpi-store-btn" onclick="setKpiStoreFilter('store 1',this)">Store 1</button>
+    <button class="kpi-store-btn" onclick="setKpiStoreFilter('store 2',this)">Store 2</button>
+    <button class="kpi-store-btn" onclick="setKpiStoreFilter('store 3',this)">Store 3</button>
+    <button class="kpi-store-btn online" onclick="setKpiStoreFilter('online',this)">🌐 Online</button>
+  </div>
+</div>
+
 <!-- ══ KPI CARDS ══════════════════════════════════════════════════════════ -->
 <div class="report-kpi-grid">
   <div class="report-kpi-card" style="border-top:4px solid #4f46e5;">
     <span>💰 Revenue</span>
     <h2 id="kpiRevenue">₱0</h2>
-    <p>Walk-in + Online sales</p>
+    <p id="kpiRevenueLabel">Walk-in + Online sales</p>
   </div>
   <div class="report-kpi-card" style="border-top:4px solid #10b981;">
     <span>📦 Items Sold</span>
@@ -1090,6 +1102,35 @@ onchange="filterSoldItems()">
   <div class="report-card small-card">
     <div class="card-title">👑 Monthly Best Seller</div>
     <div id="monthlyBestSeller"></div>
+  </div>
+</div>
+
+<!-- ══ ONLINE SALES SECTION ═══════════════════════════════════════════════ -->
+<div class="online-sales-section">
+  <div class="online-sales-header">
+    <h3>🌐 Online Sales</h3>
+    <p>Revenue, items sold, at best seller para sa online transactions</p>
+  </div>
+  <div class="online-kpi-grid">
+    <div class="online-kpi-card">
+      <span>💰 Online Revenue</span>
+      <h2 id="onlineRevenue">₱0</h2>
+      <p>Total online sales</p>
+    </div>
+    <div class="online-kpi-card">
+      <span>📦 Items Sold</span>
+      <h2 id="onlineItemsSold">0</h2>
+      <p>Total pieces sold online</p>
+    </div>
+    <div class="online-kpi-card">
+      <span>🏆 Best Seller</span>
+      <h2 id="onlineBestSeller" style="font-size:18px;margin:10px 0;">-</h2>
+      <p>Top online product</p>
+    </div>
+  </div>
+  <div class="online-best-seller-box">
+    <div class="card-title" style="margin-bottom:12px;">📊 Top Online Products</div>
+    <div id="onlineBestSellerList"></div>
   </div>
 </div>
 
