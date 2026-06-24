@@ -1737,6 +1737,15 @@ colorFilter.innerHTML += `
 
 }
 
+// ── Report Sub-Tabs ───────────────────────────────────────────────────────────
+function showReportTab(tab, btn){
+  document.querySelectorAll(".report-subtab").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".report-tab-content").forEach(c => c.style.display = "none");
+  document.getElementById("reportTab-" + tab).style.display = "block";
+  if(btn) btn.classList.add("active");
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 // ── KPI Store Filter ─────────────────────────────────────────────────────────
 let _kpiStoreFilter = "all";
 
