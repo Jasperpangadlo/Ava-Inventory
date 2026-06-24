@@ -868,43 +868,35 @@ onchange="filterSoldItems()">
       
       <section class="panel tab-content" id="reports">
 
-<!-- ══ SECTION HEADER + DATE RANGE CONTROLS ══════════════════════════════ -->
+<!-- ══ REPORTS TOPBAR ════════════════════════════════════════════════════ -->
 <div class="reports-topbar">
   <div>
     <h3 style="margin:0;font-size:24px;font-weight:900;color:#1e1b4b;">📊 Reports</h3>
     <p style="color:#64748b;font-weight:700;margin:4px 0 0;">Business overview at analytics</p>
   </div>
-
   <div class="reports-controls">
-    <!-- Date range quick buttons -->
     <div class="date-range-btns">
       <button class="range-btn active" onclick="setDateRange('today',this)">Today</button>
       <button class="range-btn" onclick="setDateRange('week',this)">This Week</button>
       <button class="range-btn" onclick="setDateRange('month',this)">This Month</button>
       <button class="range-btn" onclick="setDateRange('custom',this)">Custom</button>
     </div>
-
-    <!-- Custom range (hidden by default) -->
     <div id="customRangeBox" style="display:none;gap:8px;align-items:center;flex-wrap:wrap;" class="custom-range-row">
-      <input type="date" id="dateRangeFrom" onchange="applyCustomRange()" style="height:42px;border-radius:12px;border:1.5px solid #e5e7eb;padding:0 12px;font-weight:700;">
+      <input type="date" id="dateRangeFrom" onchange="applyCustomRange()" style="height:38px;border-radius:10px;border:1.5px solid #e5e7eb;padding:0 12px;font-weight:700;">
       <span style="color:#64748b;font-weight:700;">to</span>
-      <input type="date" id="dateRangeTo" onchange="applyCustomRange()" style="height:42px;border-radius:12px;border:1.5px solid #e5e7eb;padding:0 12px;font-weight:700;">
+      <input type="date" id="dateRangeTo" onchange="applyCustomRange()" style="height:38px;border-radius:10px;border:1.5px solid #e5e7eb;padding:0 12px;font-weight:700;">
     </div>
-
-    <!-- Hidden single date (used internally) -->
     <input id="reportDate" type="date" onchange="reloadReportsWithLoader()" style="display:none;">
-
-    <!-- Action buttons -->
     <div style="display:flex;gap:8px;">
-      <select id="printType" style="height:42px;border-radius:12px;border:1.5px solid #e5e7eb;padding:0 12px;font-weight:700;color:#1e1b4b;background:white;">
+      <select id="printType" style="height:38px;border-radius:10px;border:1.5px solid #e5e7eb;padding:0 12px;font-weight:700;color:#1e1b4b;background:white;font-size:13px;">
         <option value="all">🖨️ All Reports</option>
         <option value="daily">Daily Only</option>
         <option value="weekly">Weekly Best Seller</option>
         <option value="monthly">Monthly Best Seller</option>
         <option value="best">Best Sellers</option>
       </select>
-      <button id="printReportBtn" class="btn" style="background:#1e1b4b;height:42px;padding:0 16px;" onclick="printReports()">🖨️ Print</button>
-      <button class="btn green" style="height:42px;padding:0 16px;" onclick="exportReportsCSV()">⬇️ Export CSV</button>
+      <button id="printReportBtn" class="btn" style="background:#1e1b4b;" onclick="printReports()">🖨️ Print</button>
+      <button class="btn green" onclick="exportReportsCSV()">⬇️ Export CSV</button>
     </div>
   </div>
 </div>
@@ -932,279 +924,272 @@ onchange="filterSoldItems()">
   </div>
 </div>
 
-<!-- ══ KPI STORE FILTER ════════════════════════════════════════════════════ -->
-<div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
-  <span style="font-size:13px;font-weight:700;color:#6b7280;">Filter by:</span>
-  <div style="display:flex;gap:6px;flex-wrap:wrap;">
-    <button class="kpi-store-btn active" onclick="setKpiStoreFilter('all',this)">🏪 All Stores</button>
-    <button class="kpi-store-btn" onclick="setKpiStoreFilter('store 1',this)">Store 1</button>
-    <button class="kpi-store-btn" onclick="setKpiStoreFilter('store 2',this)">Store 2</button>
-    <button class="kpi-store-btn" onclick="setKpiStoreFilter('store 3',this)">Store 3</button>
-    <button class="kpi-store-btn online" onclick="setKpiStoreFilter('online',this)">🌐 Online</button>
-  </div>
+<!-- ══ REPORT SUB-TABS ════════════════════════════════════════════════════ -->
+<div class="report-subtabs">
+  <button class="report-subtab active" onclick="showReportTab('overview',this)">📊 Overview</button>
+  <button class="report-subtab" onclick="showReportTab('analytics',this)">📈 Analytics</button>
+  <button class="report-subtab" onclick="showReportTab('bestsellers',this)">🏆 Best Sellers</button>
+  <button class="report-subtab" onclick="showReportTab('transactions',this)">📋 Transactions</button>
 </div>
 
-<!-- ══ KPI CARDS ══════════════════════════════════════════════════════════ -->
-<div class="report-kpi-grid">
-  <div class="report-kpi-card" style="border-top:4px solid #4f46e5;">
-    <span>💰 Revenue</span>
-    <h2 id="kpiRevenue">₱0</h2>
-    <p id="kpiRevenueLabel">Walk-in + Online sales</p>
-  </div>
-  <div class="report-kpi-card" style="border-top:4px solid #10b981;">
-    <span>📦 Items Sold</span>
-    <h2 id="kpiItemsSold">0</h2>
-    <p>Total pieces sold</p>
-  </div>
-  <div class="report-kpi-card" style="border-top:4px solid #f59e0b;">
-    <span>🏆 Best Seller</span>
-    <h2 id="kpiBestSeller" style="font-size:18px;margin:10px 0;">-</h2>
-    <p>Top product sa period</p>
-  </div>
-  <div class="report-kpi-card" style="border-top:4px solid #ef4444;">
-    <span>🏪 Top Store</span>
-    <h2 id="kpiTopStore" style="font-size:22px;margin:10px 0;">-</h2>
-    <p>Highest revenue branch</p>
-  </div>
-</div>
+<!-- ══ TAB: OVERVIEW ══════════════════════════════════════════════════════ -->
+<div id="reportTab-overview" class="report-tab-content">
 
-<!-- ══ STORE REVENUE CARDS (dynamic rank badges) ═════════════════════════ -->
-<div class="store-revenue-grid" id="storeRevenueGrid">
-  <div class="store-revenue-card" id="storeRevenueCard1">
-    <div class="store-card-top">
-      <span>🏪 Store 1</span>
-      <span class="store-rank" id="storeRank1">🥇</span>
-    </div>
-    <h2 id="reportStore1Sales">₱0</h2>
-    <p id="reportStore1Qty">0 items sold</p>
-    <div class="store-progress"><div id="store1Progress"></div></div>
-  </div>
-  <div class="store-revenue-card" id="storeRevenueCard2">
-    <div class="store-card-top">
-      <span>🏪 Store 2</span>
-      <span class="store-rank" id="storeRank2">🥈</span>
-    </div>
-    <h2 id="reportStore2Sales">₱0</h2>
-    <p id="reportStore2Qty">0 items sold</p>
-    <div class="store-progress"><div id="store2Progress"></div></div>
-  </div>
-  <div class="store-revenue-card" id="storeRevenueCard3">
-    <div class="store-card-top">
-      <span>🏪 Store 3</span>
-      <span class="store-rank" id="storeRank3">🥉</span>
-    </div>
-    <h2 id="reportStore3Sales">₱0</h2>
-    <p id="reportStore3Qty">0 items sold</p>
-    <div class="store-progress"><div id="store3Progress"></div></div>
-  </div>
-</div>
-
-<!-- ══ CHARTS ROW: Store Comparison + Online vs Walk-in ══════════════════ -->
-<div class="charts-row">
-
-  <!-- Store Comparison Bar Chart -->
-  <div class="chart-panel">
-    <div class="chart-panel-header">
-      <div>
-        <h3>🏪 Store Comparison</h3>
-        <p>Revenue ng bawat branch</p>
-      </div>
-    </div>
-    <div style="height:260px;">
-      <canvas id="storeComparisonChart"></canvas>
+  <!-- KPI Store Filter -->
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+    <span style="font-size:13px;font-weight:700;color:#6b7280;">Filter by:</span>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <button class="kpi-store-btn active" onclick="setKpiStoreFilter('all',this)">🏪 All Stores</button>
+      <button class="kpi-store-btn" onclick="setKpiStoreFilter('store 1',this)">Store 1</button>
+      <button class="kpi-store-btn" onclick="setKpiStoreFilter('store 2',this)">Store 2</button>
+      <button class="kpi-store-btn" onclick="setKpiStoreFilter('store 3',this)">Store 3</button>
+      <button class="kpi-store-btn online" onclick="setKpiStoreFilter('online',this)">🌐 Online</button>
     </div>
   </div>
 
-  <!-- Online vs Walk-in Donut Chart -->
-  <div class="chart-panel">
-    <div class="chart-panel-header">
-      <div>
-        <h3>🛒 Sales Breakdown</h3>
-        <p>Walk-in vs Online ratio</p>
-      </div>
+  <!-- KPI Cards -->
+  <div class="report-kpi-grid">
+    <div class="report-kpi-card" style="border-top:4px solid #4f46e5;">
+      <span>💰 Revenue</span>
+      <h2 id="kpiRevenue">₱0</h2>
+      <p id="kpiRevenueLabel">Walk-in + Online sales</p>
     </div>
-    <div style="height:220px;display:flex;align-items:center;justify-content:center;">
-      <canvas id="salesBreakdownChart"></canvas>
-    </div>
-    <div id="salesBreakdownLegend" style="display:flex;gap:16px;justify-content:center;margin-top:12px;flex-wrap:wrap;"></div>
-  </div>
-
-</div>
-
-<!-- ══ SALES TREND CHART ══════════════════════════════════════════════════ -->
-<div class="sales-trend-card">
-  <div class="trend-header">
-    <div>
-      <h3>📈 Sales Trend</h3>
-      <p>Daily revenue trend</p>
-    </div>
-    <div class="trend-controls">
-      <input type="month" id="trendMonth" onchange="reloadSalesTrendWithLoader()">
-      <select id="trendStoreFilter" onchange="reloadSalesTrendWithLoader()">
-        <option value="">All Stores</option>
-        <option value="Store 1">Store 1</option>
-        <option value="Store 2">Store 2</option>
-        <option value="Store 3">Store 3</option>
-      </select>
-    </div>
-  </div>
-  <div class="trend-chart-box">
-    <canvas id="salesTrendChart"></canvas>
-  </div>
-</div>
-
-<!-- ══ ANALYTICS GRID: Top Colors, Top Sizes, Store Ranking ══════════════ -->
-<div class="analytics-three-grid">
-  <div class="analytics-card">
-    <h3>🎨 Top Colors</h3>
-    <div id="topColorsBox"></div>
-  </div>
-  <div class="analytics-card">
-    <h3>📏 Top Sizes</h3>
-    <div id="topSizesBox"></div>
-  </div>
-  <div class="analytics-card">
-    <h3>🏆 Store Ranking</h3>
-    <div id="reportStoreRanking"></div>
-  </div>
-</div>
-
-<!-- ══ TRANSACTION TIMELINE ═══════════════════════════════════════════════ -->
-<div class="timeline-card">
-  <div class="timeline-header">
-    <div>
-      <h3>⚡ Live Transaction Timeline</h3>
-      <p>Latest inventory movement and sales activity</p>
-    </div>
-    <button class="btn" onclick="loadTransactionTimeline()">Refresh</button>
-  </div>
-  <div id="transactionTimeline"></div>
-</div>
-
-<!-- ══ BEST SELLERS ════════════════════════════════════════════════════════ -->
-<div class="best-seller-filters">
-  <input id="bestSellerMonth" type="month" onchange="reloadBestSellersWithLoader()">
-  <select id="bestSellerWeek" onchange="reloadBestSellersWithLoader()">
-    <option value="">Whole Month</option>
-    <option value="1">Week 1</option>
-    <option value="2">Week 2</option>
-    <option value="3">Week 3</option>
-    <option value="4">Week 4</option>
-    <option value="5">Week 5</option>
-  </select>
-</div>
-
-<div class="best-seller-grid">
-  <div class="report-card small-card">
-    <div class="card-title">🏆 Weekly Best Seller</div>
-    <div id="weeklyBestSeller"></div>
-  </div>
-  <div class="report-card small-card">
-    <div class="card-title">👑 Monthly Best Seller</div>
-    <div id="monthlyBestSeller"></div>
-  </div>
-</div>
-
-<!-- ══ ONLINE SALES SECTION ═══════════════════════════════════════════════ -->
-<div class="online-sales-section">
-  <div class="online-sales-header">
-    <h3>🌐 Online Sales</h3>
-    <p>Revenue, items sold, at best seller para sa online transactions</p>
-  </div>
-  <div class="online-kpi-grid">
-    <div class="online-kpi-card">
-      <span>💰 Online Revenue</span>
-      <h2 id="onlineRevenue">₱0</h2>
-      <p>Total online sales</p>
-    </div>
-    <div class="online-kpi-card">
+    <div class="report-kpi-card" style="border-top:4px solid #10b981;">
       <span>📦 Items Sold</span>
-      <h2 id="onlineItemsSold">0</h2>
-      <p>Total pieces sold online</p>
+      <h2 id="kpiItemsSold">0</h2>
+      <p>Total pieces sold</p>
     </div>
-    <div class="online-kpi-card">
+    <div class="report-kpi-card" style="border-top:4px solid #f59e0b;">
       <span>🏆 Best Seller</span>
-      <h2 id="onlineBestSeller" style="font-size:18px;margin:10px 0;">-</h2>
-      <p>Top online product</p>
+      <h2 id="kpiBestSeller" style="font-size:18px;margin:10px 0;">-</h2>
+      <p>Top product sa period</p>
+    </div>
+    <div class="report-kpi-card" style="border-top:4px solid #ef4444;">
+      <span>🏪 Top Store</span>
+      <h2 id="kpiTopStore" style="font-size:22px;margin:10px 0;">-</h2>
+      <p>Highest revenue branch</p>
     </div>
   </div>
-  <div class="online-best-seller-box">
-    <div class="card-title" style="margin-bottom:12px;">📊 Top Online Products</div>
-    <div id="onlineBestSellerList"></div>
+
+  <!-- Store Revenue Cards -->
+  <div class="store-revenue-grid" id="storeRevenueGrid">
+    <div class="store-revenue-card" id="storeRevenueCard1">
+      <div class="store-card-top"><span>🏪 Store 1</span><span class="store-rank" id="storeRank1">🥇</span></div>
+      <h2 id="reportStore1Sales">₱0</h2>
+      <p id="reportStore1Qty">0 items sold</p>
+      <div class="store-progress"><div id="store1Progress"></div></div>
+    </div>
+    <div class="store-revenue-card" id="storeRevenueCard2">
+      <div class="store-card-top"><span>🏪 Store 2</span><span class="store-rank" id="storeRank2">🥈</span></div>
+      <h2 id="reportStore2Sales">₱0</h2>
+      <p id="reportStore2Qty">0 items sold</p>
+      <div class="store-progress"><div id="store2Progress"></div></div>
+    </div>
+    <div class="store-revenue-card" id="storeRevenueCard3">
+      <div class="store-card-top"><span>🏪 Store 3</span><span class="store-rank" id="storeRank3">🥉</span></div>
+      <h2 id="reportStore3Sales">₱0</h2>
+      <p id="reportStore3Qty">0 items sold</p>
+      <div class="store-progress"><div id="store3Progress"></div></div>
+    </div>
   </div>
+
 </div>
 
-<!-- ══ DAILY REPORT CARDS ═════════════════════════════════════════════════ -->
-<div class="daily-reports-section-header">
-  <h3>📋 Daily Report Breakdown</h3>
-  <p>Detailed na transactions per category</p>
+<!-- ══ TAB: ANALYTICS ═════════════════════════════════════════════════════ -->
+<div id="reportTab-analytics" class="report-tab-content" style="display:none;">
+
+  <!-- Charts Row -->
+  <div class="charts-row">
+    <div class="chart-panel">
+      <div class="chart-panel-header">
+        <div><h3>🏪 Store Comparison</h3><p>Revenue ng bawat branch</p></div>
+      </div>
+      <div style="height:260px;"><canvas id="storeComparisonChart"></canvas></div>
+    </div>
+    <div class="chart-panel">
+      <div class="chart-panel-header">
+        <div><h3>🛒 Sales Breakdown</h3><p>Walk-in vs Online ratio</p></div>
+      </div>
+      <div style="height:220px;display:flex;align-items:center;justify-content:center;">
+        <canvas id="salesBreakdownChart"></canvas>
+      </div>
+      <div id="salesBreakdownLegend" style="display:flex;gap:16px;justify-content:center;margin-top:12px;flex-wrap:wrap;"></div>
+    </div>
+  </div>
+
+  <!-- Sales Trend -->
+  <div class="sales-trend-card">
+    <div class="trend-header">
+      <div><h3>📈 Sales Trend</h3><p>Daily revenue trend</p></div>
+      <div class="trend-controls">
+        <input type="month" id="trendMonth" onchange="reloadSalesTrendWithLoader()">
+        <select id="trendStoreFilter" onchange="reloadSalesTrendWithLoader()">
+          <option value="">All Stores</option>
+          <option value="Store 1">Store 1</option>
+          <option value="Store 2">Store 2</option>
+          <option value="Store 3">Store 3</option>
+        </select>
+      </div>
+    </div>
+    <div class="trend-chart-box"><canvas id="salesTrendChart"></canvas></div>
+  </div>
+
+  <!-- Analytics Grid -->
+  <div class="analytics-three-grid">
+    <div class="analytics-card">
+      <h3>🎨 Top Colors</h3>
+      <div id="topColorsBox"></div>
+    </div>
+    <div class="analytics-card">
+      <h3>📏 Top Sizes</h3>
+      <div id="topSizesBox"></div>
+    </div>
+    <div class="analytics-card">
+      <h3>🏆 Store Ranking</h3>
+      <div id="reportStoreRanking"></div>
+    </div>
+  </div>
+
 </div>
 
-<div class="daily-report-grid">
-  <div class="report-card">
-    <h4>➕ Add Stock</h4>
-    <div class="report-summary">
-      <span>Qty: <b id="addStockQty">0</b></span>
-      <span>Total: <b id="addStockTotal">₱0</b></span>
-    </div>
-    <div id="addStockReport"></div>
+<!-- ══ TAB: BEST SELLERS ══════════════════════════════════════════════════ -->
+<div id="reportTab-bestsellers" class="report-tab-content" style="display:none;">
+
+  <div class="best-seller-filters">
+    <input id="bestSellerMonth" type="month" onchange="reloadBestSellersWithLoader()">
+    <select id="bestSellerWeek" onchange="reloadBestSellersWithLoader()">
+      <option value="">Whole Month</option>
+      <option value="1">Week 1</option>
+      <option value="2">Week 2</option>
+      <option value="3">Week 3</option>
+      <option value="4">Week 4</option>
+      <option value="5">Week 5</option>
+    </select>
   </div>
 
-  <div class="report-card">
-    <h4>🚚 Warehouse → Store</h4>
-    <div class="report-summary">
-      <span>Qty: <b id="warehouseToStoreQty">0</b></span>
-      <span>Total: <b id="warehouseToStoreTotal">₱0</b></span>
+  <div class="best-seller-grid">
+    <div class="report-card small-card">
+      <div class="card-title">🏆 Weekly Best Seller</div>
+      <div id="weeklyBestSeller"></div>
     </div>
-    <div id="warehouseToStoreReport"></div>
+    <div class="report-card small-card">
+      <div class="card-title">👑 Monthly Best Seller</div>
+      <div id="monthlyBestSeller"></div>
+    </div>
   </div>
 
-  <div class="report-card">
-    <h4>🔄 Store → Warehouse Return</h4>
-    <div class="report-summary">
-      <span>Qty: <b id="storeToWarehouseQty">0</b></span>
-      <span>Total: <b id="storeToWarehouseTotal">₱0</b></span>
+  <!-- Online Sales Section -->
+  <div class="online-sales-section">
+    <div class="online-sales-header">
+      <h3>🌐 Online Sales</h3>
+      <p>Revenue, items sold, at best seller para sa online transactions</p>
     </div>
-    <div id="storeToWarehouseReport"></div>
-    <!-- Return analytics -->
-    <div id="returnAnalyticsBox" style="margin-top:14px;"></div>
+    <div class="online-kpi-grid">
+      <div class="online-kpi-card">
+        <span>💰 Online Revenue</span>
+        <h2 id="onlineRevenue">₱0</h2>
+        <p>Total online sales</p>
+      </div>
+      <div class="online-kpi-card">
+        <span>📦 Items Sold</span>
+        <h2 id="onlineItemsSold">0</h2>
+        <p>Total pieces sold online</p>
+      </div>
+      <div class="online-kpi-card">
+        <span>🏆 Best Seller</span>
+        <h2 id="onlineBestSeller" style="font-size:18px;margin:10px 0;">-</h2>
+        <p>Top online product</p>
+      </div>
+    </div>
+    <div class="online-best-seller-box">
+      <div class="card-title" style="margin-bottom:12px;">📊 Top Online Products</div>
+      <div id="onlineBestSellerList"></div>
+    </div>
   </div>
 
-  <div class="report-card">
-    <h4>💻 Online Sales</h4>
-    <div class="report-summary">
-      <span>Qty: <b id="warehouseOnlineQty">0</b></span>
-      <span>Total: <b id="warehouseOnlineTotal">₱0</b></span>
+</div>
+
+<!-- ══ TAB: TRANSACTIONS ══════════════════════════════════════════════════ -->
+<div id="reportTab-transactions" class="report-tab-content" style="display:none;">
+
+  <!-- Transaction Timeline -->
+  <div class="timeline-card">
+    <div class="timeline-header">
+      <div>
+        <h3>⚡ Live Transaction Timeline</h3>
+        <p>Latest inventory movement and sales activity</p>
+      </div>
+      <button class="btn" onclick="loadTransactionTimeline()">Refresh</button>
     </div>
-    <div id="warehouseOnlineReport"></div>
+    <div id="transactionTimeline"></div>
   </div>
 
-  <div class="report-card">
-    <h4>🏪 Store 1 → Walk-in Sales</h4>
-    <div class="report-summary">
-      <span>Qty: <b id="store1WalkinQty">0</b></span>
-      <span>Total: <b id="store1WalkinSummaryTotal">₱0</b></span>
-    </div>
-    <div id="store1WalkinReport"></div>
+  <!-- Daily Report Breakdown -->
+  <div class="daily-reports-section-header">
+    <h3>📋 Daily Report Breakdown</h3>
+    <p>Detailed na transactions per category</p>
   </div>
 
-  <div class="report-card">
-    <h4>🏪 Store 2 → Walk-in Sales</h4>
-    <div class="report-summary">
-      <span>Qty: <b id="store2WalkinQty">0</b></span>
-      <span>Total: <b id="store2WalkinSummaryTotal">₱0</b></span>
+  <div class="daily-report-grid">
+    <div class="report-card">
+      <h4>➕ Add Stock</h4>
+      <div class="report-summary">
+        <span>Qty: <b id="addStockQty">0</b></span>
+        <span>Total: <b id="addStockTotal">₱0</b></span>
+      </div>
+      <div id="addStockReport"></div>
     </div>
-    <div id="store2WalkinReport"></div>
+    <div class="report-card">
+      <h4>🚚 Warehouse → Store</h4>
+      <div class="report-summary">
+        <span>Qty: <b id="warehouseToStoreQty">0</b></span>
+        <span>Total: <b id="warehouseToStoreTotal">₱0</b></span>
+      </div>
+      <div id="warehouseToStoreReport"></div>
+    </div>
+    <div class="report-card">
+      <h4>🔄 Store → Warehouse Return</h4>
+      <div class="report-summary">
+        <span>Qty: <b id="storeToWarehouseQty">0</b></span>
+        <span>Total: <b id="storeToWarehouseTotal">₱0</b></span>
+      </div>
+      <div id="storeToWarehouseReport"></div>
+      <div id="returnAnalyticsBox" style="margin-top:14px;"></div>
+    </div>
+    <div class="report-card">
+      <h4>💻 Online Sales</h4>
+      <div class="report-summary">
+        <span>Qty: <b id="warehouseOnlineQty">0</b></span>
+        <span>Total: <b id="warehouseOnlineTotal">₱0</b></span>
+      </div>
+      <div id="warehouseOnlineReport"></div>
+    </div>
+    <div class="report-card">
+      <h4>🏪 Store 1 → Walk-in Sales</h4>
+      <div class="report-summary">
+        <span>Qty: <b id="store1WalkinQty">0</b></span>
+        <span>Total: <b id="store1WalkinSummaryTotal">₱0</b></span>
+      </div>
+      <div id="store1WalkinReport"></div>
+    </div>
+    <div class="report-card">
+      <h4>🏪 Store 2 → Walk-in Sales</h4>
+      <div class="report-summary">
+        <span>Qty: <b id="store2WalkinQty">0</b></span>
+        <span>Total: <b id="store2WalkinSummaryTotal">₱0</b></span>
+      </div>
+      <div id="store2WalkinReport"></div>
+    </div>
+    <div class="report-card">
+      <h4>🏪 Store 3 → Walk-in Sales</h4>
+      <div class="report-summary">
+        <span>Qty: <b id="store3WalkinQty">0</b></span>
+        <span>Total: <b id="store3WalkinSummaryTotal">₱0</b></span>
+      </div>
+      <div id="store3WalkinReport"></div>
+    </div>
   </div>
 
-  <div class="report-card">
-    <h4>🏪 Store 3 → Walk-in Sales</h4>
-    <div class="report-summary">
-      <span>Qty: <b id="store3WalkinQty">0</b></span>
-      <span>Total: <b id="store3WalkinSummaryTotal">₱0</b></span>
-    </div>
-    <div id="store3WalkinReport"></div>
-  </div>
 </div>
 
 </section>
