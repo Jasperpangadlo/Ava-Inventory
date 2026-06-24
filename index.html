@@ -1068,56 +1068,111 @@ onchange="filterSoldItems()">
 <!-- ══ TAB: BEST SELLERS ══════════════════════════════════════════════════ -->
 <div id="reportTab-bestsellers" class="report-tab-content" style="display:none;">
 
-  <div class="best-seller-filters">
-    <input id="bestSellerMonth" type="month" onchange="reloadBestSellersWithLoader()">
-    <select id="bestSellerWeek" onchange="reloadBestSellersWithLoader()">
-      <option value="">Whole Month</option>
-      <option value="1">Week 1</option>
-      <option value="2">Week 2</option>
-      <option value="3">Week 3</option>
-      <option value="4">Week 4</option>
-      <option value="5">Week 5</option>
-    </select>
+  <!-- Filter Bar -->
+  <div class="bs-filter-bar">
+    <div class="bs-filter-left">
+      <span class="bs-filter-label">📅 Period:</span>
+      <div class="bs-period-btns">
+        <button class="bs-period-btn active" onclick="setBsPeriod('month',this)">This Month</button>
+        <button class="bs-period-btn" onclick="setBsPeriod('week',this)">This Week</button>
+        <button class="bs-period-btn" onclick="setBsPeriod('custom',this)">Custom</button>
+      </div>
+      <div id="bsCustomBox" style="display:none;gap:8px;align-items:center;">
+        <input type="month" id="bestSellerMonth" onchange="reloadBestSellersWithLoader()"
+          style="height:36px;border-radius:8px;border:1.5px solid #c7d2fe;padding:0 10px;font-size:13px;font-weight:600;">
+        <select id="bestSellerWeek" onchange="reloadBestSellersWithLoader()"
+          style="height:36px;border-radius:8px;border:1.5px solid #c7d2fe;padding:0 10px;font-size:13px;font-weight:600;">
+          <option value="">Whole Month</option>
+          <option value="1">Week 1</option>
+          <option value="2">Week 2</option>
+          <option value="3">Week 3</option>
+          <option value="4">Week 4</option>
+          <option value="5">Week 5</option>
+        </select>
+      </div>
+    </div>
+    <div class="bs-period-display" id="bsPeriodDisplay">This Month</div>
   </div>
 
-  <div class="best-seller-grid">
-    <div class="report-card small-card">
-      <div class="card-title">🏆 Weekly Best Seller</div>
-      <div id="weeklyBestSeller"></div>
+  <!-- Store Cards Grid -->
+  <div class="bs-stores-grid">
+
+    <div class="bs-store-card bs-store1">
+      <div class="bs-store-header">
+        <div class="bs-store-icon">🏪</div>
+        <div>
+          <h3>Store 1</h3>
+          <p id="bsStore1Total">₱0 total sales</p>
+        </div>
+      </div>
+      <div class="bs-rank-list" id="bsStore1List">
+        <div class="bs-empty">No sales yet</div>
+      </div>
     </div>
-    <div class="report-card small-card">
-      <div class="card-title">👑 Monthly Best Seller</div>
-      <div id="monthlyBestSeller"></div>
+
+    <div class="bs-store-card bs-store2">
+      <div class="bs-store-header">
+        <div class="bs-store-icon">🏪</div>
+        <div>
+          <h3>Store 2</h3>
+          <p id="bsStore2Total">₱0 total sales</p>
+        </div>
+      </div>
+      <div class="bs-rank-list" id="bsStore2List">
+        <div class="bs-empty">No sales yet</div>
+      </div>
+    </div>
+
+    <div class="bs-store-card bs-store3">
+      <div class="bs-store-header">
+        <div class="bs-store-icon">🏪</div>
+        <div>
+          <h3>Store 3</h3>
+          <p id="bsStore3Total">₱0 total sales</p>
+        </div>
+      </div>
+      <div class="bs-rank-list" id="bsStore3List">
+        <div class="bs-empty">No sales yet</div>
+      </div>
+    </div>
+
+    <div class="bs-store-card bs-online">
+      <div class="bs-store-header">
+        <div class="bs-store-icon">🌐</div>
+        <div>
+          <h3>Online Sales</h3>
+          <p id="bsOnlineTotal">₱0 total sales</p>
+        </div>
+      </div>
+      <div class="bs-rank-list" id="bsOnlineList">
+        <div class="bs-empty">No sales yet</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Overall Top 5 -->
+  <div class="bs-overall-card">
+    <div class="bs-overall-header">
+      <div>
+        <h3>🏆 Overall Top 5</h3>
+        <p>Pinaka-magbentang products across all stores</p>
+      </div>
+      <div class="bs-overall-badge">All Stores Combined</div>
+    </div>
+    <div class="bs-overall-list" id="bsOverallList">
+      <div style="text-align:center;color:#aaa;padding:20px;">No sales yet</div>
     </div>
   </div>
 
-  <!-- Online Sales Section -->
-  <div class="online-sales-section">
-    <div class="online-sales-header">
-      <h3>🌐 Online Sales</h3>
-      <p>Revenue, items sold, at best seller para sa online transactions</p>
-    </div>
-    <div class="online-kpi-grid">
-      <div class="online-kpi-card">
-        <span>💰 Online Revenue</span>
-        <h2 id="onlineRevenue">₱0</h2>
-        <p>Total online sales</p>
-      </div>
-      <div class="online-kpi-card">
-        <span>📦 Items Sold</span>
-        <h2 id="onlineItemsSold">0</h2>
-        <p>Total pieces sold online</p>
-      </div>
-      <div class="online-kpi-card">
-        <span>🏆 Best Seller</span>
-        <h2 id="onlineBestSeller" style="font-size:18px;margin:10px 0;">-</h2>
-        <p>Top online product</p>
-      </div>
-    </div>
-    <div class="online-best-seller-box">
-      <div class="card-title" style="margin-bottom:12px;">📊 Top Online Products</div>
-      <div id="onlineBestSellerList"></div>
-    </div>
+  <!-- Keep old IDs for compatibility -->
+  <div style="display:none;">
+    <div id="weeklyBestSeller"></div>
+    <div id="monthlyBestSeller"></div>
+    <h2 id="onlineRevenue"></h2>
+    <h2 id="onlineItemsSold"></h2>
+    <h2 id="onlineBestSeller"></h2>
+    <div id="onlineBestSellerList"></div>
   </div>
 
 </div>
