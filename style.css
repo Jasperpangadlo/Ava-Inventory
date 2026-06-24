@@ -3346,3 +3346,40 @@ tbody tr:hover {
 
 .report-tab-content { display: block; }
 /* ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Connection Banner ───────────────────────────────────────────────────── */
+.connection-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  animation: slideDown .3s ease;
+}
+
+.connection-banner.warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.connection-banner.error {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.connection-banner.success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+/* ─────────────────────────────────────────────────────────────────────────── */
