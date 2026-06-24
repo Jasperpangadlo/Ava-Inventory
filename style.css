@@ -3302,3 +3302,44 @@ tbody tr:hover {
 .online-best-seller-box .best-seller-name { color: #e0e7ff; }
 .online-best-seller-box .best-seller-qty  { color: #a5b4fc; }
 /* ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Report Sub-Tabs ─────────────────────────────────────────────────────── */
+.report-subtabs {
+  display: flex;
+  gap: 4px;
+  background: #f1f5f9;
+  border-radius: 14px;
+  padding: 5px;
+  margin: 18px 0 20px;
+  width: fit-content;
+}
+
+.report-subtab {
+  padding: 8px 20px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  min-height: unset;
+  box-shadow: none;
+}
+
+.report-subtab:hover {
+  background: rgba(79,70,229,.08);
+  color: #4f46e5;
+  transform: none;
+  box-shadow: none;
+}
+
+.report-subtab.active {
+  background: white;
+  color: #4f46e5;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+.report-tab-content { display: block; }
+/* ─────────────────────────────────────────────────────────────────────────── */
