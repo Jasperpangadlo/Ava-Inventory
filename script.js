@@ -1974,70 +1974,152 @@ updateReturnAnalytics(returnData);
 
 
 
+// ── Best Sellers Period Filter ────────────────────────────────────────────────
+let _bsPeriod = "month";
+
+function setBsPeriod(period, btn){
+  _bsPeriod = period;
+  document.querySelectorAll(".bs-period-btn").forEach(b => b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+  const customBox = document.getElementById("bsCustomBox");
+  if(period === "custom"){
+    customBox.style.display = "flex";
+  } else {
+    customBox.style.display = "none";
+    const monthEl = document.getElementById("bestSellerMonth");
+    if(monthEl && !monthEl.value) monthEl.value = new Date().toISOString().slice(0,7);
+  }
+  reloadBestSellersWithLoader();
+}
+
 async function loadBestSellers(){
-
   const records = historyCache || [];
+  const now     = new Date();
+  const period  = _bsPeriod || "month";
+  const currentMonth = now.toISOString().slice(0,7);
+  const currentWeek  = String(Math.ceil(now.getDate() / 7));
 
-  const selectedMonth = document.getElementById("bestSellerMonth")?.value || "";
-  const selectedWeek  = document.getElementById("bestSellerWeek")?.value || "";
+  const store1 = {}, store2 = {}, store3 = {}, online = {}, overall = {};
+  const totals  = { store1: 0, store2: 0, store3: 0, online: 0 };
 
-  const weeklyBox  = document.getElementById("weeklyBestSeller");
-  const monthlyBox = document.getElementById("monthlyBestSeller");
+  records.forEach(item => {
+    const remarks  = String(item.remarks || "").toLowerCase();
+    const isWalkin = remarks.includes("walk");
+    const isOnline = remarks.includes("online");
+    if(!isWalkin && !isOnline) return;
 
-  if(!weeklyBox || !monthlyBox) return;
+    const date    = new Date(item.datetime || item.date);
+    const month   = date.toISOString().slice(0,7);
+    const week    = String(Math.ceil(date.getDate() / 7));
+    const product = item.product || "Unknown";
+    const qty     = Number(item.qty)   || 0;
+    const total   = Number(item.total) || 0;
 
-  // ── WEEKLY sales: filter by selectedMonth + selectedWeek ──────────────
-  const weeklySales = {};
-  // ── MONTHLY sales: filter by selectedMonth only (ignore week filter) ──
-  const monthlySales = {};
-
-  records.forEach(item=>{
-
-    const remarks = String(item.remarks || "").toLowerCase();
-    if(!remarks.includes("walk")) return;
-
-    const date  = new Date(item.datetime || item.date);
-    const month = date.toISOString().slice(0,7);
-    const week  = String(Math.ceil(date.getDate() / 7));
-
-    if(selectedMonth && month !== selectedMonth) return;
-
-    const product = item.product || "Unknown Product";
-    const qty     = Number(item.qty) || 0;
-
-    // Monthly: every record that passes month filter
-    monthlySales[product] = (monthlySales[product] || 0) + qty;
-
-    // Weekly: additionally filter by week
-    if(!selectedWeek || week === selectedWeek){
-      weeklySales[product] = (weeklySales[product] || 0) + qty;
+    if(period === "month"){
+      if(month !== currentMonth) return;
+    } else if(period === "week"){
+      if(month !== currentMonth || week !== currentWeek) return;
+    } else if(period === "custom"){
+      const selMonth = document.getElementById("bestSellerMonth")?.value || "";
+      const selWeek  = document.getElementById("bestSellerWeek")?.value  || "";
+      if(selMonth && month !== selMonth) return;
+      if(selWeek  && week  !== selWeek)  return;
     }
 
+    if(isOnline){
+      online[product]  = (online[product]  || 0) + qty;
+      overall[product] = (overall[product] || 0) + qty;
+      totals.online   += total;
+    } else if(remarks.includes("store 1")){
+      store1[product]  = (store1[product]  || 0) + qty;
+      overall[product] = (overall[product] || 0) + qty;
+      totals.store1   += total;
+    } else if(remarks.includes("store 2")){
+      store2[product]  = (store2[product]  || 0) + qty;
+      overall[product] = (overall[product] || 0) + qty;
+      totals.store2   += total;
+    } else if(remarks.includes("store 3")){
+      store3[product]  = (store3[product]  || 0) + qty;
+      overall[product] = (overall[product] || 0) + qty;
+      totals.store3   += total;
+    }
   });
 
-  function buildHtml(sales){
-    const entries = Object.entries(sales).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    if(!entries.length) return `<div class="report-empty">No records</div>`;
-    let rank = 1;
-    return entries.map(([name, qty])=>{
-      const medals = ["","🥇","🥈","🥉","4️⃣","5️⃣"];
-      const row = `
-        <div class="best-seller-item">
-          <div class="best-seller-left">
-            <div class="rank-badge">${medals[rank] || rank}</div>
-            <div class="best-seller-name">${name}</div>
-          </div>
-          <div class="best-seller-qty">${qty} sold</div>
-        </div>`;
-      rank++;
-      return row;
-    }).join("");
+  const periodEl = document.getElementById("bsPeriodDisplay");
+  if(periodEl){
+    if(period === "month") periodEl.textContent = "This Month";
+    else if(period === "week") periodEl.textContent = "This Week";
+    else periodEl.textContent = "Custom Period";
   }
 
-  weeklyBox.innerHTML  = buildHtml(weeklySales);
-  monthlyBox.innerHTML = buildHtml(monthlySales);
+  renderBsStore("bsStore1List", store1);
+  renderBsStore("bsStore2List", store2);
+  renderBsStore("bsStore3List", store3);
+  renderBsStore("bsOnlineList", online);
+  renderBsOverall("bsOverallList", overall);
 
+  const fmt = n => "₱" + Number(n).toLocaleString("en-PH", {minimumFractionDigits:0});
+  const s1 = document.getElementById("bsStore1Total");
+  const s2 = document.getElementById("bsStore2Total");
+  const s3 = document.getElementById("bsStore3Total");
+  const s4 = document.getElementById("bsOnlineTotal");
+  if(s1) s1.textContent = fmt(totals.store1) + " total sales";
+  if(s2) s2.textContent = fmt(totals.store2) + " total sales";
+  if(s3) s3.textContent = fmt(totals.store3) + " total sales";
+  if(s4) s4.textContent = fmt(totals.online) + " total sales";
+
+  // Keep old IDs working for Overview tab
+  const onlineRevEl = document.getElementById("onlineRevenue");
+  const onlineItmEl = document.getElementById("onlineItemsSold");
+  const onlineBstEl = document.getElementById("onlineBestSeller");
+  const topOnline   = Object.entries(online).sort((a,b)=>b[1]-a[1])[0];
+  if(onlineRevEl) onlineRevEl.textContent = fmt(totals.online);
+  if(onlineItmEl) onlineItmEl.textContent = Object.values(online).reduce((a,b)=>a+b,0);
+  if(onlineBstEl) onlineBstEl.textContent = topOnline ? topOnline[0] : "-";
 }
+
+function renderBsStore(elId, sales){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  const entries = Object.entries(sales).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if(!entries.length){
+    el.innerHTML = `<div class="bs-empty">No sales yet</div>`;
+    return;
+  }
+  const medals = ["🥇","🥈","🥉","4️⃣","5️⃣"];
+  el.innerHTML = entries.map(([name, qty], i) => `
+    <div class="bs-rank-item" style="animation-delay:${i*60}ms">
+      <div class="bs-rank-medal">${medals[i]}</div>
+      <div class="bs-rank-name">${name}</div>
+      <div class="bs-rank-qty">${qty}<span>sold</span></div>
+    </div>
+  `).join("");
+}
+
+function renderBsOverall(elId, sales){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  const entries = Object.entries(sales).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if(!entries.length){
+    el.innerHTML = `<div style="text-align:center;color:#aaa;padding:20px;">No sales yet</div>`;
+    return;
+  }
+  const medals = ["🥇","🥈","🥉","4️⃣","5️⃣"];
+  const max = entries[0][1];
+  el.innerHTML = entries.map(([name, qty], i) => `
+    <div class="bs-overall-item" style="animation-delay:${i*80}ms">
+      <div class="bs-overall-rank">${medals[i]}</div>
+      <div class="bs-overall-info">
+        <div class="bs-overall-name">${name}</div>
+        <div class="bs-overall-bar">
+          <div class="bs-overall-bar-fill" style="width:${(qty/max*100).toFixed(1)}%"></div>
+        </div>
+      </div>
+      <div class="bs-overall-count">${qty}<span>sold</span></div>
+    </div>
+  `).join("");
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 
 // ── Date Range Filter ─────────────────────────────────────────────────────
