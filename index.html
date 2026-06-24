@@ -875,19 +875,15 @@ onchange="filterSoldItems()">
     <p style="color:#64748b;font-weight:700;margin:4px 0 0;">Business overview at analytics</p>
   </div>
   <div class="reports-controls">
-    <div class="date-range-btns">
-      <button class="range-btn active" onclick="setDateRange('today',this)">Today</button>
-      <button class="range-btn" onclick="setDateRange('week',this)">This Week</button>
-      <button class="range-btn" onclick="setDateRange('month',this)">This Month</button>
-      <button class="range-btn" onclick="setDateRange('custom',this)">Custom</button>
-    </div>
-    <div id="customRangeBox" style="display:none;gap:8px;align-items:center;flex-wrap:wrap;" class="custom-range-row">
-      <input type="date" id="dateRangeFrom" onchange="applyCustomRange()" style="height:38px;border-radius:10px;border:1.5px solid #e5e7eb;padding:0 12px;font-weight:700;">
-      <span style="color:#64748b;font-weight:700;">to</span>
-      <input type="date" id="dateRangeTo" onchange="applyCustomRange()" style="height:38px;border-radius:10px;border:1.5px solid #e5e7eb;padding:0 12px;font-weight:700;">
-    </div>
-    <input id="reportDate" type="date" onchange="reloadReportsWithLoader()" style="display:none;">
-    <div style="display:flex;gap:8px;">
+
+    <!-- Row 1: Date range buttons + Print/Export (always visible, never move) -->
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <div class="date-range-btns">
+        <button class="range-btn active" onclick="setDateRange('today',this)">Today</button>
+        <button class="range-btn" onclick="setDateRange('week',this)">This Week</button>
+        <button class="range-btn" onclick="setDateRange('month',this)">This Month</button>
+        <button class="range-btn" onclick="setDateRange('custom',this)">Custom</button>
+      </div>
       <select id="printType" style="height:38px;border-radius:10px;border:1.5px solid #e5e7eb;padding:0 12px;font-weight:700;color:#1e1b4b;background:white;font-size:13px;">
         <option value="all">🖨️ All Reports</option>
         <option value="daily">Daily Only</option>
@@ -898,6 +894,16 @@ onchange="filterSoldItems()">
       <button id="printReportBtn" class="btn" style="background:#1e1b4b;" onclick="printReports()">🖨️ Print</button>
       <button class="btn green" onclick="exportReportsCSV()">⬇️ Export CSV</button>
     </div>
+
+    <!-- Row 2: Custom date pickers (only shows when Custom is selected) -->
+    <div id="customRangeBox" style="display:none;gap:8px;align-items:center;" class="custom-range-row">
+      <span style="color:#64748b;font-size:13px;font-weight:600;">From:</span>
+      <input type="date" id="dateRangeFrom" onchange="applyCustomRange()" style="height:38px;border-radius:10px;border:1.5px solid #6366f1;padding:0 12px;font-weight:600;font-size:13px;">
+      <span style="color:#64748b;font-size:13px;font-weight:600;">To:</span>
+      <input type="date" id="dateRangeTo" onchange="applyCustomRange()" style="height:38px;border-radius:10px;border:1.5px solid #6366f1;padding:0 12px;font-weight:600;font-size:13px;">
+    </div>
+
+    <input id="reportDate" type="date" onchange="reloadReportsWithLoader()" style="display:none;">
   </div>
 </div>
 
