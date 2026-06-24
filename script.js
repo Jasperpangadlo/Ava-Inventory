@@ -7,38 +7,94 @@ let historyCache = [];
 
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6K3N58inD_aZdmVA6yilTyxSSEE34ng_GXNviFvDTBLdXocmhBppWeCv4U9bcKr-3/exec";
 
-async function apiRequest(action, payload = {}) {
+async function apiRequest(action, payload = {}, _retries = 3) {
 
 const params = new URLSearchParams({
-action,
-data: JSON.stringify(payload)
+  action,
+  data: JSON.stringify(payload)
 });
 
-const url =
-`${WEB_APP_URL}?${params}`;
+const url = `${WEB_APP_URL}?${params}`;
 
-const response =
-await fetch(url);
+for(let attempt = 1; attempt <= _retries; attempt++){
+  try {
+    const response = await fetch(url);
+    const text     = await response.text();
 
-const text =
-await response.text();
+    try {
+      return JSON.parse(text);
+    } catch(e) {
+      // Not JSON — likely a Google error page
+      if(attempt < _retries){
+        // Wait before retrying (500ms, 1000ms, 1500ms...)
+        await new Promise(r => setTimeout(r, attempt * 500));
+        continue;
+      }
+      console.error("API URL:", url);
+      console.error("API RESPONSE:", text);
+      showConnectionBanner("Server error. Retrying failed — please refresh.", "error");
+      throw new Error("API did not return JSON. Check Apps Script deployment or action: " + action);
+    }
 
-try{
+  } catch(err) {
+    if(err.message.includes("API did not return JSON")) throw err;
 
-return JSON.parse(text);
+    // Network error
+    if(attempt < _retries){
+      showConnectionBanner(`Connection issue. Retrying (${attempt}/${_retries})...`, "warning");
+      await new Promise(r => setTimeout(r, attempt * 500));
+      continue;
+    }
 
-}catch(error){
-
-console.error("API URL:", url);
-console.error("API RESPONSE:", text);
-
-throw new Error(
-"API did not return JSON. Check Apps Script deployment or action: " + action
-);
-
+    showConnectionBanner("No internet connection. Please check your network.", "error");
+    throw err;
+  }
 }
 
 }
+
+// ── Connection Banner ─────────────────────────────────────────────────────────
+let _bannerTimeout = null;
+
+function showConnectionBanner(message, type = "warning"){
+  let banner = document.getElementById("connectionBanner");
+  if(!banner){
+    banner = document.createElement("div");
+    banner.id = "connectionBanner";
+    document.body.prepend(banner);
+  }
+
+  banner.className = "connection-banner " + type;
+  banner.innerHTML = `
+    <span>${type === "warning" ? "⚠️" : type === "error" ? "❌" : "✅"} ${message}</span>
+    <button onclick="document.getElementById('connectionBanner').style.display='none'"
+      style="background:none;border:none;color:inherit;cursor:pointer;font-size:16px;padding:0 4px;">✕</button>
+  `;
+  banner.style.display = "flex";
+
+  // Auto-hide success messages after 3 seconds
+  clearTimeout(_bannerTimeout);
+  if(type === "success"){
+    _bannerTimeout = setTimeout(()=>{
+      banner.style.display = "none";
+    }, 3000);
+  }
+}
+
+// ── Offline/Online Detection ──────────────────────────────────────────────────
+window.addEventListener("offline", ()=>{
+  showConnectionBanner("You are offline. Please check your internet connection.", "error");
+});
+
+window.addEventListener("online", ()=>{
+  showConnectionBanner("Back online! Refreshing data...", "success");
+  // Auto-reload data when connection is restored
+  setTimeout(()=>{
+    if(typeof loadData === "function") loadData();
+    else if(typeof loadHistoryCache === "function") loadHistoryCache();
+  }, 500);
+});
+// ─────────────────────────────────────────────────────────────────────────────
 
 async function loadHistoryCache(){
 
