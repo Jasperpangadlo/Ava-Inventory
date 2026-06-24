@@ -1845,8 +1845,6 @@ if(remarks.includes("walk")){
   walkinTotal += total;
 }
 
-if(remarks.includes("online")) onlineTotal += total;
-
 if(remarks.includes("store 1")&&remarks.includes("walk")) store1Sales[product]=(store1Sales[product]||0)+qty;
 if(remarks.includes("store 2")&&remarks.includes("walk")) store2Sales[product]=(store2Sales[product]||0)+qty;
 if(remarks.includes("store 3")&&remarks.includes("walk")) store3Sales[product]=(store3Sales[product]||0)+qty;
