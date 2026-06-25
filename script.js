@@ -1232,11 +1232,17 @@ function updateClock() {
         document.getElementById("previewSize").innerText =
           "Size: " + (document.getElementById("size").value || "-");
       
+        const priceVal = document.getElementById("price").value;
         document.getElementById("previewPrice").innerText =
-          "Price: ₱" + (document.getElementById("price").value || "-");
+          priceVal ? "₱ " + Number(priceVal).toLocaleString("en-PH") : "₱ -";
       
         document.getElementById("previewStock").innerText =
-          "Stock: " + (document.getElementById("stock").value || "-");
+          document.getElementById("stock").value || "-";
+
+        // Update cart count
+        const rows = document.querySelectorAll("#stockCartTable tr:not(#asCartEmpty)");
+        const countEl = document.getElementById("asCartCount");
+        if(countEl) countEl.textContent = rows.length + " item" + (rows.length !== 1 ? "s" : "");
 
         const productName =
         document.getElementById("product").value
