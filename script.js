@@ -299,25 +299,37 @@ function renderSalesCart(){
   if(!tbody) return;
 
   if(salesCart.length === 0){
-    tbody.innerHTML = `<tr id="cartEmptyRow"><td colspan="4" style="text-align:center;color:#aaa;padding:16px;">Cart is empty — scan a barcode to add items</td></tr>`;
+    tbody.innerHTML = `<tr id="cartEmptyRow"><td colspan="4" class="so-cart-empty"><div>🛒</div><p>Cart is empty — scan a barcode to add items</p></td></tr>`;
+    updateSoCartUI();
     return;
   }
 
   tbody.innerHTML = salesCart.map((item, i) => `
-    <tr style="border-bottom:1px solid #eee;">
-      <td style="padding:8px;">${item.barcode}</td>
-      <td style="padding:8px;">${item.product}</td>
-      <td style="padding:8px;">
-        <input type="number" min="1" value="${item.qty}"
-          style="width:60px;padding:4px 6px;border:1px solid #ddd;border-radius:6px;"
+    <tr>
+      <td style="font-size:12px;color:#818cf8;">${item.barcode}</td>
+      <td><strong>${item.product}</strong></td>
+      <td>
+        <input type="number" min="1" value="${item.qty}" class="pos-qty-input"
           onchange="updateCartQty(${i}, this.value)">
       </td>
-      <td style="padding:8px;">
-        <button style="background:#e74c3c;color:white;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;"
-          onclick="removeCartItem(${i})">✕</button>
+      <td>
+        <button onclick="removeCartItem(${i})"
+          style="background:#ef4444;color:white;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;">✕</button>
       </td>
     </tr>
   `).join("");
+
+  updateSoCartUI();
+}
+
+function updateSoCartUI(){
+  const badge   = document.getElementById("soCartBadge");
+  const summary = document.getElementById("soCartSummary");
+  const total   = salesCart.length;
+  if(badge)   badge.textContent   = total + " item" + (total !== 1 ? "s" : "");
+  if(summary) summary.textContent = total > 0
+    ? total + " item" + (total !== 1 ? "s" : "") + " ready for checkout"
+    : "Ready to checkout";
 }
 
 function updateCartQty(index, value){
