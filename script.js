@@ -143,6 +143,7 @@ document.getElementById("price").value = "";
   loadDailyReports();
   loadBestSellers();
   loadTransactionTimeline();
+  updateRecentActivity();
   
   document.getElementById("barcode").focus();
   
@@ -209,6 +210,66 @@ async function loadProducts() {
   document.getElementById("totalStock").textContent = totalStock;
   document.getElementById("lowStock").textContent = lowStock;
   document.getElementById("outStock").textContent = outStock;
+
+  // ── Warehouse Health Meter ──────────────────────────────────────────────
+  const inStock = products.length - lowStock - outStock;
+  const healthPct = products.length > 0
+    ? Math.round((inStock / products.length) * 100) : 0;
+
+  const healthFill  = document.getElementById("dbHealthFill");
+  const healthScore = document.getElementById("dbHealthScore");
+  const healthLabel = document.getElementById("dbHealthLabel");
+
+  if(healthFill)  healthFill.style.width = healthPct + "%";
+  if(healthScore) healthScore.textContent = healthPct + "%";
+
+  const healthColor = healthPct >= 70 ? "#10b981" : healthPct >= 40 ? "#f59e0b" : "#ef4444";
+  if(healthFill)  healthFill.style.background = `linear-gradient(90deg, ${healthColor}, ${healthColor}cc)`;
+  if(healthScore) healthScore.style.color = healthColor;
+  if(healthLabel){
+    healthLabel.textContent = healthPct >= 70
+      ? "Warehouse is well-stocked"
+      : healthPct >= 40
+      ? "Some items need restocking"
+      : "Critical — many items out of stock";
+  }
+
+  // ── Stock Alerts ───────────────────────────────────────────────────────
+  const alertList  = document.getElementById("dbAlertList");
+  const alertCount = document.getElementById("dbAlertCount");
+
+  const lowItems = products
+    .filter(p => Number(p.stock) > 0 && Number(p.stock) <= 5)
+    .sort((a,b) => Number(a.stock) - Number(b.stock))
+    .slice(0, 8);
+
+  const outItems = products
+    .filter(p => Number(p.stock) === 0)
+    .slice(0, 5);
+
+  const allAlerts = [...outItems, ...lowItems];
+
+  if(alertCount) alertCount.textContent = allAlerts.length;
+
+  if(alertList){
+    if(!allAlerts.length){
+      alertList.innerHTML = `<p style="color:#9ca3af;text-align:center;font-size:13px;padding:16px 0;">✅ All stocks are healthy!</p>`;
+    } else {
+      alertList.innerHTML = allAlerts.map(p => {
+        const qty   = Number(p.stock);
+        const isOut = qty === 0;
+        return `
+          <div class="db-alert-item ${isOut ? "db-alert-out" : "db-alert-low"}">
+            <div class="db-alert-info">
+              <span class="db-alert-name">${p.product}</span>
+              <span class="db-alert-meta">${p.color} · ${p.size}</span>
+            </div>
+            <span class="db-alert-qty">${isOut ? "OUT" : qty}</span>
+          </div>
+        `;
+      }).join("");
+    }
+  }
 
   if (products.length > 0 && document.getElementById("stockChart")) {
     const labels = products.map(item =>
@@ -392,6 +453,7 @@ async function submitSalesCart(){
   if(currentTab === "sold-items") await loadSoldItems();
   if(currentTab === "dashboard"){
     await Promise.all([updateStoreSalesToday(), updateBranchRanking(), loadTransactionTimeline()]);
+    updateRecentActivity();
   }
 }
 
@@ -2639,6 +2701,52 @@ document.getElementById(qtyId)
 }
 
 }
+
+// ── Recent Activity ───────────────────────────────────────────────────────────
+function updateRecentActivity(){
+  const el = document.getElementById("dbRecentActivity");
+  if(!el) return;
+
+  const records = (historyCache || []).slice(0, 5);
+
+  if(!records.length){
+    el.innerHTML = `<p style="color:#9ca3af;text-align:center;font-size:13px;padding:16px 0;">No recent activity</p>`;
+    return;
+  }
+
+  const icons = {
+    "add stock"   : "➕",
+    "warehouse"   : "🚚",
+    "walk"        : "💰",
+    "online"      : "🌐",
+    "return"      : "↩️"
+  };
+
+  el.innerHTML = records.map(r => {
+    const remarks = String(r.remarks || "").toLowerCase();
+    let icon = "📋";
+    if(remarks.includes("add stock"))         icon = "➕";
+    else if(remarks.includes("walk"))         icon = "💰";
+    else if(remarks.includes("online"))       icon = "🌐";
+    else if(remarks.includes("warehouse") && remarks.includes("store")) icon = "🚚";
+    else if(remarks.includes("warehouse"))    icon = "↩️";
+
+    return `
+      <div class="db-activity-item">
+        <div class="db-activity-icon">${icon}</div>
+        <div class="db-activity-info">
+          <span class="db-activity-product">${r.product || "-"}</span>
+          <span class="db-activity-meta">${r.remarks || "-"}</span>
+        </div>
+        <div class="db-activity-right">
+          <span class="db-activity-qty">×${r.qty}</span>
+          <span class="db-activity-time">${String(r.datetime || "").split(",")[0] || "-"}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 async function updateStoreSalesToday(){
 
