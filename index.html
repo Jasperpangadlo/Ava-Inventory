@@ -338,120 +338,172 @@ Login
         </div>
       
 <section class="tab-content" id="dashboard">
-<div class="cards">
 
-<div class="card dashboard-card">
-<div class="cardIcon">📦</div>
-<p>Total Products</p>
-<h3 id="totalProducts">0</h3>
-</div>
+<!-- ══ KPI CARDS ═════════════════════════════════════════════════════════ -->
+<div class="db-kpi-grid">
 
-<div class="card dashboard-card">
-<div class="cardIcon">📚</div>
-<p>Total Stock</p>
-<h3 id="totalStock">0</h3>
-</div>
-
-<div class="card dashboard-card">
-<div class="cardIcon">⚠️</div>
-<p>Low Stock</p>
-<h3 id="lowStock">0</h3>
-</div>
-
-<div class="card dashboard-card">
-<div class="cardIcon">❌</div>
-<p>Out of Stock</p>
-<h3 id="outStock">0</h3>
-</div>
-
-</div>
-
-<div class="quick-actions">
-
-<button id="addstockbtn" class="btn"
-onclick="showTab('add-stock')">
-
-➕ Add Stock
-
-</button>
-
-<button id="salesbtn" class="btn"
-onclick="showTab('sales')">
-
-💰 Stock Out
-
-</button>
-
-<button id="storebtn" class="btn"
-onclick="showTab('store')">
-
-🏬 View Store
-
-</button>
-
-</div>
-
-
-<div class="date-card">
-  <span>Today</span>
-  <strong id="todayDate"></strong>
-</div>
-
-<div class="dashboard-row">
-
-<div class="dashboard-panel">
-<h3>🏆 Branch Ranking Today</h3>
-
-<div id="branchRanking">
-
-<div class="rank-item">🥇 Store 1 - ₱0</div>
-<div class="rank-item">🥈 Store 2 - ₱0</div>
-<div class="rank-item">🥉 Store 3 - ₱0</div>
-
-</div>
-</div>
-
-<div class="dashboard-panel">
-<h3>📈 Sales Today by Store</h3>
-
-<div id="salesChart">
-
-<div class="chart-row">
-<span>Store 1</span>
-<div class="chart-bar">
-<div id="barStore1"></div>
-</div>
-<span id="barStore1Amount">₱0</span>
-</div>
-
-<div class="chart-row">
-<span>Store 2</span>
-<div class="chart-bar">
-<div id="barStore2"></div>
-</div>
-<span id="barStore2Amount">₱0</span>
-</div>
-
-<div class="chart-row">
-<span>Store 3</span>
-<div class="chart-bar">
-<div id="barStore3"></div>
-</div>
-<span id="barStore3Amount">₱0</span>
-</div>
-
-</div>
-</div>
-
-</div>
-  
-  <div class="chart-card">
-  <h3>📊 Weekly Stock Movement</h3>
-
-  <div class="chart-box">
-    <canvas id="weeklyStockChart"></canvas>
+  <div class="db-kpi-card db-kpi-blue">
+    <div class="db-kpi-icon">📦</div>
+    <div class="db-kpi-info">
+      <p>Total Products</p>
+      <h3 id="totalProducts">0</h3>
+    </div>
+    <div class="db-kpi-bg">📦</div>
   </div>
+
+  <div class="db-kpi-card db-kpi-green">
+    <div class="db-kpi-icon">📚</div>
+    <div class="db-kpi-info">
+      <p>Total Stock</p>
+      <h3 id="totalStock">0</h3>
+    </div>
+    <div class="db-kpi-bg">📚</div>
+  </div>
+
+  <div class="db-kpi-card db-kpi-amber">
+    <div class="db-kpi-icon">⚠️</div>
+    <div class="db-kpi-info">
+      <p>Low Stock</p>
+      <h3 id="lowStock">0</h3>
+    </div>
+    <div class="db-kpi-bg">⚠️</div>
+  </div>
+
+  <div class="db-kpi-card db-kpi-red">
+    <div class="db-kpi-icon">❌</div>
+    <div class="db-kpi-info">
+      <p>Out of Stock</p>
+      <h3 id="outStock">0</h3>
+    </div>
+    <div class="db-kpi-bg">❌</div>
+  </div>
+
 </div>
+
+<!-- ══ STOCK HEALTH + QUICK ACTIONS ══════════════════════════════════════ -->
+<div class="db-mid-row">
+
+  <!-- Stock Health -->
+  <div class="db-health-card">
+    <div class="db-health-header">
+      <div>
+        <h4>🏥 Warehouse Health</h4>
+        <p id="dbHealthLabel">Calculating...</p>
+      </div>
+      <div class="db-health-score" id="dbHealthScore">--%</div>
+    </div>
+    <div class="db-health-bar-wrap">
+      <div class="db-health-bar">
+        <div id="dbHealthFill"></div>
+      </div>
+    </div>
+    <div class="db-health-legend">
+      <span class="db-legend-dot" style="background:#10b981;"></span> In Stock
+      <span class="db-legend-dot" style="background:#f59e0b;margin-left:12px;"></span> Low
+      <span class="db-legend-dot" style="background:#ef4444;margin-left:12px;"></span> Out
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="db-quick-card">
+    <h4>⚡ Quick Actions</h4>
+    <div class="db-quick-grid">
+      <button class="db-quick-btn db-quick-add" onclick="showTab('add-stock')">
+        <span>➕</span>
+        <div><strong>Add Stock</strong><p>Restock warehouse</p></div>
+      </button>
+      <button class="db-quick-btn db-quick-out" onclick="showTab('sales')">
+        <span>💰</span>
+        <div><strong>Stock Out</strong><p>Transfer & sales</p></div>
+      </button>
+      <button class="db-quick-btn db-quick-store" onclick="showTab('store')">
+        <span>🏬</span>
+        <div><strong>View Store</strong><p>Store inventory</p></div>
+      </button>
+      <button class="db-quick-btn db-quick-report" onclick="showTab('reports')">
+        <span>📊</span>
+        <div><strong>Reports</strong><p>Sales analytics</p></div>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ DATE + BRANCH RANKING + SALES CHART ═══════════════════════════════ -->
+<div class="db-bottom-row">
+
+  <!-- Branch Ranking -->
+  <div class="db-ranking-card">
+    <div class="db-card-header">
+      <h4>🏆 Branch Ranking Today</h4>
+      <div class="db-date-pill" id="todayDate"></div>
+    </div>
+    <div id="branchRanking">
+      <div class="rank-item">🥇 Store 1 - ₱0</div>
+      <div class="rank-item">🥈 Store 2 - ₱0</div>
+      <div class="rank-item">🥉 Store 3 - ₱0</div>
+    </div>
+  </div>
+
+  <!-- Sales Chart -->
+  <div class="db-sales-card">
+    <div class="db-card-header">
+      <h4>📈 Sales Today by Store</h4>
+    </div>
+    <div id="salesChart">
+      <div class="db-chart-row">
+        <span>Store 1</span>
+        <div class="chart-bar"><div id="barStore1"></div></div>
+        <span id="barStore1Amount">₱0</span>
+      </div>
+      <div class="db-chart-row">
+        <span>Store 2</span>
+        <div class="chart-bar"><div id="barStore2"></div></div>
+        <span id="barStore2Amount">₱0</span>
+      </div>
+      <div class="db-chart-row">
+        <span>Store 3</span>
+        <div class="chart-bar"><div id="barStore3"></div></div>
+        <span id="barStore3Amount">₱0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Low Stock Alerts -->
+  <div class="db-alerts-card">
+    <div class="db-card-header">
+      <h4>🚨 Stock Alerts</h4>
+      <span class="db-alert-count" id="dbAlertCount">0</span>
+    </div>
+    <div id="dbAlertList" class="db-alert-list">
+      <p style="color:#9ca3af;text-align:center;font-size:13px;padding:16px 0;">All stocks are healthy!</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ WEEKLY STOCK MOVEMENT + RECENT ACTIVITY ═══════════════════════════ -->
+<div class="db-charts-row">
+
+  <div class="db-chart-card">
+    <h4>📊 Weekly Stock Movement</h4>
+    <div class="chart-box">
+      <canvas id="weeklyStockChart"></canvas>
+    </div>
+  </div>
+
+  <div class="db-activity-card">
+    <div class="db-card-header">
+      <h4>🕐 Recent Activity</h4>
+      <span style="font-size:12px;color:#6b7280;font-weight:600;">Last 5 transactions</span>
+    </div>
+    <div id="dbRecentActivity" class="db-activity-list">
+      <p style="color:#9ca3af;text-align:center;font-size:13px;padding:16px 0;">Loading...</p>
+    </div>
+  </div>
+
+</div>
+
 </section>
       
       <section class="panel tab-content" id="add-stock">
