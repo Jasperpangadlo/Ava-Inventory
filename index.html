@@ -664,117 +664,153 @@ oninput="filterProducts()"
 </section>
 
       <section class="panel tab-content" id="sales">
-  <div class="section-card">
 
-<h3>Warehouse → Store Transfer</h3>
-
-<div class="form-grid">
-
-<input id="transferBarcode" type="text" placeholder="Scan Barcode"
-  onkeydown="handleBarcodeScan(event,'transferBarcode',null)">
-
-<select id="toStore">
-<option>Store 1</option>
-<option>Store 2</option>
-<option>Store 3</option>
-</select>
-
-<input id="transferQty" type="number" placeholder="Quantity">
-
-<button
-id="sendStoreBtn"
-class="btn"
-onclick="sendToStore()">
-Send To Store
-</button>
-
-</div>
+<!-- ══ HEADER ═══════════════════════════════════════════════════════════ -->
+<div class="so-header">
+  <div>
+    <h3>💰 Sales & Stock Movement</h3>
+    <p>Manage warehouse transfers, returns, and sales</p>
+  </div>
 </div>
 
+<!-- ══ TOP ROW: Transfer + Return ═══════════════════════════════════════ -->
+<div class="so-top-grid">
 
-<div class="section-card">
+  <!-- Warehouse → Store Transfer -->
+  <div class="so-card so-transfer">
+    <div class="so-card-header">
+      <div class="so-card-icon">🚚</div>
+      <div>
+        <h4>Warehouse → Store</h4>
+        <p>Transfer stock from warehouse to store</p>
+      </div>
+    </div>
+    <div class="so-fields">
+      <div class="so-field">
+        <label>Barcode</label>
+        <input id="transferBarcode" type="text" placeholder="Scan barcode..."
+          onkeydown="handleBarcodeScan(event,'transferBarcode',null)">
+      </div>
+      <div class="so-field">
+        <label>Destination Store</label>
+        <select id="toStore">
+          <option>Store 1</option>
+          <option>Store 2</option>
+          <option>Store 3</option>
+        </select>
+      </div>
+      <div class="so-field">
+        <label>Quantity</label>
+        <input id="transferQty" type="number" placeholder="0">
+      </div>
+    </div>
+    <button id="sendStoreBtn" class="so-action-btn so-btn-transfer" onclick="sendToStore()">
+      🚚 Send To Store
+    </button>
+  </div>
 
-<h3>Store → Warehouse Return</h3>
+  <!-- Store → Warehouse Return -->
+  <div class="so-card so-return">
+    <div class="so-card-header">
+      <div class="so-card-icon">↩️</div>
+      <div>
+        <h4>Store → Warehouse</h4>
+        <p>Return stock from store to warehouse</p>
+      </div>
+    </div>
+    <div class="so-fields">
+      <div class="so-field">
+        <label>Barcode</label>
+        <input id="returnBarcode" placeholder="Scan barcode..."
+          onkeydown="handleBarcodeScan(event,'returnBarcode',null)">
+      </div>
+      <div class="so-field">
+        <label>From Store</label>
+        <select id="fromStore">
+          <option>Store 1</option>
+          <option>Store 2</option>
+          <option>Store 3</option>
+        </select>
+      </div>
+      <div class="so-field">
+        <label>Quantity</label>
+        <input id="returnQty" placeholder="0">
+      </div>
+    </div>
+    <button id="returnBtn" class="so-action-btn so-btn-return" onclick="returnToWarehouse()">
+      ↩️ Return To Warehouse
+    </button>
+  </div>
 
-<div class="form-grid">
+</div>
 
-<input id="returnBarcode" placeholder="Scan Barcode"
-  onkeydown="handleBarcodeScan(event,'returnBarcode',null)">
+<!-- ══ SALES / STOCK OUT ════════════════════════════════════════════════ -->
+<div class="so-sales-card">
 
-<select id="fromStore">
-<option>Store 1</option>
-<option>Store 2</option>
-<option>Store 3</option>
-</select>
+  <div class="so-sales-header">
+    <div class="so-sales-title">
+      <div class="so-card-icon so-sales-icon">🛒</div>
+      <div>
+        <h4>Sales / Stock Out</h4>
+        <p>Scan items and process sales</p>
+      </div>
+    </div>
+    <div id="soCartBadge" class="so-cart-badge">0 items</div>
+  </div>
 
-<input id="returnQty" placeholder="Quantity">
+  <!-- Scan Row -->
+  <div class="so-scan-row">
+    <div class="so-scan-input-wrap">
+      <span class="so-scan-icon">⬛</span>
+      <input id="outBarcode" placeholder="Scan barcode here..."
+        class="so-scan-input"
+        onkeydown="handleBarcodeScan(event,'outBarcode',addToSalesCart)">
+    </div>
+    <select id="deductFrom" class="so-select">
+      <option value="Store 1">Store 1</option>
+      <option value="Store 2">Store 2</option>
+      <option value="Store 3">Store 3</option>
+      <option value="Warehouse">Warehouse</option>
+    </select>
+    <select id="salesType" class="so-select">
+      <option value="Walk-in Sales">🚶 Walk-in</option>
+      <option value="Online Sales">🌐 Online</option>
+    </select>
+    <button class="so-add-btn" onclick="addToSalesCart()">➕ Add</button>
+  </div>
 
-<button
-id="returnBtn"
-class="btn"
-onclick="returnToWarehouse()">
-Return To Warehouse
-</button>
+  <!-- Cart Table -->
+  <div class="so-cart-table-wrap">
+    <table class="so-cart-table">
+      <thead>
+        <tr>
+          <th>Barcode</th>
+          <th>Product</th>
+          <th>Qty</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="salesCartTable">
+        <tr id="cartEmptyRow">
+          <td colspan="4" class="so-cart-empty">
+            <div>🛒</div>
+            <p>Cart is empty — scan a barcode to add items</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <div class="so-cart-footer">
+    <div id="soCartSummary" class="so-cart-summary">Ready to checkout</div>
+    <button id="deductbtn" class="so-checkout-btn" onclick="submitSalesCart()">
+      💰 Deduct All Stock
+    </button>
+  </div>
 
 </div>
 
-</div>
-
-<hr style="margin:25px 0;">
-
-  <hr style="margin:25px 0; border:none; border-top:1px solid #eee;">
-
-  <div class="section-card">
-
-<h3>Sales / Stock Out</h3>
-
-<div class="form-grid" style="grid-template-columns:1fr 1fr 1fr auto;gap:10px;margin-bottom:12px;">
-  <input
-    id="outBarcode"
-    placeholder="Scan Barcode"
-    onkeydown="handleBarcodeScan(event,'outBarcode',addToSalesCart)">
-
-  <select id="deductFrom">
-    <option value="Store 1">Store 1</option>
-    <option value="Store 2">Store 2</option>
-    <option value="Store 3">Store 3</option>
-    <option value="Warehouse">Warehouse</option>
-  </select>
-
-  <select id="salesType">
-    <option value="Walk-in Sales">Walk-in Sales</option>
-    <option value="Online Sales">Online Sales</option>
-  </select>
-
-  <button class="btn" onclick="addToSalesCart()">➕ Add to Cart</button>
-</div>
-
-<div style="margin-top:8px;">
-  <table style="width:100%;border-collapse:collapse;font-size:14px;">
-    <thead>
-      <tr style="background:#f0f0f8;text-align:left;">
-        <th style="padding:8px;">Barcode</th>
-        <th style="padding:8px;">Product</th>
-        <th style="padding:8px;">Qty</th>
-        <th style="padding:8px;"></th>
-      </tr>
-    </thead>
-    <tbody id="salesCartTable">
-      <tr id="cartEmptyRow">
-        <td colspan="4" style="text-align:center;color:#aaa;padding:16px;">Cart is empty — scan a barcode to add items</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<div style="margin-top:12px;display:flex;justify-content:flex-end;">
-  <button id="deductbtn" class="btn" onclick="submitSalesCart()">
-    💰 Deduct All Stock
-  </button>
-</div>
-
-</div>
-    
 </section>
 
       <section class="panel tab-content" id="history">
