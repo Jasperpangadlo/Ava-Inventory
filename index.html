@@ -455,126 +455,155 @@ onclick="showTab('store')">
 </section>
       
       <section class="panel tab-content" id="add-stock">
-        <h3>Add / Update Product</h3>
 
-<div class="add-stock-layout">
-
-    <div class="form-grid">
-
-      <input
-      id="barcode"
-      type="text"
-      placeholder="Barcode"
-      onkeydown="autoAddScan(event)"
-      oninput="autoFillProduct();updatePreview()"
-      />
-
-      <input id="product"
-      type="text"
-      placeholder="Product Name"
-      oninput="updatePreview()" />
-
-      <select id="category"
-      onchange="updatePreview()">
-
-        <option value="">Category</option>
-        <option value="2026 Summer Collection">2026 Summer Collection</option>
-        <option value="Camille Collection">Camille Collection</option>
-        <option value="Aina Collection">Aina Collection</option>
-
-      </select>
-
-      <input id="color"
-      type="text"
-      placeholder="Color"
-      oninput="updatePreview()" />
-
-      <input id="size"
-      type="text"
-      placeholder="Size"
-      oninput="updatePreview()" />
-
-      <input id="stock"
-      type="number"
-      placeholder="Quantity"
-      oninput="updatePreview()" />
-
-      <input id="price"
-      type="number"
-      placeholder="Price"
-      oninput="updatePreview()" />
-
-      <div class="stock-buttons">
-
-      <button id="addstockbtn" class="btn green"
-      onclick="addStockToCart()">
-      Add Cart
-      </button>
-      
-      <button id="savestockbtn" class="btn blue"
-      onclick="saveStockCart()">
-      Save Stock
-      </button>
-
+<!-- ══ HEADER ═══════════════════════════════════════════════════════════ -->
+<div class="as-header">
+  <div>
+    <h3>➕ Add / Update Product</h3>
+    <p>Fill in the details below to add or update stock</p>
+  </div>
 </div>
 
-    </div>
+<!-- ══ MAIN LAYOUT ═══════════════════════════════════════════════════════ -->
+<div class="as-layout">
 
+  <!-- LEFT: Form -->
+  <div class="as-form-card">
 
-    <div class="preview-card">
-
-    <span class="preview-badge"> Preview </span>
-      
-      <h4>📦 Product Preview</h4>
-
-      <div class="preview-content">
-
-        <img id="previewImg"
-        src="logo.png"
-        width="100">
-
-        <div>
-
-          <h3 id="previewName">
-          No Product
-          </h3>
-
-          <p id="previewColor">Color: -</p>
-          <p id="previewSize">Size: -</p>
-          <p id="previewPrice">Price: -</p>
-          <p id="previewStock">Stock: -</p>
-
-        </div>
-
+    <!-- Barcode Section -->
+    <div class="as-field-group">
+      <div class="as-group-label">🔖 Barcode</div>
+      <div class="as-barcode-row">
+        <input id="barcode" type="text" placeholder="Scan or type barcode..."
+          class="as-barcode-input"
+          onkeydown="autoAddScan(event)"
+          oninput="autoFillProduct();updatePreview()">
+        <div class="as-barcode-icon">⬛</div>
       </div>
-
     </div>
 
+    <!-- Product Info -->
+    <div class="as-field-group">
+      <div class="as-group-label">📦 Product Info</div>
+      <div class="as-two-col">
+        <div class="as-field">
+          <label>Product Name</label>
+          <input id="product" type="text" placeholder="e.g. Alessandra Dress"
+            oninput="updatePreview()">
+        </div>
+        <div class="as-field">
+          <label>Category</label>
+          <select id="category" onchange="updatePreview()">
+            <option value="">Select category...</option>
+            <option value="2026 Summer Collection">2026 Summer Collection</option>
+            <option value="Camille Collection">Camille Collection</option>
+            <option value="Aina Collection">Aina Collection</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variants -->
+    <div class="as-field-group">
+      <div class="as-group-label">🎨 Variants</div>
+      <div class="as-three-col">
+        <div class="as-field">
+          <label>Color</label>
+          <input id="color" type="text" placeholder="e.g. Light Blue"
+            oninput="updatePreview()">
+        </div>
+        <div class="as-field">
+          <label>Size</label>
+          <input id="size" type="text" placeholder="e.g. M / XL"
+            oninput="updatePreview()">
+        </div>
+        <div class="as-field">
+          <label>Quantity</label>
+          <input id="stock" type="number" placeholder="0"
+            oninput="updatePreview()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Price -->
+    <div class="as-field-group">
+      <div class="as-group-label">💰 Pricing</div>
+      <div class="as-field" style="max-width:220px;">
+        <label>Price (₱)</label>
+        <input id="price" type="number" placeholder="0.00"
+          oninput="updatePreview()">
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="as-actions">
+      <button id="addstockbtn" class="btn green as-btn" onclick="addStockToCart()">
+        🛒 Add to Cart
+      </button>
+      <button id="savestockbtn" class="btn as-btn" onclick="saveStockCart()">
+        💾 Save Stock
+      </button>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: Preview -->
+  <div class="as-preview-card">
+    <div class="as-preview-badge">Live Preview</div>
+    <div class="as-preview-img-box">
+      <img id="previewImg" src="logo.png" alt="Preview">
+    </div>
+    <div class="as-preview-details">
+      <h3 id="previewName">No Product</h3>
+      <div class="as-preview-tags">
+        <span class="as-tag" id="previewColor">Color: -</span>
+        <span class="as-tag" id="previewSize">Size: -</span>
+      </div>
+      <div class="as-preview-price" id="previewPrice">₱ -</div>
+      <div class="as-preview-stock">
+        <span>Stock:</span>
+        <strong id="previewStock">-</strong>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-      <div class="section-card stock-cart-card">
-  <h3>Stock Cart</h3>
-<div class="cart-table-scroll">
-  <table>
-    <thead>
-      <tr>
-        <th>Barcode</th>
-        <th>Product</th>
-        <th>Color</th>
-        <th>Size</th>
-        <th>Qty</th>
-        <th>Price</th>
-        <th>Action</th>
-      </tr>
-    </thead>
+<!-- ══ STOCK CART ════════════════════════════════════════════════════════ -->
+<div class="as-cart-section">
+  <div class="as-cart-header">
+    <div>
+      <h3>🛒 Stock Cart</h3>
+      <p>Items to be added to inventory</p>
+    </div>
+    <div id="asCartCount" class="as-cart-count">0 items</div>
+  </div>
+  <div class="cart-table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Barcode</th>
+          <th>Product</th>
+          <th>Color</th>
+          <th>Size</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="stockCartTable">
+        <tr id="asCartEmpty">
+          <td colspan="7" class="as-cart-empty">
+            <div>🛒</div>
+            <p>Cart is empty — add products above</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
-    <tbody id="stockCartTable"></tbody>
-  </table>
-</div>
-        
-</div>
-        
-      </section>
+</section>
 
       <section class="panel tab-content" id="products">
 <h3>Product List</h3>
