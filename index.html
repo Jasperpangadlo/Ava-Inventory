@@ -311,31 +311,52 @@ Login
     </aside>
     <main>
       <div class="topbar">
-        <h2>Dashboard</h2>
+        <h2 id="topbarTitle">Dashboard</h2>
+        <p class="subtitle" id="welcomeUser">Welcome back, Admin 👋</p>
 
-        <p class="subtitle">
-        Welcome back, Admin 👋
-        </p>
+        <div style="display:flex;gap:8px;align-items:center;">
 
-        <div>
+          <!-- Barcode Lookup -->
+          <div class="topbar-search-wrap" id="barcodeSearchWrap">
+            <span>⬛</span>
+            <input id="topbarBarcodeInput" placeholder="Lookup barcode..."
+              onkeydown="if(event.key==='Enter') lookupBarcode(this.value)"
+              style="border:none;background:transparent;outline:none;font-size:13px;font-weight:600;width:160px;color:#1e1b4b;">
+            <button onclick="lookupBarcode(document.getElementById('topbarBarcodeInput').value)"
+              style="background:none;border:none;cursor:pointer;font-size:16px;padding:0;">🔍</button>
+          </div>
 
-          <button class="btn"
-      onclick="toggleDarkMode()">
-      🌙
-      </button>
-          
-      <button id="refreshBtn" class="btn blue" onclick="refreshAllData()">
-      Refresh Data
-      </button>
+          <!-- Auto Refresh -->
+          <div class="topbar-autorefresh" id="autoRefreshWrap" title="Auto Refresh">
+            <span>🔄</span>
+            <select id="autoRefreshSelect" onchange="setAutoRefresh(this.value)"
+              style="border:none;background:transparent;font-size:12px;font-weight:700;color:#4f46e5;cursor:pointer;outline:none;">
+              <option value="0">Manual</option>
+              <option value="60">1 min</option>
+              <option value="300">5 min</option>
+              <option value="600">10 min</option>
+            </select>
+          </div>
 
-      <button
-        id="logoutbtn"
-      class="btn red"
-      onclick="logoutUser()">
-      Logout
-    </button>
-      </div>
+          <button class="btn" onclick="toggleDarkMode()">🌙</button>
+          <button id="refreshBtn" class="btn blue" onclick="refreshAllData()">Refresh Data</button>
+          <button id="logoutbtn" class="btn red" onclick="logoutUser()">Logout</button>
         </div>
+      </div>
+
+<!-- ══ BARCODE LOOKUP MODAL ═══════════════════════════════════════════════ -->
+<div id="barcodeLookupModal" class="blm-overlay" style="display:none;" onclick="if(event.target===this)closeLookupModal()">
+  <div class="blm-box">
+    <div class="blm-header">
+      <div>
+        <h3>🔍 Barcode Lookup</h3>
+        <p id="blmBarcode" style="font-size:13px;color:#6b7280;margin:0;"></p>
+      </div>
+      <button onclick="closeLookupModal()" class="blm-close">✕</button>
+    </div>
+    <div id="blmContent" class="blm-content"></div>
+  </div>
+</div>
       
 <section class="tab-content" id="dashboard">
 
