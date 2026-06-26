@@ -4972,6 +4972,7 @@ tbody tr:hover {
 /* ── Notification System ─────────────────────────────────────────────────── */
 .notif-wrap {
   position: relative;
+  z-index: 999999;
 }
 
 .notif-bell {
@@ -5032,7 +5033,7 @@ tbody tr:hover {
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0,0,0,.18);
   border: 1px solid #eef2ff;
-  z-index: 9999;
+  z-index: 999999;
   overflow: hidden;
   animation: notifSlide .2s ease;
 }
