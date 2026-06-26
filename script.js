@@ -96,6 +96,132 @@ window.addEventListener("online", ()=>{
 });
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ── Barcode Lookup ────────────────────────────────────────────────────────────
+async function lookupBarcode(barcode){
+  barcode = String(barcode || "").trim();
+  if(!barcode) return;
+
+  const modal   = document.getElementById("barcodeLookupModal");
+  const content = document.getElementById("blmContent");
+  const label   = document.getElementById("blmBarcode");
+
+  modal.style.display = "flex";
+  label.textContent   = "Barcode: " + barcode;
+  content.innerHTML   = `<div class="blm-loading">🔍 Searching...</div>`;
+
+  // Search in warehouse
+  const warehouseMatch = allProducts.filter(p =>
+    String(p.barcode).trim().toLowerCase() === barcode.toLowerCase()
+  );
+
+  // Search in store inventory
+  const storeMatch = storeProducts.filter(p =>
+    String(p.barcode).trim().toLowerCase() === barcode.toLowerCase()
+  );
+
+  if(!warehouseMatch.length && !storeMatch.length){
+    content.innerHTML = `<div class="blm-empty">❌ No product found for barcode <strong>${barcode}</strong></div>`;
+    return;
+  }
+
+  let html = "";
+
+  if(warehouseMatch.length){
+    const p = warehouseMatch[0];
+    html += `
+      <div class="blm-section">
+        <div class="blm-section-title">🏭 Warehouse</div>
+        <div class="blm-product-card">
+          <div class="blm-product-info">
+            <h4>${p.product}</h4>
+            <div class="blm-tags">
+              <span class="blm-tag">${p.category || "-"}</span>
+              <span class="blm-tag">${p.color || "-"}</span>
+              <span class="blm-tag">${p.size || "-"}</span>
+            </div>
+          </div>
+          <div class="blm-product-stats">
+            <div class="blm-stat">
+              <span class="blm-stat-val ${Number(p.stock)===0?'blm-out':Number(p.stock)<=5?'blm-low':'blm-ok'}">${p.stock}</span>
+              <p>Stock</p>
+            </div>
+            <div class="blm-stat">
+              <span class="blm-stat-val blm-price">₱${Number(p.price||0).toLocaleString("en-PH")}</span>
+              <p>Price</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if(storeMatch.length){
+    html += `<div class="blm-section"><div class="blm-section-title">🏪 Store Inventory</div>`;
+    const grouped = {};
+    storeMatch.forEach(p => {
+      const loc = p.location || p.dateSent || "Store";
+      if(!grouped[loc]) grouped[loc] = [];
+      grouped[loc].push(p);
+    });
+    Object.entries(grouped).forEach(([store, items]) => {
+      items.forEach(p => {
+        html += `
+          <div class="blm-product-card" style="margin-bottom:8px;">
+            <div class="blm-product-info">
+              <h4>${p.product} <small style="color:#6b7280;font-size:12px;">• ${store}</small></h4>
+              <div class="blm-tags">
+                <span class="blm-tag">${p.color||"-"}</span>
+                <span class="blm-tag">${p.size||"-"}</span>
+              </div>
+            </div>
+            <div class="blm-product-stats">
+              <div class="blm-stat">
+                <span class="blm-stat-val ${Number(p.stock||p.storeQty)===0?'blm-out':Number(p.stock||p.storeQty)<=5?'blm-low':'blm-ok'}">${p.stock||p.storeQty||0}</span>
+                <p>Stock</p>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    });
+    html += `</div>`;
+  }
+
+  content.innerHTML = html;
+
+  // Clear input
+  const inp = document.getElementById("topbarBarcodeInput");
+  if(inp) inp.value = "";
+}
+
+function closeLookupModal(){
+  const modal = document.getElementById("barcodeLookupModal");
+  if(modal) modal.style.display = "none";
+}
+
+// Close with Escape key
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape") closeLookupModal();
+});
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Auto Refresh ──────────────────────────────────────────────────────────────
+let _autoRefreshTimer = null;
+
+function setAutoRefresh(seconds){
+  clearInterval(_autoRefreshTimer);
+  _autoRefreshTimer = null;
+
+  const secs = Number(seconds);
+  if(secs <= 0) return;
+
+  _autoRefreshTimer = setInterval(async ()=>{
+    showConnectionBanner("🔄 Auto-refreshing data...", "success");
+    await refreshAllData();
+  }, secs * 1000);
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function loadHistoryCache(){
 
   const result =
