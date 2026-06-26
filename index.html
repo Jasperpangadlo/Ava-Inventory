@@ -658,61 +658,80 @@ Login
 </section>
 
       <section class="panel tab-content" id="products">
-<h3>Product List</h3>
 
-<div class="product-filters">
-
-<div class="search-box">
-<span>🔍</span>
-<input
-id="searchInput"
-type="text"
-placeholder="Search barcode, product, color, size..."
-oninput="filterProducts()"
-/>
+<!-- ══ HEADER ═══════════════════════════════════════════════════════════ -->
+<div class="pr-header">
+  <div>
+    <h3>📦 Product List</h3>
+    <p>Warehouse inventory — all products and stock levels</p>
   </div>
-
-<select id="categoryFilter" onchange="filterProducts()">
-<option value="">All Category</option>
-</select>
-
-<select id="colorFilter" onchange="filterProducts()">
-<option value="">All Color</option>
-</select>
-
-<select id="stockFilter" onchange="filterProducts()">
-<option value="">All Stock</option>
-<option value="in">In Stock</option>
-<option value="low">Low Stock</option>
-<option value="out">Out of Stock</option>
-</select>
-
+  <div class="pr-summary-pills">
+    <div class="pr-pill pr-pill-blue">
+      <span id="prTotalValue">₱0</span>
+      <p>Total Value</p>
+    </div>
+    <div class="pr-pill pr-pill-green">
+      <span id="prInStockCount">0</span>
+      <p>In Stock</p>
+    </div>
+    <div class="pr-pill pr-pill-amber">
+      <span id="prLowCount">0</span>
+      <p>Low Stock</p>
+    </div>
+    <div class="pr-pill pr-pill-red">
+      <span id="prOutCount">0</span>
+      <p>Out of Stock</p>
+    </div>
+  </div>
 </div>
 
-<div class="table-scroll">
-
-<table>
-<thead>
-<tr>
-<th>Barcode</th>
-<th>Product</th>
-<th>Category</th>
-<th>Color</th>
-<th>Size</th>
-<th>Stock</th>
-<th>Price</th>
-<th>Status</th>
-</tr>
-</thead>
-
-<tbody id="productTable">
-<tr>
-<td colspan="7">Click Refresh Data.</td>
-</tr>
-</tbody>
-
-</table>
+<!-- ══ FILTERS ═══════════════════════════════════════════════════════════ -->
+<div class="pr-filters">
+  <div class="pr-search-wrap">
+    <span>🔍</span>
+    <input id="searchInput" type="text"
+      placeholder="Search barcode, product, color, size..."
+      oninput="filterProducts()">
+  </div>
+  <select id="categoryFilter" onchange="filterProducts()">
+    <option value="">All Category</option>
+  </select>
+  <select id="colorFilter" onchange="filterProducts()">
+    <option value="">All Color</option>
+  </select>
+  <select id="stockFilter" onchange="filterProducts()">
+    <option value="">All Stock</option>
+    <option value="in">✅ In Stock</option>
+    <option value="low">⚠️ Low Stock</option>
+    <option value="out">❌ Out of Stock</option>
+  </select>
 </div>
+
+<!-- ══ TABLE ══════════════════════════════════════════════════════════════ -->
+<div class="pr-table-wrap">
+  <table class="pr-table">
+    <thead>
+      <tr>
+        <th>Barcode</th>
+        <th>Product</th>
+        <th>Category</th>
+        <th>Color</th>
+        <th>Size</th>
+        <th>Stock</th>
+        <th>Price</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="productTable">
+      <tr>
+        <td colspan="8" style="text-align:center;color:#9ca3af;padding:32px;font-weight:600;">
+          Click Refresh Data to load products.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 </section>
 
       <section class="panel tab-content" id="sales">
