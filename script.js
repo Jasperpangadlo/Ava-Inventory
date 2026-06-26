@@ -222,6 +222,140 @@ function setAutoRefresh(seconds){
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ── Notification System ───────────────────────────────────────────────────────
+let _notifications = [];
+
+function addNotification(type, title, message, data = {}){
+  const id = Date.now();
+  const icons = { warning: "⚠️", error: "❌", success: "✅", info: "ℹ️" };
+
+  _notifications.unshift({ id, type, title, message, data, time: new Date() });
+
+  // Keep max 50
+  if(_notifications.length > 50) _notifications = _notifications.slice(0, 50);
+
+  renderNotifPanel();
+  updateNotifBadge();
+
+  // Request browser notification permission if not granted
+  if(Notification.permission === "granted"){
+    new Notification(title, {
+      body: message,
+      icon: "./logo.png",
+      tag: String(id)
+    });
+  }
+}
+
+function updateNotifBadge(){
+  const badge = document.getElementById("notifBadge");
+  const count = _notifications.length;
+  if(!badge) return;
+  if(count > 0){
+    badge.style.display = "flex";
+    badge.textContent   = count > 99 ? "99+" : count;
+  } else {
+    badge.style.display = "none";
+  }
+}
+
+function renderNotifPanel(){
+  const list = document.getElementById("notifList");
+  if(!list) return;
+
+  if(!_notifications.length){
+    list.innerHTML = `<div class="notif-empty">🎉 No notifications</div>`;
+    return;
+  }
+
+  list.innerHTML = _notifications.map(n => `
+    <div class="notif-item notif-${n.type}" onclick="dismissNotif(${n.id})">
+      <div class="notif-item-icon">${n.type === "warning" ? "⚠️" : n.type === "error" ? "❌" : n.type === "success" ? "✅" : "ℹ️"}</div>
+      <div class="notif-item-body">
+        <div class="notif-item-title">${n.title}</div>
+        <div class="notif-item-msg">${n.message}</div>
+        <div class="notif-item-time">${formatNotifTime(n.time)}</div>
+      </div>
+      <button class="notif-dismiss" onclick="event.stopPropagation();dismissNotif(${n.id})">✕</button>
+    </div>
+  `).join("");
+}
+
+function formatNotifTime(date){
+  const now  = new Date();
+  const diff = Math.floor((now - date) / 1000);
+  if(diff < 60)   return "Just now";
+  if(diff < 3600) return Math.floor(diff/60) + "m ago";
+  if(diff < 86400) return Math.floor(diff/3600) + "h ago";
+  return date.toLocaleDateString("en-PH");
+}
+
+function dismissNotif(id){
+  _notifications = _notifications.filter(n => n.id !== id);
+  renderNotifPanel();
+  updateNotifBadge();
+}
+
+function clearAllNotifs(){
+  _notifications = [];
+  renderNotifPanel();
+  updateNotifBadge();
+}
+
+function toggleNotifPanel(){
+  const panel = document.getElementById("notifPanel");
+  if(!panel) return;
+  panel.style.display = panel.style.display === "none" ? "block" : "none";
+}
+
+// Close panel when clicking outside
+document.addEventListener("click", e => {
+  const wrap = document.getElementById("notifWrap");
+  if(wrap && !wrap.contains(e.target)){
+    const panel = document.getElementById("notifPanel");
+    if(panel) panel.style.display = "none";
+  }
+});
+
+// Request browser notification permission on load
+if("Notification" in window && Notification.permission === "default"){
+  Notification.requestPermission();
+}
+
+// ── Stock Alert Checker ───────────────────────────────────────────────────────
+let _lastAlertedBarcodes = new Set();
+
+function checkStockAlerts(products){
+  if(!products || !products.length) return;
+
+  const outItems = products.filter(p => Number(p.stock) === 0);
+  const lowItems = products.filter(p => Number(p.stock) > 0 && Number(p.stock) <= 5);
+
+  // Only alert for newly detected items
+  outItems.forEach(p => {
+    const key = `out_${p.barcode}`;
+    if(!_lastAlertedBarcodes.has(key)){
+      _lastAlertedBarcodes.add(key);
+      addNotification("error",
+        "Out of Stock",
+        `${p.product} (${p.color} ${p.size}) — Barcode: ${p.barcode}`
+      );
+    }
+  });
+
+  lowItems.forEach(p => {
+    const key = `low_${p.barcode}`;
+    if(!_lastAlertedBarcodes.has(key)){
+      _lastAlertedBarcodes.add(key);
+      addNotification("warning",
+        "Low Stock Alert",
+        `${p.product} (${p.color} ${p.size}) — Only ${p.stock} left`
+      );
+    }
+  });
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function loadHistoryCache(){
 
   const result =
@@ -370,6 +504,9 @@ async function loadProducts() {
   if(prIn)    prIn.textContent    = inStockCount;
   if(prLow)   prLow.textContent   = lowStock;
   if(prOut)   prOut.textContent   = outStock;
+
+  // Check stock alerts
+  checkStockAlerts(products);
 
   // ── Warehouse Health Meter ──────────────────────────────────────────────
   const inStock = products.length - lowStock - outStock;
