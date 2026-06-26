@@ -1,4 +1,4 @@
-const CACHE_NAME = "ava-inventory-v23";
+const CACHE_NAME = "ava-inventory-v24";
 
 const FILES_TO_CACHE = [
   "./",
