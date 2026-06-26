@@ -4811,3 +4811,160 @@ tbody tr:hover {
 .pr-status-out { background: #fee2e2; color: #991b1b; }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Topbar Search Wrap ──────────────────────────────────────────────────── */
+.topbar-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1.5px solid #c7d2fe;
+  border-radius: 10px;
+  padding: 0 12px;
+  height: 38px;
+  transition: all .2s;
+}
+.topbar-search-wrap:focus-within {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79,70,229,.12);
+}
+
+.topbar-autorefresh {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #eef2ff;
+  border: 1.5px solid #c7d2fe;
+  border-radius: 10px;
+  padding: 0 12px;
+  height: 38px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* ── Barcode Lookup Modal ────────────────────────────────────────────────── */
+.blm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,15,35,.6);
+  backdrop-filter: blur(6px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: blmFadeIn .2s ease;
+}
+
+@keyframes blmFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.blm-box {
+  background: white;
+  border-radius: 24px;
+  width: 500px;
+  max-width: 95vw;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 30px 80px rgba(0,0,0,.25);
+  animation: blmSlideUp .25s ease;
+}
+
+@keyframes blmSlideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.blm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 22px 24px 16px;
+  border-bottom: 2px solid #eef2ff;
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  color: white;
+}
+
+.blm-header h3 { font-size: 18px; font-weight: 800; color: white; margin: 0 0 4px; }
+.blm-header p  { color: #a5b4fc !important; }
+
+.blm-close {
+  background: rgba(255,255,255,.15);
+  border: none;
+  color: white;
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+.blm-close:hover { background: rgba(255,255,255,.25); }
+
+.blm-content {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.blm-loading, .blm-empty {
+  text-align: center;
+  padding: 32px;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.blm-section { margin-bottom: 20px; }
+
+.blm-section-title {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: #4f46e5;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #eef2ff;
+}
+
+.blm-product-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8faff;
+  border: 1px solid #eef2ff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  gap: 16px;
+}
+
+.blm-product-info { flex: 1; min-width: 0; }
+.blm-product-info h4 { font-size: 15px; font-weight: 800; color: #1e1b4b; margin: 0 0 8px; }
+
+.blm-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.blm-tag {
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.blm-product-stats { display: flex; gap: 16px; flex-shrink: 0; }
+
+.blm-stat { text-align: center; }
+.blm-stat p { font-size: 11px; color: #6b7280; font-weight: 600; margin: 4px 0 0; }
+
+.blm-stat-val { display: block; font-size: 22px; font-weight: 900; }
+.blm-ok    { color: #059669; }
+.blm-low   { color: #d97706; }
+.blm-out   { color: #dc2626; }
+.blm-price { color: #4f46e5; font-size: 18px !important; }
+
+/* ─────────────────────────────────────────────────────────────────────────── */
