@@ -186,18 +186,40 @@ async function loadProducts() {
       lowStock++;
     }
 
+    const price = Number(item.price) || 0;
+    const stockNum = Number(item.stock) || 0;
+
+    // Color dot mapping
+    const colorMap = {
+      "brown":"#92400e","black":"#111827","white":"#f9fafb","red":"#ef4444",
+      "blue":"#3b82f6","green":"#10b981","yellow":"#f59e0b","pink":"#ec4899",
+      "purple":"#8b5cf6","gray":"#6b7280","grey":"#6b7280","navy":"#1e3a5f",
+      "beige":"#d4b896","orange":"#f97316","light blue":"#38bdf8",
+      "light brown":"#c4a162","dark blue":"#1d4ed8","olive":"#6b7c3c"
+    };
+    const colorKey   = String(item.color || "").toLowerCase();
+    const colorHex   = colorMap[colorKey] || "#9ca3af";
+    const textColor  = ["white","beige","yellow","light blue"].includes(colorKey) ? "#374151" : "#fff";
+
     html += `
-      <tr>
-        <td>${item.barcode}</td>
-        <td>${item.product}</td>
-        <td>${item.category}</td>
-        <td>${item.color}</td>
-        <td>${item.size}</td>
-        <td>${item.stock}</td>
-        <td>₱${item.price}</td>
+      <tr class="pr-row">
+        <td class="pr-barcode">${item.barcode}</td>
+        <td class="pr-product-name">${item.product}</td>
+        <td><span class="pr-category-tag">${item.category || "-"}</span></td>
         <td>
-          <span class="status ${statusClass}">
-            ${statusText}
+          <div class="pr-color-cell">
+            <span class="pr-color-dot" style="background:${colorHex};color:${textColor};" title="${item.color}"></span>
+            ${item.color || "-"}
+          </div>
+        </td>
+        <td><span class="pr-size-tag">${item.size || "-"}</span></td>
+        <td class="pr-stock-cell">
+          <span class="pr-stock-num ${statusClass === "out" ? "pr-stock-out" : statusClass === "low" ? "pr-stock-low" : "pr-stock-ok"}">${item.stock}</span>
+        </td>
+        <td class="pr-price">₱${Number(item.price || 0).toLocaleString("en-PH")}</td>
+        <td>
+          <span class="pr-status-badge pr-status-${statusClass}">
+            ${statusClass === "out" ? "❌ Out" : statusClass === "low" ? "⚠️ Low" : "✅ In Stock"}
           </span>
         </td>
       </tr>
@@ -210,6 +232,18 @@ async function loadProducts() {
   document.getElementById("totalStock").textContent = totalStock;
   document.getElementById("lowStock").textContent = lowStock;
   document.getElementById("outStock").textContent = outStock;
+
+  // Update product tab pills
+  const inStockCount = products.length - lowStock - outStock;
+  const totalValue   = products.reduce((sum, p) => sum + (Number(p.stock) * Number(p.price || 0)), 0);
+  const prTotal  = document.getElementById("prTotalValue");
+  const prIn     = document.getElementById("prInStockCount");
+  const prLow    = document.getElementById("prLowCount");
+  const prOut    = document.getElementById("prOutCount");
+  if(prTotal) prTotal.textContent = "₱" + totalValue.toLocaleString("en-PH");
+  if(prIn)    prIn.textContent    = inStockCount;
+  if(prLow)   prLow.textContent   = lowStock;
+  if(prOut)   prOut.textContent   = outStock;
 
   // ── Warehouse Health Meter ──────────────────────────────────────────────
   const inStock = products.length - lowStock - outStock;
