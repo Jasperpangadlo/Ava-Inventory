@@ -1382,135 +1382,164 @@ onchange="filterSoldItems()">
 
       
 <section class="panel tab-content" id="store">
-<h3>Store Inventory</h3>
 
-<div class="store-summary">
+<!-- ══ HEADER ═══════════════════════════════════════════════════════════ -->
+<div class="st-header">
+  <div>
+    <h3>🏬 Store Inventory</h3>
+    <p>Real-time stock levels and sales across all branches</p>
+  </div>
+</div>
 
-  <!-- Row 1 -->
-  <div class="store-card">
-    <h4>🏪 Store 1</h4>
-    <h2 id="store1Count">0</h2>
-    <p>Total Stock</p>
-    <div id="store1Status" class="store-status">🟢 Healthy Stock</div>
+<!-- ══ STORE CARDS ═══════════════════════════════════════════════════════ -->
+<div class="st-cards-grid">
 
-    <div class="best-seller-mini">
-    🏆 <span id="store1BestSeller">-</span>
-    <small id="store1BestSellerQty">0 sold</small>
+  <!-- Store 1 -->
+  <div class="st-card st-card1">
+    <div class="st-card-glow"></div>
+    <div class="st-card-top">
+      <div class="st-card-icon">🏪</div>
+      <div class="st-card-label">Store 1</div>
+      <div id="store1Status" class="st-status-badge">Healthy</div>
     </div>
-    <div class="store-stat-mini">
-📦 <span id="store1ItemsSold">0</span> items sold today
+    <div class="st-card-stats">
+      <div class="st-stat">
+        <span id="store1Count">0</span>
+        <p>Total Stock</p>
+      </div>
+      <div class="st-stat-divider"></div>
+      <div class="st-stat">
+        <span id="store1Sales">₱0</span>
+        <p>Sales Today</p>
+      </div>
+      <div class="st-stat-divider"></div>
+      <div class="st-stat">
+        <span id="store1ItemsSold">0</span>
+        <p>Items Sold</p>
+      </div>
+    </div>
+    <div class="st-card-bottom">
+      <div class="st-best-seller">
+        <span>🏆 Top:</span>
+        <strong id="store1BestSeller">-</strong>
+        <em id="store1BestSellerQty">0 sold</em>
+      </div>
     </div>
   </div>
 
-  <div class="store-card">
-    <h4>🏪 Store 2</h4>
-    <h2 id="store2Count">0</h2>
-    <p>Total Stock</p>
-    <div id="store2Status" class="store-status">🟢 Healthy Stock</div>
-    
-    <div class="best-seller-mini">
-    🏆 <span id="store2BestSeller">-</span>
-    <small id="store2BestSellerQty">0 sold</small>
+  <!-- Store 2 -->
+  <div class="st-card st-card2">
+    <div class="st-card-glow"></div>
+    <div class="st-card-top">
+      <div class="st-card-icon">🏪</div>
+      <div class="st-card-label">Store 2</div>
+      <div id="store2Status" class="st-status-badge">Healthy</div>
     </div>
-
-    <div class="store-stat-mini">
-📦 <span id="store2ItemsSold">0</span> items sold today
+    <div class="st-card-stats">
+      <div class="st-stat">
+        <span id="store2Count">0</span>
+        <p>Total Stock</p>
+      </div>
+      <div class="st-stat-divider"></div>
+      <div class="st-stat">
+        <span id="store2Sales">₱0</span>
+        <p>Sales Today</p>
+      </div>
+      <div class="st-stat-divider"></div>
+      <div class="st-stat">
+        <span id="store2ItemsSold">0</span>
+        <p>Items Sold</p>
+      </div>
+    </div>
+    <div class="st-card-bottom">
+      <div class="st-best-seller">
+        <span>🏆 Top:</span>
+        <strong id="store2BestSeller">-</strong>
+        <em id="store2BestSellerQty">0 sold</em>
+      </div>
     </div>
   </div>
 
-  <div class="store-card">
-    <h4>🏪 Store 3</h4>
-    <h2 id="store3Count">0</h2>
-    <p>Total Stock</p>
-    <div id="store3Status" class="store-status">🟢 Healthy Stock</div>
-    <div class="best-seller-mini">
-    🏆 <span id="store3BestSeller">-</span>
-    <small id="store3BestSellerQty">0 sold</small>
+  <!-- Store 3 -->
+  <div class="st-card st-card3">
+    <div class="st-card-glow"></div>
+    <div class="st-card-top">
+      <div class="st-card-icon">🏪</div>
+      <div class="st-card-label">Store 3</div>
+      <div id="store3Status" class="st-status-badge">Healthy</div>
     </div>
-
-    <div class="store-stat-mini">
-📦 <span id="store3ItemsSold">0</span> items sold today
+    <div class="st-card-stats">
+      <div class="st-stat">
+        <span id="store3Count">0</span>
+        <p>Total Stock</p>
+      </div>
+      <div class="st-stat-divider"></div>
+      <div class="st-stat">
+        <span id="store3Sales">₱0</span>
+        <p>Sales Today</p>
+      </div>
+      <div class="st-stat-divider"></div>
+      <div class="st-stat">
+        <span id="store3ItemsSold">0</span>
+        <p>Items Sold</p>
+      </div>
     </div>
-  </div>
-
-  <!-- Row 2 -->
-  <div class="store-card sales-card">
-    <h4>💰 Store 1</h4>
-    <h2 id="store1Sales">₱0</h2>
-    <p>Sales Today</p>
-  </div>
-
-  <div class="store-card sales-card">
-    <h4>💰 Store 2</h4>
-    <h2 id="store2Sales">₱0</h2>
-    <p>Sales Today</p>
-  </div>
-
-  <div class="store-card sales-card">
-    <h4>💰 Store 3</h4>
-    <h2 id="store3Sales">₱0</h2>
-    <p>Sales Today</p>
+    <div class="st-card-bottom">
+      <div class="st-best-seller">
+        <span>🏆 Top:</span>
+        <strong id="store3BestSeller">-</strong>
+        <em id="store3BestSellerQty">0 sold</em>
+      </div>
+    </div>
   </div>
 
 </div>
 
-<div class="store-filters">
-
-<div class="search-box">
-<span>🔍</span>
-
-<input
-id="storeSearchInput"
-type="text"
-placeholder="Search barcode, product, color..."
-oninput="filterStoreProducts()"
-/>
-
+<!-- ══ FILTERS ═══════════════════════════════════════════════════════════ -->
+<div class="st-filters">
+  <div class="st-search-wrap">
+    <span class="st-search-icon">🔍</span>
+    <input id="storeSearchInput" type="text"
+      placeholder="Search barcode, product, color..."
+      oninput="filterStoreProducts()">
+  </div>
+  <select id="storeLocationFilter" onchange="updateColorFilter(); filterStoreProducts();">
+    <option value="">All Stores</option>
+  </select>
+  <select id="storeColorFilter" onchange="filterStoreProducts()">
+    <option value="">All Colors</option>
+  </select>
+  <select id="storeStockFilter" onchange="filterStoreProducts()">
+    <option value="">All Stock</option>
+    <option value="in">✅ In Stock</option>
+    <option value="low">⚠️ Low Stock</option>
+    <option value="out">❌ Out of Stock</option>
+  </select>
 </div>
 
-<select id="storeLocationFilter"
-onchange="updateColorFilter(); filterStoreProducts();">
-<option value="">All Store</option>
-</select>
-
-<select id="storeColorFilter"
-onchange="filterStoreProducts()">
-<option value="">All Color</option>
-</select>
-
-<select id="storeStockFilter"
-onchange="filterStoreProducts()">
-<option value="">All Stock</option>
-<option value="in">In Stock</option>
-<option value="low">Low Stock</option>
-<option value="out">Out of Stock</option>
-</select>
-
-</div>      
-<div class="table-scroll">
-
-<table>
-<thead>
-<tr>
-<th>Barcode</th>
-<th>Product</th>
-<th>Color</th>
-<th>Size</th>
-<th>Stock</th>
-<th>Location</th>
-</tr>
-</thead>
-
-<tbody id="storeTable">
-<tr>
-<td colspan="6">
-No store products yet.
-</td>
-</tr>
-</tbody>
-
-</table>
+<!-- ══ TABLE ══════════════════════════════════════════════════════════════ -->
+<div class="st-table-wrap">
+  <table class="st-table">
+    <thead>
+      <tr>
+        <th>Barcode</th>
+        <th>Product</th>
+        <th>Color</th>
+        <th>Size</th>
+        <th>Stock</th>
+        <th>Location</th>
+      </tr>
+    </thead>
+    <tbody id="storeTable">
+      <tr>
+        <td colspan="6" style="text-align:center;color:#9ca3af;padding:32px;font-size:14px;font-weight:600;">
+          No store products yet.
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
+
 </section>
       
     </main>
