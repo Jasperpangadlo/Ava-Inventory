@@ -2839,23 +2839,25 @@ updateStoreStatus("store3Status", store3);
 function updateStoreStatus(id, stock){
 
 const el = document.getElementById(id);
+if(!el) return;
 
 if(stock <= 0){
-el.textContent = "🔴 Out of Stock";
-el.style.background = "#fee2e2";
-el.style.color = "#991b1b";
+  el.textContent = "❌ Out of Stock";
+  el.style.background = "rgba(239,68,68,.2)";
+  el.style.color = "#fca5a5";
+  el.style.borderColor = "rgba(239,68,68,.3)";
 }
-
 else if(stock <= 5){
-el.textContent = "🟡 Low Stock";
-el.style.background = "#fef3c7";
-el.style.color = "#92400e";
+  el.textContent = "⚠️ Low Stock";
+  el.style.background = "rgba(245,158,11,.2)";
+  el.style.color = "#fcd34d";
+  el.style.borderColor = "rgba(245,158,11,.3)";
 }
-
 else{
-el.textContent = "🟢 Healthy Stock";
-el.style.background = "#dcfce7";
-el.style.color = "#166534";
+  el.textContent = "✅ Healthy";
+  el.style.background = "rgba(16,185,129,.2)";
+  el.style.color = "#6ee7b7";
+  el.style.borderColor = "rgba(16,185,129,.3)";
 }
 
 }
