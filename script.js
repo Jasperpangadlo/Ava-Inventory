@@ -1011,35 +1011,108 @@ async function loadHistory() {
   if (!table) return;
 
   if (records.length === 0) {
-
-    table.innerHTML =
-    "<tr><td colspan='9'>No stock out history yet.</td></tr>";
-
+    table.innerHTML = "<tr><td colspan='9' class='hi-empty-row'>No stock out history yet.</td></tr>";
     return;
   }
+
+  // Update summary cards
+  const totalMovements = records.length;
+  const totalQty   = records.reduce((s,i)=>s+(Number(i.qty)||0), 0);
+  const totalValue = records.reduce((s,i)=>s+(Number(i.total)||0), 0);
+
+  const elMov = document.getElementById("hiTotalMovements");
+  const elQty = document.getElementById("hiTotalQty");
+  const elVal = document.getElementById("hiTotalValue");
+  if(elMov) elMov.textContent = totalMovements.toLocaleString();
+  if(elQty) elQty.textContent = totalQty.toLocaleString();
+  if(elVal) elVal.textContent = "₱" + totalValue.toLocaleString();
 
   let html = "";
 
   records.forEach(item => {
+    const remarks = String(item.remarks || "");
+    const remarkLower = remarks.toLowerCase();
+    let remarkBadge;
+    if(remarkLower.includes("online")){
+      remarkBadge = `<span class="hi-remark-online">🌐 ${remarks}</span>`;
+    } else if(remarkLower.includes("walk")){
+      remarkBadge = `<span class="hi-remark-walkin">🚶 ${remarks}</span>`;
+    } else if(remarkLower.includes("transfer") || remarkLower.includes("store")){
+      remarkBadge = `<span class="hi-remark-transfer">🚚 ${remarks}</span>`;
+    } else {
+      remarkBadge = `<span class="hi-remark-default">${remarks}</span>`;
+    }
 
     html += `
       <tr>
         <td>${item.datetime}</td>
-        <td>${item.barcode}</td>
-        <td>${item.product}</td>
+        <td><span class="hi-barcode-pill">${item.barcode}</span></td>
+        <td><b>${item.product}</b></td>
         <td>${item.color}</td>
-        <td>${item.size}</td>
+        <td><span class="hi-size-badge">${item.size}</span></td>
         <td>${item.qty}</td>
         <td>₱${item.price}</td>
-        <td>₱${item.total}</td>
-        <td>${item.remarks}</td>
+        <td class="hi-total">₱${item.total}</td>
+        <td>${remarkBadge}</td>
       </tr>
     `;
-
   });
 
   table.innerHTML = html;
 
+}
+
+function filterHistory() {
+  const keyword   = (document.getElementById("historySearchInput")?.value || "").toLowerCase();
+  const dateFrom  = document.getElementById("historyDateFrom")?.value || "";
+  const dateTo    = document.getElementById("historyDateTo")?.value || "";
+
+  const filtered = historyCache.filter(item => {
+    const text = [item.datetime, item.barcode, item.product, item.color, item.size, item.remarks]
+      .join(" ").toLowerCase();
+    if (keyword && !text.includes(keyword)) return false;
+    if (dateFrom || dateTo) {
+      const itemDate = (item.datetime || "").split(" ")[0];
+      if (dateFrom && itemDate < dateFrom) return false;
+      if (dateTo   && itemDate > dateTo)   return false;
+    }
+    return true;
+  });
+
+  // Re-render with filtered data (reuse loadHistory render logic inline)
+  const table = document.getElementById("historyTable");
+  if (!table) return;
+  if (filtered.length === 0) {
+    table.innerHTML = "<tr><td colspan='9' class='hi-empty-row'>No results found.</td></tr>";
+    return;
+  }
+  let html = "";
+  filtered.forEach(item => {
+    const remarks = String(item.remarks || "");
+    const remarkLower = remarks.toLowerCase();
+    let remarkBadge;
+    if(remarkLower.includes("online"))
+      remarkBadge = `<span class="hi-remark-online">🌐 ${remarks}</span>`;
+    else if(remarkLower.includes("walk"))
+      remarkBadge = `<span class="hi-remark-walkin">🚶 ${remarks}</span>`;
+    else if(remarkLower.includes("transfer") || remarkLower.includes("store"))
+      remarkBadge = `<span class="hi-remark-transfer">🚚 ${remarks}</span>`;
+    else
+      remarkBadge = `<span class="hi-remark-default">${remarks}</span>`;
+    html += `
+      <tr>
+        <td>${item.datetime}</td>
+        <td><span class="hi-barcode-pill">${item.barcode}</span></td>
+        <td><b>${item.product}</b></td>
+        <td>${item.color}</td>
+        <td><span class="hi-size-badge">${item.size}</span></td>
+        <td>${item.qty}</td>
+        <td>₱${item.price}</td>
+        <td class="hi-total">₱${item.total}</td>
+        <td>${remarkBadge}</td>
+      </tr>`;
+  });
+  table.innerHTML = html;
 }
 
 let currentTab = "dashboard";
@@ -3998,35 +4071,52 @@ function renderSoldItems(data){
   if(!table) return;
 
   if(data.length === 0){
-
     table.innerHTML =
-    `<tr>
-      <td colspan="8">No sold items found.</td>
-    </tr>`;
-
+    `<tr><td colspan="8" class="si-empty-row">No sold items found.</td></tr>`;
     return;
   }
+
+  // Update summary cards
+  const totalItems   = data.reduce((s,i)=>s+(Number(i.qty)||0), 0);
+  const totalRevenue = data.reduce((s,i)=>s+(Number(i.total)||0), 0);
+  const onlineCount  = data.filter(i=>String(i.remarks||"").toLowerCase().includes("online")).length;
+  const walkinCount  = data.filter(i=>String(i.remarks||"").toLowerCase().includes("walk")).length;
+
+  const elItems   = document.getElementById("siTotalItems");
+  const elRev     = document.getElementById("siTotalRevenue");
+  const elOnline  = document.getElementById("siOnlineCount");
+  const elWalkin  = document.getElementById("siWalkinCount");
+  if(elItems)  elItems.textContent  = totalItems.toLocaleString();
+  if(elRev)    elRev.textContent    = "₱" + totalRevenue.toLocaleString();
+  if(elOnline) elOnline.textContent = onlineCount.toLocaleString();
+  if(elWalkin) elWalkin.textContent = walkinCount.toLocaleString();
 
   let html = "";
 
   data.forEach(item=>{
-
-    const remarks =
-    String(item.remarks || "");
+    const remarks = String(item.remarks || "");
+    const remarkLower = remarks.toLowerCase();
+    let sourceBadge;
+    if(remarkLower.includes("online")){
+      sourceBadge = `<span class="si-source-online">🌐 ${remarks}</span>`;
+    } else if(remarkLower.includes("walk")){
+      sourceBadge = `<span class="si-source-walkin">🚶 ${remarks}</span>`;
+    } else {
+      sourceBadge = `<span class="si-source-default">${remarks}</span>`;
+    }
 
     html += `
       <tr>
         <td>${item.datetime || item.date || ""}</td>
-        <td>${item.barcode || ""}</td>
+        <td><span class="si-barcode-pill">${item.barcode || ""}</span></td>
         <td><b>${item.product || ""}</b></td>
         <td>${item.color || ""}</td>
-        <td>${item.size || ""}</td>
+        <td><span class="si-size-badge">${item.size || ""}</span></td>
         <td>${item.qty || 0}</td>
-        <td>₱${Number(item.total || 0).toLocaleString()}</td>
-        <td>${remarks}</td>
+        <td class="si-total">₱${Number(item.total || 0).toLocaleString()}</td>
+        <td>${sourceBadge}</td>
       </tr>
     `;
-
   });
 
   table.innerHTML = html;
