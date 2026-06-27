@@ -5431,17 +5431,18 @@ tbody tr:hover {
 }
 
 .hi-table thead tr {
-  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  background: linear-gradient(135deg, #1e1b4b, #312e81) !important;
 }
 
 .hi-table th {
-  padding: 13px 16px;
+  padding: 13px 16px !important;
   text-align: left;
-  font-size: 11px;
+  font-size: 11px !important;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #ffffff;
+  color: #ffffff !important;
+  background: transparent !important;
   white-space: nowrap;
   position: sticky;
   top: 0;
@@ -5738,17 +5739,18 @@ tbody tr:hover {
 }
 
 .si-table thead tr {
-  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  background: linear-gradient(135deg, #1e1b4b, #312e81) !important;
 }
 
 .si-table th {
-  padding: 13px 16px;
+  padding: 13px 16px !important;
   text-align: left;
-  font-size: 11px;
+  font-size: 11px !important;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #ffffff;
+  color: #ffffff !important;
+  background: transparent !important;
   white-space: nowrap;
   position: sticky;
   top: 0;
