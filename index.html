@@ -990,125 +990,179 @@ Login
 </section>
 
       <section class="panel tab-content" id="history">
-  <h3>Stock Out History</h3>
-        
-<div class="table-scroll">
-  <table>
-    <thead>
-      <tr>
-        <th>Date/Time</th>
-        <th>Barcode</th>
-        <th>Product</th>
-        <th>Color</th>
-        <th>Size</th>
-        <th>Qty Out</th>
-        <th>Price</th>
-        <th>Total</th>
-        <th>Remarks</th>
-      </tr>
-    </thead>
 
-    <tbody id="historyTable">
-      <tr>
-        <td colspan="9">No stock out history yet.</td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- Header -->
+  <div class="hi-header">
+    <div>
+      <h3 class="hi-title">📜 Stock Out History</h3>
+      <p class="hi-subtitle">Track all outgoing stock movements</p>
+    </div>
   </div>
+
+  <!-- Summary Cards -->
+  <div class="hi-stats-row">
+    <div class="hi-stat-card hi-stat-blue">
+      <div class="hi-stat-icon">📦</div>
+      <div>
+        <p class="hi-stat-label">Total Movements</p>
+        <h3 class="hi-stat-value" id="hiTotalMovements">—</h3>
+      </div>
+    </div>
+    <div class="hi-stat-card hi-stat-green">
+      <div class="hi-stat-icon">💰</div>
+      <div>
+        <p class="hi-stat-label">Total Value Out</p>
+        <h3 class="hi-stat-value" id="hiTotalValue">—</h3>
+      </div>
+    </div>
+    <div class="hi-stat-card hi-stat-purple">
+      <div class="hi-stat-icon">📊</div>
+      <div>
+        <p class="hi-stat-label">Total Qty Out</p>
+        <h3 class="hi-stat-value" id="hiTotalQty">—</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search + Filter Row -->
+  <div class="hi-filters">
+    <div class="hi-search-wrap">
+      <span class="hi-search-icon">🔍</span>
+      <input id="historySearchInput" type="text"
+        placeholder="Search product, barcode, remarks..."
+        oninput="filterHistory()">
+    </div>
+    <div class="hi-date-filter">
+      <label>From</label>
+      <input id="historyDateFrom" type="date" onchange="filterHistory()">
+    </div>
+    <div class="hi-date-filter">
+      <label>To</label>
+      <input id="historyDateTo" type="date" onchange="filterHistory()">
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="hi-table-wrap">
+    <table class="hi-table">
+      <thead>
+        <tr>
+          <th>Date / Time</th>
+          <th>Barcode</th>
+          <th>Product</th>
+          <th>Color</th>
+          <th>Size</th>
+          <th>Qty Out</th>
+          <th>Price</th>
+          <th>Total</th>
+          <th>Remarks</th>
+        </tr>
+      </thead>
+      <tbody id="historyTable">
+        <tr>
+          <td colspan="9" class="hi-empty-row">No stock out history yet.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
 </section>
 
 
       <section class="panel tab-content" id="sold-items">
 
-<h3>🛍️ Sold Items</h3>
+  <!-- Header -->
+  <div class="si-header">
+    <div>
+      <h3 class="si-title">🛍️ Sold Items</h3>
+      <p class="si-subtitle">All completed sales across all locations</p>
+    </div>
+  </div>
 
-<div class="product-filters">
+  <!-- Summary Cards -->
+  <div class="si-stats-row">
+    <div class="si-stat-card si-stat-indigo">
+      <div class="si-stat-icon">🛍️</div>
+      <div>
+        <p class="si-stat-label">Total Items Sold</p>
+        <h3 class="si-stat-value" id="siTotalItems">—</h3>
+      </div>
+    </div>
+    <div class="si-stat-card si-stat-green">
+      <div class="si-stat-icon">💰</div>
+      <div>
+        <p class="si-stat-label">Total Revenue</p>
+        <h3 class="si-stat-value" id="siTotalRevenue">—</h3>
+      </div>
+    </div>
+    <div class="si-stat-card si-stat-sky">
+      <div class="si-stat-icon">🌐</div>
+      <div>
+        <p class="si-stat-label">Online Sales</p>
+        <h3 class="si-stat-value" id="siOnlineCount">—</h3>
+      </div>
+    </div>
+    <div class="si-stat-card si-stat-amber">
+      <div class="si-stat-icon">🚶</div>
+      <div>
+        <p class="si-stat-label">Walk-in Sales</p>
+        <h3 class="si-stat-value" id="siWalkinCount">—</h3>
+      </div>
+    </div>
+  </div>
 
-<div class="search-box">
-<span>🔍</span>
-<input
-id="soldSearchInput"
-type="text"
-placeholder="Search product, barcode, color, size, store..."
-oninput="filterSoldItems()"
-/>
-</div>
+  <!-- Filters -->
+  <div class="si-filters">
+    <div class="si-search-wrap">
+      <span class="si-search-icon">🔍</span>
+      <input id="soldSearchInput" type="text"
+        placeholder="Search product, barcode, color, size, store..."
+        oninput="filterSoldItems()">
+    </div>
+    <select id="soldTypeFilter" onchange="filterSoldItems()">
+      <option value="">All Sales</option>
+      <option value="walk">Walk-in Sales</option>
+      <option value="online">Online Sales</option>
+    </select>
+    <select id="soldLocationFilter" onchange="filterSoldItems()">
+      <option value="">All Locations</option>
+      <option value="warehouse">Warehouse</option>
+      <option value="store 1">Store 1</option>
+      <option value="store 2">Store 2</option>
+      <option value="store 3">Store 3</option>
+    </select>
+    <div class="si-date-filter">
+      <label>From</label>
+      <input id="soldDateFrom" type="date" onchange="filterSoldItems()">
+    </div>
+    <div class="si-date-filter">
+      <label>To</label>
+      <input id="soldDateTo" type="date" onchange="filterSoldItems()">
+    </div>
+  </div>
 
-<select id="soldTypeFilter" onchange="filterSoldItems()">
-<option value="">All Sales</option>
-<option value="walk">Walk-in Sales</option>
-<option value="online">Online Sales</option>
-</select>
-
-<select
-id="soldLocationFilter"
-onchange="filterSoldItems()">
-
-<option value="">
-All Locations
-</option>
-
-<option value="warehouse">
-Warehouse
-</option>
-
-<option value="store 1">
-Store 1
-</option>
-
-<option value="store 2">
-Store 2
-</option>
-
-<option value="store 3">
-Store 3
-</option>
-
-</select>
-
- <div class="date-filter-box">
-<label>From Date</label>
-<input
-id="soldDateFrom"
-type="date"
-onchange="filterSoldItems()">
-</div>
-
-<div class="date-filter-box">
-<label>To Date</label>
-<input
-id="soldDateTo"
-type="date"
-onchange="filterSoldItems()">
-</div>
-
-</div>
-
-<div class="table-scroll">
-
-<table>
-<thead>
-<tr>
-<th>Date/Time</th>
-<th>Barcode</th>
-<th>Product</th>
-<th>Color</th>
-<th>Size</th>
-<th>Qty Sold</th>
-<th>Total</th>
-<th>Sold From</th>
-</tr>
-</thead>
-
-<tbody id="soldItemsTable">
-<tr>
-<td colspan="8">No sold items yet.</td>
-</tr>
-</tbody>
-
-</table>
-
-</div>
+  <!-- Table -->
+  <div class="si-table-wrap">
+    <table class="si-table">
+      <thead>
+        <tr>
+          <th>Date / Time</th>
+          <th>Barcode</th>
+          <th>Product</th>
+          <th>Color</th>
+          <th>Size</th>
+          <th>Qty Sold</th>
+          <th>Total</th>
+          <th>Sold From</th>
+        </tr>
+      </thead>
+      <tbody id="soldItemsTable">
+        <tr>
+          <td colspan="8" class="si-empty-row">No sold items yet.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
 </section>
 
