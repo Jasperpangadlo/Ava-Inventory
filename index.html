@@ -376,6 +376,71 @@ Login
     <div id="blmContent" class="blm-content"></div>
   </div>
 </div>
+
+<!-- ══ RECEIPT MODAL ══════════════════════════════════════════════════════ -->
+<div id="receiptModal" class="rcpt-overlay" style="display:none;" onclick="if(event.target===this)closeReceipt()">
+  <div class="rcpt-box">
+
+    <!-- Actions (outside receipt) -->
+    <div class="rcpt-actions">
+      <button class="rcpt-btn-print" onclick="printReceipt()">🖨️ Print</button>
+      <button class="rcpt-btn-close" onclick="closeReceipt()">✕ Close</button>
+    </div>
+
+    <!-- Printable Receipt -->
+    <div class="rcpt-paper" id="receiptPaper">
+      <div class="rcpt-logo">
+        <img src="logo.png" alt="Logo" style="height:48px;object-fit:contain;">
+      </div>
+      <h2 class="rcpt-store-name" id="rcptStoreName">Store 1</h2>
+      <p class="rcpt-tagline">Thank you for your purchase!</p>
+
+      <div class="rcpt-divider"></div>
+
+      <div class="rcpt-meta">
+        <div><span>Receipt #</span><strong id="rcptNo">-</strong></div>
+        <div><span>Date</span><strong id="rcptDate">-</strong></div>
+        <div><span>Time</span><strong id="rcptTime">-</strong></div>
+        <div><span>Cashier</span><strong id="rcptCashier">-</strong></div>
+      </div>
+
+      <div class="rcpt-divider"></div>
+
+      <!-- Items -->
+      <table class="rcpt-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th style="text-align:center;">Qty</th>
+            <th style="text-align:right;">Price</th>
+            <th style="text-align:right;">Total</th>
+          </tr>
+        </thead>
+        <tbody id="rcptItems"></tbody>
+      </table>
+
+      <div class="rcpt-divider"></div>
+
+      <!-- Totals -->
+      <div class="rcpt-totals">
+        <div class="rcpt-total-row">
+          <span>Items</span>
+          <span id="rcptTotalItems">0</span>
+        </div>
+        <div class="rcpt-total-row rcpt-grand-total">
+          <span>Total</span>
+          <span id="rcptGrandTotal">₱0.00</span>
+        </div>
+      </div>
+
+      <div class="rcpt-divider"></div>
+
+      <p class="rcpt-footer">Visit us again! 😊</p>
+      <div class="rcpt-barcode-line">▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌</div>
+    </div>
+
+  </div>
+</div>
       
 <section class="tab-content" id="dashboard">
 
