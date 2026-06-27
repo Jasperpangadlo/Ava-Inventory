@@ -225,18 +225,23 @@ background:linear-gradient(
       border-collapse: collapse;
       overflow: hidden;
       border-radius: 14px;
+      font-size: 13px;
     }
 
     th,
     td {
-      padding: 14px;
+      padding: 13px 16px;
       text-align: left;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid #f1f5f9;
     }
 
     th {
-      background: #eef2ff;
-      color: #1e1b4b;
+      background: linear-gradient(135deg, #1e1b4b, #312e81);
+      color: #c7d2fe;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
     }
 
     .status {
@@ -5143,3 +5148,144 @@ tbody tr:hover {
 }
 .notif-dismiss:hover { color: #ef4444; transform: none; box-shadow: none; }
 /* ─────────────────────────────────────────────────────────────────────────── */
+
+/* ══ Receipt Modal ═══════════════════════════════════════════════════════════ */
+.rcpt-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,15,35,.65);
+  backdrop-filter: blur(8px);
+  z-index: 999998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: blmFadeIn .2s ease;
+}
+
+.rcpt-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: blmSlideUp .25s ease;
+}
+
+.rcpt-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.rcpt-btn-print {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+}
+.rcpt-btn-print:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(79,70,229,.35); }
+
+.rcpt-btn-close {
+  background: rgba(255,255,255,.15);
+  color: white;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+}
+.rcpt-btn-close:hover { background: rgba(255,255,255,.25); }
+
+/* Paper */
+.rcpt-paper {
+  background: white;
+  width: 340px;
+  border-radius: 16px;
+  padding: 28px 24px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.3);
+  font-family: 'Inter', Arial, sans-serif;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.rcpt-logo { text-align: center; margin-bottom: 10px; }
+.rcpt-store-name { text-align: center; font-size: 20px; font-weight: 900; color: #1e1b4b; margin: 0 0 4px; }
+.rcpt-tagline { text-align: center; font-size: 12px; color: #6b7280; margin: 0 0 14px; }
+
+.rcpt-divider { border: none; border-top: 1.5px dashed #e2e8f0; margin: 12px 0; }
+
+.rcpt-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+}
+.rcpt-meta div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.rcpt-meta span { color: #6b7280; }
+.rcpt-meta strong { color: #1e1b4b; font-weight: 700; }
+
+.rcpt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin: 0;
+}
+.rcpt-table th {
+  background: #f8faff !important;
+  color: #374151 !important;
+  font-size: 10px !important;
+  letter-spacing: .4px;
+  padding: 8px 6px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  text-transform: uppercase;
+}
+.rcpt-table td {
+  padding: 8px 6px !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  vertical-align: top;
+}
+.rcpt-table tr:last-child td { border-bottom: none !important; }
+
+.rcpt-item-name { font-weight: 700; font-size: 12px; color: #1e1b4b; }
+.rcpt-item-meta { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+
+.rcpt-totals { font-size: 13px; }
+.rcpt-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  color: #6b7280;
+}
+.rcpt-grand-total {
+  font-size: 18px;
+  font-weight: 900;
+  color: #1e1b4b;
+  border-top: 2px solid #1e1b4b;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.rcpt-footer {
+  text-align: center;
+  font-size: 12px;
+  color: #6b7280;
+  margin: 14px 0 6px;
+}
+.rcpt-barcode-line {
+  text-align: center;
+  letter-spacing: 2px;
+  font-size: 13px;
+  color: #d1d5db;
+  margin-top: 4px;
+}
+/* ═══════════════════════════════════════════════════════════════════════════ */
