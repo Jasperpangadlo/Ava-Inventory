@@ -3220,13 +3220,15 @@ let store1Qty = 0;
 let store2Qty = 0;
 let store3Qty = 0;
 
+const _todayD = new Date();
 const today =
-new Date().toLocaleDateString();
+`${_todayD.getMonth()+1}/${_todayD.getDate()}/${_todayD.getFullYear()}`;
 
 records.forEach(item=>{
 
+const _itemD = new Date(item.datetime);
 const itemDate =
-new Date(item.datetime).toLocaleDateString();
+`${_itemD.getMonth()+1}/${_itemD.getDate()}/${_itemD.getFullYear()}`;
 
 const remarks =
 String(item.remarks || "").toLowerCase();
@@ -4477,7 +4479,8 @@ function renderPosStocks(products){
 
 async function loadPosSalesStats(){
   const store = localStorage.getItem("avaStore") || "Store 1";
-  const today = new Date().toLocaleDateString("en-PH");
+  const _now = new Date();
+  const today = `${_now.getMonth()+1}/${_now.getDate()}/${_now.getFullYear()}`;
 
   const result = await apiRequest("getSalesStats", { store, date: today });
 
