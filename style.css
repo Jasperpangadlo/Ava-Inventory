@@ -5680,6 +5680,8 @@ tbody tr:hover {
 
 .si-filters select {
   height: 48px;
+  width: fit-content;
+  max-width: 180px;
   border-radius: 14px;
   border: 1px solid #e5e7eb;
   background: #fff;
@@ -5987,6 +5989,8 @@ tbody tr:hover {
 }
 .al-filters select {
   height: 48px;
+  width: fit-content;
+  max-width: 160px;
   border-radius: 14px;
   border: 1px solid #e5e7eb;
   background: #fff;
