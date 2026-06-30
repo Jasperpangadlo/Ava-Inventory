@@ -308,6 +308,7 @@ Login
 <a href="#" onclick="showTab('sold-items')">🛍️ Sold Items</a>
 <a href="#" onclick="showTab('reports')">📊 Reports</a>
 <a href="#" onclick="showTab('store')">🏬 Store</a>
+<a href="#" onclick="showTab('activity-log')">🕵️ Activity Log</a>
     </aside>
     <main>
       <div class="topbar">
@@ -1720,6 +1721,96 @@ Login
 
 </section>
       
+
+<!-- ══ ACTIVITY LOG ════════════════════════════════════════════════════════ -->
+<section class="panel tab-content" id="activity-log">
+
+  <div class="al-header">
+    <div>
+      <h3 class="al-title">🕵️ Activity Log</h3>
+      <p class="al-subtitle">Real-time record of all system actions</p>
+    </div>
+    <button class="al-refresh-btn" onclick="loadActivityLog()">🔄 Refresh</button>
+  </div>
+
+  <div class="al-stats-row">
+    <div class="al-stat-card al-stat-blue">
+      <div class="al-stat-icon">👤</div>
+      <div>
+        <p class="al-stat-label">Logins Today</p>
+        <h3 class="al-stat-value" id="alLoginsToday">—</h3>
+      </div>
+    </div>
+    <div class="al-stat-card al-stat-green">
+      <div class="al-stat-icon">📦</div>
+      <div>
+        <p class="al-stat-label">Stock Actions</p>
+        <h3 class="al-stat-value" id="alStockActions">—</h3>
+      </div>
+    </div>
+    <div class="al-stat-card al-stat-indigo">
+      <div class="al-stat-icon">💰</div>
+      <div>
+        <p class="al-stat-label">Sales Actions</p>
+        <h3 class="al-stat-value" id="alSalesActions">—</h3>
+      </div>
+    </div>
+    <div class="al-stat-card al-stat-amber">
+      <div class="al-stat-icon">🔧</div>
+      <div>
+        <p class="al-stat-label">System Actions</p>
+        <h3 class="al-stat-value" id="alSystemActions">—</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="al-filters">
+    <div class="al-search-wrap">
+      <span>🔍</span>
+      <input id="alSearchInput" type="text"
+        placeholder="Search user, action, details..."
+        oninput="filterActivityLog()">
+    </div>
+    <select id="alTypeFilter" onchange="filterActivityLog()">
+      <option value="">All Actions</option>
+      <option value="user">👤 User</option>
+      <option value="stock">📦 Stock</option>
+      <option value="sales">💰 Sales</option>
+      <option value="system">🔧 System</option>
+    </select>
+    <select id="alUserFilter" onchange="filterActivityLog()">
+      <option value="">All Users</option>
+    </select>
+    <div class="al-date-filter">
+      <label>From</label>
+      <input id="alDateFrom" type="date" onchange="filterActivityLog()">
+    </div>
+    <div class="al-date-filter">
+      <label>To</label>
+      <input id="alDateTo" type="date" onchange="filterActivityLog()">
+    </div>
+  </div>
+
+  <div class="al-table-wrap">
+    <table class="al-table">
+      <thead>
+        <tr>
+          <th>Date / Time</th>
+          <th>User</th>
+          <th>Action Type</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody id="activityLogTable">
+        <tr>
+          <td colspan="4" class="al-empty-row">Click Refresh to load activity log.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</section>
+
     </main>
   </div>
 
