@@ -4757,9 +4757,9 @@ btn.innerHTML = "Processing...";
   const posScreen = document.getElementById("posScreen");
   if(posScreen) posScreen.style.display = "none";
 
-  // Show admin layout back
+  // Hide admin layout so it doesn't show behind login screen
   const layout = document.querySelector(".layout");
-  if(layout) layout.style.display = "grid";
+  if(layout) layout.style.display = "none";
 
   document.getElementById(
     "loginScreen"
@@ -4785,7 +4785,6 @@ btn.innerHTML = "Processing...";
 
 let activityLogData = [];
 
-// ── Send a log entry to the "Activity" Google Sheet ───────────────────────
 async function logActivity(type, action, details) {
   try {
     const user = localStorage.getItem("avaUser") || "Unknown";
@@ -4801,7 +4800,6 @@ async function logActivity(type, action, details) {
   }
 }
 
-// ── Load from Apps Script ─────────────────────────────────────────────────
 async function loadActivityLog() {
   const tbody = document.getElementById("activityLogTable");
   if (!tbody) return;
@@ -4824,12 +4822,10 @@ function _populateAlUserFilter() {
     users.map(u => `<option value="${u}">${u}</option>`).join("");
 }
 
-// ── Render ────────────────────────────────────────────────────────────────
 function renderActivityLog(data) {
   const tbody = document.getElementById("activityLogTable");
   if (!tbody) return;
 
-  // Summary cards — count for today
   const todayStr = new Date().toLocaleDateString("en-PH");
   let logins = 0, stock = 0, sales = 0, system = 0;
   activityLogData.forEach(r => {
@@ -4873,7 +4869,6 @@ function renderActivityLog(data) {
   tbody.innerHTML = html;
 }
 
-// ── Filter ────────────────────────────────────────────────────────────────
 function filterActivityLog() {
   const keyword  = (document.getElementById("alSearchInput")?.value  || "").toLowerCase();
   const type     = (document.getElementById("alTypeFilter")?.value   || "").toLowerCase();
@@ -4898,7 +4893,6 @@ function filterActivityLog() {
 
 // ── Hooks into existing functions ─────────────────────────────────────────
 
-// LOGIN
 const _origLoginUser = loginUser;
 loginUser = async function() {
   await _origLoginUser.apply(this, arguments);
@@ -4906,7 +4900,6 @@ loginUser = async function() {
   if (user) logActivity("user", "Login", `${user} logged in`);
 };
 
-// LOGOUT
 const _origLogoutUser = logoutUser;
 logoutUser = function() {
   const user = localStorage.getItem("avaUser") || "Unknown";
@@ -4914,7 +4907,6 @@ logoutUser = function() {
   _origLogoutUser.apply(this, arguments);
 };
 
-// SAVE STOCK CART (Add Stock)
 const _origSaveStockCart = saveStockCart;
 saveStockCart = async function() {
   const snap = (typeof stockCart !== "undefined") ? [...stockCart] : [];
@@ -4925,7 +4917,6 @@ saveStockCart = async function() {
   }
 };
 
-// SUBMIT SALES CART (Stock Out / Sales)
 const _origSubmitSalesCart = submitSalesCart;
 submitSalesCart = async function() {
   const snap       = (typeof salesCart !== "undefined") ? [...salesCart] : [];
@@ -4938,7 +4929,6 @@ submitSalesCart = async function() {
   }
 };
 
-// SEND TO STORE
 const _origSendToStore = sendToStore;
 sendToStore = async function() {
   const barcode = document.getElementById("transferBarcode")?.value || "";
@@ -4948,7 +4938,6 @@ sendToStore = async function() {
   logActivity("stock", "Send to Store", `Barcode: ${barcode} | Qty: ${qty} → ${store}`);
 };
 
-// RETURN TO WAREHOUSE
 const _origReturnToWarehouse = returnToWarehouse;
 returnToWarehouse = async function() {
   const barcode = document.getElementById("returnBarcode")?.value || "";
@@ -4958,14 +4947,12 @@ returnToWarehouse = async function() {
   logActivity("stock", "Return to Warehouse", `Barcode: ${barcode} | Qty: ${qty} ← ${store}`);
 };
 
-// REFRESH DATA
 const _origRefreshAllData = refreshAllData;
 refreshAllData = async function() {
   await _origRefreshAllData.apply(this, arguments);
   logActivity("system", "Manual Refresh", "Admin refreshed all data");
 };
 
-// AUTO-REFRESH
 const _origSetAutoRefresh = setAutoRefresh;
 setAutoRefresh = function(seconds) {
   _origSetAutoRefresh.apply(this, arguments);
@@ -4974,7 +4961,6 @@ setAutoRefresh = function(seconds) {
   }
 };
 
-// POS CHECKOUT
 const _origPosCheckout = posCheckout;
 posCheckout = async function() {
   const store = localStorage.getItem("avaStore") || "Store";
@@ -4983,7 +4969,6 @@ posCheckout = async function() {
   logActivity("sales", "POS Checkout", `${store} | Total: ₱${total}`);
 };
 
-// SHOW TAB (auto-load when tab is opened)
 const _origShowTab = showTab;
 showTab = async function(tabId) {
   await _origShowTab.apply(this, arguments);
