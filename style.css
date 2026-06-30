@@ -2854,21 +2854,7 @@ tbody tr:hover {
   transition: width .6s cubic-bezier(.4,0,.2,1) !important;
 }
 
-/* ── Login screen upgrade ─────────────────────────────────────────────────── */
-#loginScreen .panel {
-  border-radius: 28px;
-  padding: 36px;
-  box-shadow: 0 30px 80px rgba(0,0,0,.12);
-  border: 1px solid rgba(255,255,255,.95);
-  background: rgba(255,255,255,.95);
-  backdrop-filter: blur(20px);
-}
-
-#loginScreen h2 {
-  font-size: 22px;
-  font-weight: 800;
-  color: #1e1b4b;
-}
+/* ── Login screen v2 — see bottom of file for full styles ────────────────── */
 
 .inputBox input {
   border: 1.5px solid #e2e8f0;
@@ -5680,8 +5666,6 @@ tbody tr:hover {
 
 .si-filters select {
   height: 48px;
-  width: fit-content;
-  max-width: 180px;
   border-radius: 14px;
   border: 1px solid #e5e7eb;
   background: #fff;
@@ -5874,251 +5858,194 @@ tbody tr:hover {
 .dark-mode #soldItemsTable .si-total { color: #e0e7ff; }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   ACTIVITY LOG TAB
+   LOGIN SCREEN v2 — split brand / form panel
    ══════════════════════════════════════════════════════════════════════════ */
 
-#activity-log { padding: 0; }
-
-.al-header {
+.login-screen {
+  position: fixed;
+  inset: 0;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 22px;
-}
-.al-title {
-  font-size: 24px;
-  font-weight: 800;
-  color: #1e1b4b;
-  margin: 0;
-}
-.al-subtitle {
-  font-size: 13px;
-  color: #6b7280;
-  margin: 4px 0 0;
-}
-.al-refresh-btn {
-  padding: 10px 20px;
-  border-radius: 12px;
-  border: none;
-  background: linear-gradient(135deg, #4f46e5, #4338ca);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.15s;
-}
-.al-refresh-btn:hover { opacity: 0.88; }
-
-.al-stats-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 22px;
-}
-.al-stat-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: #fff;
-  border-radius: 16px;
-  padding: 16px 18px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  transition: transform 0.15s;
-}
-.al-stat-card:hover { transform: translateY(-2px); }
-.al-stat-icon {
-  font-size: 26px;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  align-items: center;
+  z-index: 9999;
+  padding: 24px;
+  background:
+    radial-gradient(1100px 700px at 14% 18%, rgba(99,102,241,0.16), transparent 60%),
+    radial-gradient(900px 600px at 86% 82%, rgba(168,85,247,0.14), transparent 60%),
+    #eef0fb;
 }
-.al-stat-blue   .al-stat-icon { background: #eff6ff; }
-.al-stat-green  .al-stat-icon { background: #f0fdf4; }
-.al-stat-indigo .al-stat-icon { background: #eef2ff; }
-.al-stat-amber  .al-stat-icon { background: #fffbeb; }
-.al-stat-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin: 0 0 3px;
-}
-.al-stat-value {
-  font-size: 20px;
-  font-weight: 800;
-  margin: 0;
-}
-.al-stat-blue   .al-stat-value { color: #1d4ed8; }
-.al-stat-green  .al-stat-value { color: #15803d; }
-.al-stat-indigo .al-stat-value { color: #4338ca; }
-.al-stat-amber  .al-stat-value { color: #b45309; }
 
-.al-filters {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
-  flex-wrap: wrap;
-}
-.al-search-wrap {
-  flex: 2;
-  min-width: 240px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.login-card {
+  width: 100%;
+  max-width: 880px;
+  min-height: 540px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 0 16px;
-  height: 48px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 40px 90px rgba(30, 27, 75, 0.18);
+  border: 1px solid rgba(255,255,255,0.6);
 }
-.al-search-wrap input {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 14px;
-  color: #1e1b4b;
-}
-.al-filters select {
-  height: 48px;
-  width: fit-content;
-  max-width: 160px;
-  border-radius: 14px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  padding: 0 14px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #374151;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  cursor: pointer;
-  outline: none;
-}
-.al-date-filter {
+
+/* ── Brand side ──────────────────────────────────────────────────────── */
+.login-brand {
+  position: relative;
+  background: linear-gradient(155deg, #312e81 0%, #4338ca 48%, #6d28d9 100%);
+  padding: 44px 40px;
   display: flex;
   flex-direction: column;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 6px 14px;
-  height: 48px;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-.al-date-filter label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.al-date-filter input {
-  border: none;
-  padding: 0;
-  background: transparent;
-  font-size: 13px;
-  font-weight: 600;
-  color: #1e1b4b;
-  outline: none;
-}
-
-.al-table-wrap {
-  background: #fff;
-  border-radius: 18px;
-  border: 1px solid #e5e7eb;
+  justify-content: space-between;
+  color: #fff;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-  overflow-x: auto;
 }
-.al-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
+
+.login-brand-glow {
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
+  top: -120px;
+  right: -120px;
+  pointer-events: none;
 }
-.al-table thead tr {
-  background: linear-gradient(135deg, #1e1b4b, #312e81);
+
+.login-brand-content { position: relative; z-index: 1; }
+
+.login-brand-mark {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+  backdrop-filter: blur(6px);
 }
-.al-table th {
-  padding: 13px 16px !important;
-  text-align: left;
-  font-size: 11px !important;
+.login-brand-mark img { display: block; filter: brightness(0) invert(1); opacity: 0.95; }
+
+.login-brand-title {
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 800;
+  margin: 0 0 14px;
+  letter-spacing: -0.01em;
+}
+
+.login-brand-tag {
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.82);
+  max-width: 280px;
+  margin: 0 0 32px;
+}
+
+.login-brand-points {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.login-brand-points li {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 13.5px;
+  color: rgba(255,255,255,0.92);
+  font-weight: 500;
+}
+.lp-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #c7d2fe;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 4px rgba(199,210,254,0.18);
+}
+
+.login-brand-footer {
+  position: relative;
+  z-index: 1;
+  font-size: 11.5px;
   font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #ffffff !important;
-  background: transparent !important;
-  white-space: nowrap;
-  position: sticky;
-  top: 0;
-  z-index: 2;
+  color: rgba(255,255,255,0.55);
 }
-.al-table td {
-  padding: 13px 16px;
-  border-bottom: 1px solid #f1f5f9;
-  color: #374151;
-  vertical-align: middle;
+
+/* ── Form side ───────────────────────────────────────────────────────── */
+.login-form-panel {
+  padding: 56px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
-.al-table tbody tr:hover { background: #fafaff; }
-.al-table tbody tr:last-child td { border-bottom: none; }
-.al-empty-row {
+
+.login-form-head { margin-bottom: 30px; }
+.login-form-head h2 {
+  font-size: 25px;
+  font-weight: 800;
+  color: #1e1b4b;
+  margin: 0 0 6px;
+}
+.login-form-head p {
+  font-size: 13.5px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.login-form-panel .inputBox { margin: 0 0 16px; }
+
+.login-form-panel .login-btn {
+  width: 100%;
+  margin-top: 8px;
+  height: 50px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  border: none;
+  box-shadow: 0 14px 30px rgba(79, 70, 229, 0.28);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.login-form-panel .login-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 36px rgba(79, 70, 229, 0.34);
+}
+.login-form-panel .login-btn:active { transform: translateY(0); }
+
+.login-form-foot {
   text-align: center;
+  font-size: 12px;
   color: #9ca3af;
-  padding: 40px !important;
-  font-size: 14px;
+  margin: 22px 0 0;
 }
 
-.al-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 20px;
-  white-space: nowrap;
+/* Responsive: stack on small screens */
+@media (max-width: 760px) {
+  .login-card {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+  }
+  .login-brand { padding: 32px 28px; }
+  .login-brand-title { font-size: 28px; }
+  .login-brand-points { display: none; }
+  .login-form-panel { padding: 36px 28px; }
 }
-.al-badge-user   { background: #eff6ff; color: #1d4ed8; }
-.al-badge-stock  { background: #f0fdf4; color: #166534; }
-.al-badge-sales  { background: #eef2ff; color: #4338ca; }
-.al-badge-system { background: #fffbeb; color: #b45309; }
 
-.al-user-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 3px 10px;
-  border-radius: 20px;
-  background: #f5f3ff;
-  color: #6d28d9;
+/* Dark mode */
+.dark-mode .login-screen {
+  background:
+    radial-gradient(1100px 700px at 14% 18%, rgba(99,102,241,0.22), transparent 60%),
+    radial-gradient(900px 600px at 86% 82%, rgba(168,85,247,0.18), transparent 60%),
+    #0f0e24;
 }
-.al-datetime { font-size: 12px; color: #6b7280; white-space: nowrap; }
-.al-details  { font-size: 13px; color: #374151; max-width: 420px; }
-
-@media (max-width: 1100px) { .al-stats-row { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 700px)  { .al-stats-row { grid-template-columns: 1fr; } .al-filters { flex-direction: column; align-items: stretch; } }
-
-.dark-mode .al-title        { color: #e0e7ff; }
-.dark-mode .al-subtitle     { color: #818cf8; }
-.dark-mode .al-stat-card    { background: #1e1b4b; border-color: #312e81; }
-.dark-mode .al-stat-value   { color: #e0e7ff; }
-.dark-mode .al-stat-label   { color: #a5b4fc; }
-.dark-mode .al-search-wrap,
-.dark-mode .al-filters select,
-.dark-mode .al-date-filter  { background: #1e1b4b; border-color: #312e81; }
-.dark-mode .al-search-wrap input,
-.dark-mode .al-date-filter input { color: #e0e7ff; }
-.dark-mode .al-filters select    { color: #c7d2fe; }
-.dark-mode .al-date-filter label { color: #818cf8; }
-.dark-mode .al-table-wrap   { background: #1e1b4b; border-color: #312e81; }
-.dark-mode .al-table td     { border-color: #312e81; color: #c7d2fe; }
-.dark-mode .al-table tbody tr:hover { background: #262352; }
+.dark-mode .login-card { background: #181734; border-color: rgba(255,255,255,0.06); }
+.dark-mode .login-form-head h2 { color: #e0e7ff; }
+.dark-mode .login-form-head p  { color: #a5b4fc; }
+.dark-mode .login-form-foot    { color: #6b7280; }
