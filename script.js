@@ -4778,3 +4778,214 @@ btn.innerHTML = "Processing...";
   btn.innerHTML = originalText;
 
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ACTIVITY LOG
+   ══════════════════════════════════════════════════════════════════════════ */
+
+let activityLogData = [];
+
+// ── Send a log entry to the "Activity" Google Sheet ───────────────────────
+async function logActivity(type, action, details) {
+  try {
+    const user = localStorage.getItem("avaUser") || "Unknown";
+    const now  = new Date();
+    const datetime =
+      now.toLocaleDateString("en-PH", { year:"numeric", month:"numeric", day:"numeric" }) +
+      " " +
+      now.toLocaleTimeString("en-PH", { hour:"2-digit", minute:"2-digit", second:"2-digit" });
+
+    await apiRequest("logActivity", { datetime, user, type, action, details });
+  } catch(e) {
+    console.warn("logActivity silent fail:", e);
+  }
+}
+
+// ── Load from Apps Script ─────────────────────────────────────────────────
+async function loadActivityLog() {
+  const tbody = document.getElementById("activityLogTable");
+  if (!tbody) return;
+  tbody.innerHTML = `<tr><td colspan="4" class="al-empty-row">Loading...</td></tr>`;
+  try {
+    const result = await apiRequest("getActivityLog", {});
+    activityLogData = Array.isArray(result.data) ? result.data.reverse() : [];
+    _populateAlUserFilter();
+    renderActivityLog(activityLogData);
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="4" class="al-empty-row">Failed to load. Try refreshing.</td></tr>`;
+  }
+}
+
+function _populateAlUserFilter() {
+  const sel = document.getElementById("alUserFilter");
+  if (!sel) return;
+  const users = [...new Set(activityLogData.map(r => r.user).filter(Boolean))].sort();
+  sel.innerHTML = `<option value="">All Users</option>` +
+    users.map(u => `<option value="${u}">${u}</option>`).join("");
+}
+
+// ── Render ────────────────────────────────────────────────────────────────
+function renderActivityLog(data) {
+  const tbody = document.getElementById("activityLogTable");
+  if (!tbody) return;
+
+  // Summary cards — count for today
+  const todayStr = new Date().toLocaleDateString("en-PH");
+  let logins = 0, stock = 0, sales = 0, system = 0;
+  activityLogData.forEach(r => {
+    const t = (r.type || "").toLowerCase();
+    const isToday = (r.datetime || "").startsWith(todayStr);
+    if (t === "user"   && isToday && (r.action || "").toLowerCase() === "login") logins++;
+    if (t === "stock")  stock++;
+    if (t === "sales")  sales++;
+    if (t === "system") system++;
+  });
+  const setEl = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setEl("alLoginsToday",  logins);
+  setEl("alStockActions", stock);
+  setEl("alSalesActions", sales);
+  setEl("alSystemActions",system);
+
+  if (data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" class="al-empty-row">No activity records found.</td></tr>`;
+    return;
+  }
+
+  const typeMeta = {
+    user:   { label: "👤 User",   cls: "al-badge-user"   },
+    stock:  { label: "📦 Stock",  cls: "al-badge-stock"  },
+    sales:  { label: "💰 Sales",  cls: "al-badge-sales"  },
+    system: { label: "🔧 System", cls: "al-badge-system" },
+  };
+
+  let html = "";
+  data.forEach(row => {
+    const t    = (row.type || "system").toLowerCase();
+    const meta = typeMeta[t] || typeMeta.system;
+    html += `
+      <tr>
+        <td class="al-datetime">${row.datetime || "—"}</td>
+        <td><span class="al-user-pill">👤 ${row.user || "—"}</span></td>
+        <td><span class="al-badge ${meta.cls}">${meta.label}</span></td>
+        <td class="al-details"><strong>${row.action || ""}</strong>${row.details ? " — " + row.details : ""}</td>
+      </tr>`;
+  });
+  tbody.innerHTML = html;
+}
+
+// ── Filter ────────────────────────────────────────────────────────────────
+function filterActivityLog() {
+  const keyword  = (document.getElementById("alSearchInput")?.value  || "").toLowerCase();
+  const type     = (document.getElementById("alTypeFilter")?.value   || "").toLowerCase();
+  const user     = (document.getElementById("alUserFilter")?.value   || "").toLowerCase();
+  const dateFrom =  document.getElementById("alDateFrom")?.value     || "";
+  const dateTo   =  document.getElementById("alDateTo")?.value       || "";
+
+  const filtered = activityLogData.filter(row => {
+    const text = [row.datetime, row.user, row.type, row.action, row.details].join(" ").toLowerCase();
+    if (keyword && !text.includes(keyword)) return false;
+    if (type    && (row.type || "").toLowerCase() !== type) return false;
+    if (user    && (row.user || "").toLowerCase() !== user) return false;
+    if (dateFrom || dateTo) {
+      const d = (row.datetime || "").split(" ")[0];
+      if (dateFrom && d < dateFrom) return false;
+      if (dateTo   && d > dateTo)   return false;
+    }
+    return true;
+  });
+  renderActivityLog(filtered);
+}
+
+// ── Hooks into existing functions ─────────────────────────────────────────
+
+// LOGIN
+const _origLoginUser = loginUser;
+loginUser = async function() {
+  await _origLoginUser.apply(this, arguments);
+  const user = localStorage.getItem("avaUser");
+  if (user) logActivity("user", "Login", `${user} logged in`);
+};
+
+// LOGOUT
+const _origLogoutUser = logoutUser;
+logoutUser = function() {
+  const user = localStorage.getItem("avaUser") || "Unknown";
+  logActivity("user", "Logout", `${user} logged out`);
+  _origLogoutUser.apply(this, arguments);
+};
+
+// SAVE STOCK CART (Add Stock)
+const _origSaveStockCart = saveStockCart;
+saveStockCart = async function() {
+  const snap = (typeof stockCart !== "undefined") ? [...stockCart] : [];
+  await _origSaveStockCart.apply(this, arguments);
+  if (snap.length > 0) {
+    const summary = snap.map(i => `${i.product} x${i.stock}`).join(", ");
+    logActivity("stock", "Add Stock", summary);
+  }
+};
+
+// SUBMIT SALES CART (Stock Out / Sales)
+const _origSubmitSalesCart = submitSalesCart;
+submitSalesCart = async function() {
+  const snap       = (typeof salesCart !== "undefined") ? [...salesCart] : [];
+  const deductFrom = document.getElementById("deductFrom")?.value || "";
+  const salesType  = document.getElementById("salesType")?.value  || "";
+  await _origSubmitSalesCart.apply(this, arguments);
+  if (snap.length > 0) {
+    const summary = snap.map(i => `${i.product} x${i.qty}`).join(", ");
+    logActivity("sales", "Stock Out / Sale", `${deductFrom} | ${salesType} | ${summary}`);
+  }
+};
+
+// SEND TO STORE
+const _origSendToStore = sendToStore;
+sendToStore = async function() {
+  const barcode = document.getElementById("transferBarcode")?.value || "";
+  const qty     = document.getElementById("transferQty")?.value     || "";
+  const store   = document.getElementById("toStore")?.value         || "";
+  await _origSendToStore.apply(this, arguments);
+  logActivity("stock", "Send to Store", `Barcode: ${barcode} | Qty: ${qty} → ${store}`);
+};
+
+// RETURN TO WAREHOUSE
+const _origReturnToWarehouse = returnToWarehouse;
+returnToWarehouse = async function() {
+  const barcode = document.getElementById("returnBarcode")?.value || "";
+  const qty     = document.getElementById("returnQty")?.value     || "";
+  const store   = document.getElementById("fromStore")?.value     || "";
+  await _origReturnToWarehouse.apply(this, arguments);
+  logActivity("stock", "Return to Warehouse", `Barcode: ${barcode} | Qty: ${qty} ← ${store}`);
+};
+
+// REFRESH DATA
+const _origRefreshAllData = refreshAllData;
+refreshAllData = async function() {
+  await _origRefreshAllData.apply(this, arguments);
+  logActivity("system", "Manual Refresh", "Admin refreshed all data");
+};
+
+// AUTO-REFRESH
+const _origSetAutoRefresh = setAutoRefresh;
+setAutoRefresh = function(seconds) {
+  _origSetAutoRefresh.apply(this, arguments);
+  if (Number(seconds) > 0) {
+    logActivity("system", "Auto-Refresh Set", `Interval: ${seconds}s`);
+  }
+};
+
+// POS CHECKOUT
+const _origPosCheckout = posCheckout;
+posCheckout = async function() {
+  const store = localStorage.getItem("avaStore") || "Store";
+  const total = document.getElementById("posTotalAmount")?.textContent || "0";
+  await _origPosCheckout.apply(this, arguments);
+  logActivity("sales", "POS Checkout", `${store} | Total: ₱${total}`);
+};
+
+// SHOW TAB (auto-load when tab is opened)
+const _origShowTab = showTab;
+showTab = async function(tabId) {
+  await _origShowTab.apply(this, arguments);
+  if (tabId === "activity-log") loadActivityLog();
+};
