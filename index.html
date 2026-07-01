@@ -331,6 +331,7 @@
           </div>
 
           <button id="refreshBtn" class="btn blue" onclick="refreshAllData()">Refresh Data</button>
+          <button id="pwaInstallBtn" class="btn pwa-install-btn" onclick="installPWA()" style="display:none;">📲 Install App</button>
           <button id="logoutbtn" class="btn red" onclick="logoutUser()">Logout</button>
         </div>
       </div>
@@ -356,6 +357,7 @@
     <!-- Actions (outside receipt) -->
     <div class="rcpt-actions">
       <button class="rcpt-btn-print" onclick="printReceipt()">🖨️ Print</button>
+      <button class="rcpt-btn-pdf" onclick="downloadReceiptPDF()">📋 Download PDF</button>
       <button class="rcpt-btn-close" onclick="closeReceipt()">✕ Close</button>
     </div>
 
@@ -914,6 +916,9 @@
         class="so-scan-input"
         onkeydown="handleBarcodeScan(event,'outBarcode',addToSalesCart)">
     </div>
+    <button class="so-camera-btn" onclick="openCameraScanner()" title="Scan with camera">
+      📷
+    </button>
     <select id="deductFrom" class="so-select">
       <option value="Store 1">Store 1</option>
       <option value="Store 2">Store 2</option>
@@ -1867,6 +1872,39 @@ document.write(
 '<script src="script.js?v=' + version + '"><\/script>'
 );
 </script>
+
+<!-- ══ CAMERA BARCODE SCANNER MODAL ═══════════════════════════════════════ -->
+<div id="cameraScannerModal" class="cam-overlay" style="display:none;">
+  <div class="cam-box">
+    <div class="cam-header">
+      <h3>📷 Camera Scanner</h3>
+      <button class="cam-close-btn" onclick="closeCameraScanner()">✕</button>
+    </div>
+    <div class="cam-body">
+      <div class="cam-viewport-wrap">
+        <video id="camVideo" class="cam-video" autoplay playsinline muted></video>
+        <div class="cam-crosshair">
+          <div class="cam-crosshair-line cam-h"></div>
+          <div class="cam-crosshair-line cam-v"></div>
+          <div class="cam-corner cam-tl"></div>
+          <div class="cam-corner cam-tr"></div>
+          <div class="cam-corner cam-bl"></div>
+          <div class="cam-corner cam-br"></div>
+        </div>
+        <canvas id="camCanvas" style="display:none;"></canvas>
+      </div>
+      <p class="cam-hint" id="camHint">Point camera at barcode to scan</p>
+      <div id="camResult" class="cam-result" style="display:none;">
+        <span class="cam-result-label">Detected:</span>
+        <span class="cam-result-value" id="camResultValue"></span>
+      </div>
+    </div>
+    <div class="cam-footer">
+      <button class="cam-manual-btn" onclick="closeCameraScanner()">Cancel</button>
+      <button class="cam-use-btn" id="camUseBtn" onclick="useCameraResult()" style="display:none;">✅ Use Barcode</button>
+    </div>
+  </div>
+</div>
 
 <script>
 if ("serviceWorker" in navigator) {
