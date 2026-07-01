@@ -1,21 +1,26 @@
 {
-  "name": "Ava Inventory",
-  "short_name": "Ava",
-  "start_url": "./index.html",
+  "name": "AVA Inventory System",
+  "short_name": "AVA Inventory",
+  "description": "Stock, sales, and store activity — tracked in one place.",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#eef2ff",
-  "theme_color": "#4f46e5",
-  "orientation": "portrait",
+  "background_color": "#fdf6f0",
+  "theme_color": "#9d4a7a",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "logo.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "logo.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "categories": ["business", "productivity"],
+  "screenshots": []
 }
