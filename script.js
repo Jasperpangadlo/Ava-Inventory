@@ -449,6 +449,139 @@ function printReceipt(){
   win.document.close();
   setTimeout(()=>{ win.print(); win.close(); }, 400);
 }
+
+// ── Download Receipt as PDF ───────────────────────────────────────────────
+function downloadReceiptPDF(){
+  if(typeof window.jspdf === "undefined"){
+    showMessage("PDF library not loaded. Please refresh the page.", "error");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:"mm", format:[80, 200] });
+
+  const AVA_PLUM  = [107, 58, 107];
+  const AVA_CORAL = [232, 103, 74];
+
+  const store    = document.getElementById("rcptStoreName")?.textContent || "AVA Store";
+  const rcptNo   = document.getElementById("rcptNo")?.textContent || "—";
+  const rcptDate = document.getElementById("rcptDate")?.textContent || "—";
+  const rcptTime = document.getElementById("rcptTime")?.textContent || "—";
+  const cashier  = document.getElementById("rcptCashier")?.textContent || "—";
+  const total    = document.getElementById("rcptGrandTotal")?.textContent || "—";
+  const items    = document.getElementById("rcptTotalItems")?.textContent || "—";
+
+  let y = 8;
+
+  // Logo area / brand name
+  doc.setFillColor(...AVA_PLUM);
+  doc.rect(0, 0, 80, 22, "F");
+  doc.setTextColor(255,255,255);
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(14);
+  doc.text("AVA THE BRAND", 40, 10, {align:"center"});
+  doc.setFontSize(8);
+  doc.setFont("helvetica","normal");
+  doc.text(store, 40, 16, {align:"center"});
+  doc.text("Thank you for your purchase!", 40, 21, {align:"center"});
+  y = 28;
+
+  // Meta info
+  doc.setTextColor(55,65,81);
+  doc.setFontSize(8);
+  doc.setFont("helvetica","normal");
+
+  const meta = [
+    ["Receipt #", rcptNo],
+    ["Date",      rcptDate],
+    ["Time",      rcptTime],
+    ["Cashier",   cashier],
+  ];
+
+  meta.forEach(([label, val]) => {
+    doc.text(label, 4, y);
+    doc.setFont("helvetica","bold");
+    doc.text(val, 76, y, {align:"right"});
+    doc.setFont("helvetica","normal");
+    y += 5;
+  });
+
+  // Divider
+  doc.setDrawColor(200,200,200);
+  doc.setLineDash([1,1]);
+  doc.line(4, y, 76, y); y += 4;
+  doc.setLineDash([]);
+
+  // Items table header
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(7.5);
+  doc.text("Product", 4, y);
+  doc.text("Qty", 48, y, {align:"center"});
+  doc.text("Price", 62, y, {align:"right"});
+  doc.text("Total", 76, y, {align:"right"});
+  y += 2;
+  doc.setDrawColor(200,200,200);
+  doc.line(4, y, 76, y); y += 4;
+
+  // Items
+  doc.setFont("helvetica","normal");
+  const rows = document.querySelectorAll("#rcptItems .rcpt-item-row");
+  rows.forEach(row => {
+    const cells = row.querySelectorAll("td");
+    const name  = cells[0]?.querySelector(".rcpt-item-name")?.textContent || "";
+    const meta2 = cells[0]?.querySelector(".rcpt-item-meta")?.textContent || "";
+    const qty   = cells[1]?.textContent || "";
+    const price = cells[2]?.textContent || "";
+    const sub   = cells[3]?.textContent || "";
+
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(7.5);
+    doc.text(name, 4, y);
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(7);
+    if(meta2) { doc.setTextColor(120,120,120); doc.text(meta2, 4, y+3.5); doc.setTextColor(55,65,81); }
+    doc.setFontSize(7.5);
+    doc.text(qty,   48, y, {align:"center"});
+    doc.text(price, 62, y, {align:"right"});
+    doc.setFont("helvetica","bold");
+    doc.text(sub,   76, y, {align:"right"});
+    doc.setFont("helvetica","normal");
+    y += meta2 ? 8 : 6;
+  });
+
+  // Totals
+  doc.setDrawColor(200,200,200);
+  doc.setLineDash([1,1]);
+  doc.line(4, y, 76, y); y += 4;
+  doc.setLineDash([]);
+
+  doc.setFont("helvetica","normal");
+  doc.setFontSize(8);
+  doc.text("Total Items:", 4, y);
+  doc.text(items, 76, y, {align:"right"});
+  y += 5;
+
+  doc.setFillColor(...AVA_PLUM);
+  doc.rect(4, y-3, 72, 8, "F");
+  doc.setTextColor(255,255,255);
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(10);
+  doc.text("TOTAL", 8, y+2.5);
+  doc.text(total, 72, y+2.5, {align:"right"});
+  y += 12;
+
+  // Footer
+  doc.setTextColor(120,120,120);
+  doc.setFont("helvetica","normal");
+  doc.setFontSize(7);
+  doc.text("Visit us again! ♥", 40, y, {align:"center"});
+  y += 4;
+  doc.setTextColor(...AVA_CORAL);
+  doc.text("AVA THE BRAND", 40, y, {align:"center"});
+
+  doc.save(`AVA-Receipt-${rcptNo}.pdf`);
+  showMessage("✅ Receipt PDF downloaded!", "success");
+}
 // ─────────────────────────────────────────────────────────────────────────────
 
 async function loadHistoryCache(){
@@ -5233,3 +5366,162 @@ showTab = async function(tabId) {
   await _origShowTab.apply(this, arguments);
   if (tabId === "activity-log") loadActivityLog();
 };
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CAMERA BARCODE SCANNER
+   Uses BarcodeDetector API (Chrome/Edge) with canvas fallback hint
+   ══════════════════════════════════════════════════════════════════════════ */
+
+let _camStream       = null;
+let _camScanInterval = null;
+let _camDetectedCode = null;
+
+async function openCameraScanner() {
+  const modal = document.getElementById("cameraScannerModal");
+  const video = document.getElementById("camVideo");
+  const hint  = document.getElementById("camHint");
+  const result= document.getElementById("camResult");
+  const useBtn= document.getElementById("camUseBtn");
+
+  _camDetectedCode = null;
+  result.style.display = "none";
+  useBtn.style.display  = "none";
+  hint.textContent = "Starting camera...";
+  modal.style.display = "flex";
+
+  // Check BarcodeDetector support
+  if(!("BarcodeDetector" in window)){
+    hint.textContent = "❌ Camera scanning is not supported on this browser. Try Chrome or Edge on Android/Desktop.";
+    return;
+  }
+
+  try {
+    _camStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    video.srcObject = _camStream;
+    await video.play();
+    hint.textContent = "Point camera at barcode...";
+
+    const detector = new BarcodeDetector({
+      formats: ["ean_13","ean_8","code_128","code_39","qr_code","upc_a","upc_e","codabar","itf"]
+    });
+
+    _camScanInterval = setInterval(async () => {
+      if(video.readyState !== video.HAVE_ENOUGH_DATA) return;
+      try {
+        const barcodes = await detector.detect(video);
+        if(barcodes.length > 0){
+          const code = barcodes[0].rawValue;
+          if(code && code !== _camDetectedCode){
+            _camDetectedCode = code;
+            document.getElementById("camResultValue").textContent = code;
+            result.style.display = "flex";
+            useBtn.style.display  = "inline-flex";
+            hint.textContent = "✅ Barcode detected!";
+            // Flash effect
+            video.style.outline = "3px solid #e8674a";
+            setTimeout(()=>{ video.style.outline = "none"; }, 500);
+          }
+        }
+      } catch(err) {
+        // Silent — keep scanning
+      }
+    }, 300);
+
+  } catch(err) {
+    if(err.name === "NotAllowedError"){
+      hint.textContent = "❌ Camera access denied. Please allow camera permission and try again.";
+    } else {
+      hint.textContent = `❌ Camera error: ${err.message}`;
+    }
+    closeCameraScanner();
+  }
+}
+
+function closeCameraScanner() {
+  clearInterval(_camScanInterval);
+  _camScanInterval = null;
+
+  if(_camStream){
+    _camStream.getTracks().forEach(t => t.stop());
+    _camStream = null;
+  }
+
+  const video = document.getElementById("camVideo");
+  if(video) video.srcObject = null;
+
+  document.getElementById("cameraScannerModal").style.display = "none";
+  _camDetectedCode = null;
+}
+
+function useCameraResult() {
+  if(!_camDetectedCode) return;
+
+  // Put scanned barcode into the outBarcode input
+  const input = document.getElementById("outBarcode");
+  if(input){
+    input.value = _camDetectedCode;
+    input.focus();
+  }
+
+  closeCameraScanner();
+
+  // Auto-add to cart after short delay
+  setTimeout(() => { addToSalesCart(); }, 150);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PWA — Install Prompt
+   ══════════════════════════════════════════════════════════════════════════ */
+
+let _pwaInstallPrompt = null;
+
+// Capture the install prompt event
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  _pwaInstallPrompt = e;
+
+  // Show install button
+  const btn = document.getElementById("pwaInstallBtn");
+  if(btn) btn.style.display = "inline-flex";
+
+  // Also show in-app notification
+  addNotification("info",
+    "📲 Install AVA Inventory",
+    "Install this app on your device for faster access! Click 'Install App' to get started."
+  );
+});
+
+// Handle install button click
+async function installPWA() {
+  if(!_pwaInstallPrompt){
+    showMessage("App is already installed or install is not available on this browser.", "info");
+    return;
+  }
+
+  const btn = document.getElementById("pwaInstallBtn");
+  if(btn){ btn.textContent = "Installing..."; btn.disabled = true; }
+
+  _pwaInstallPrompt.prompt();
+  const { outcome } = await _pwaInstallPrompt.userChoice;
+
+  if(outcome === "accepted"){
+    addNotification("success", "✅ App Installed!", "AVA Inventory has been installed on your device.");
+    showMessage("✅ App installed successfully!", "success");
+    if(btn) btn.style.display = "none";
+  } else {
+    if(btn){ btn.textContent = "📲 Install App"; btn.disabled = false; }
+  }
+
+  _pwaInstallPrompt = null;
+}
+
+// Hide install button once app is installed
+window.addEventListener("appinstalled", () => {
+  const btn = document.getElementById("pwaInstallBtn");
+  if(btn) btn.style.display = "none";
+  _pwaInstallPrompt = null;
+  addNotification("success", "✅ App Installed!", "AVA Inventory is now installed on your device.");
+});
