@@ -3959,7 +3959,7 @@ tbody tr:hover {
 /* Scan Row */
 .so-scan-row {
   display: grid;
-  grid-template-columns: 1fr 160px 160px 80px;
+  grid-template-columns: 1fr 46px 150px 140px 80px;
   gap: 10px;
   margin-bottom: 16px;
   align-items: center;
@@ -6501,31 +6501,3 @@ tbody tr:hover {
   .cam-box { max-width: 100%; border-radius: 16px 16px 0 0; }
   .cam-overlay { align-items: flex-end; padding: 0; }
 }
-
-/* ══════════════════════════════════════════════════════════════════════════
-   PWA Install Button
-   ══════════════════════════════════════════════════════════════════════════ */
-
-.pwa-install-btn {
-  display: inline-flex !important;
-  align-items: center;
-  gap: 6px;
-  background: linear-gradient(135deg, #9d4a7a, #6b3a6b) !important;
-  color: #fff !important;
-  font-weight: 700;
-  font-size: 13px;
-  padding: 0 16px;
-  height: 38px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(107,58,107,0.30);
-  animation: pwa-pulse 2s infinite;
-}
-
-@keyframes pwa-pulse {
-  0%, 100% { box-shadow: 0 4px 12px rgba(107,58,107,0.30); }
-  50%       { box-shadow: 0 4px 20px rgba(107,58,107,0.55); }
-}
-
-.pwa-install-btn:hover { opacity: 0.88; animation: none; }
