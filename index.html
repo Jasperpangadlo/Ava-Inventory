@@ -13,10 +13,15 @@
   </script>
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SheetJS for Excel export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- jsPDF for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#4f46e5">
-  
+  <meta name="theme-color" content="#9d4a7a">
+
 </head>
 
 <body>
@@ -1160,8 +1165,18 @@
         <option value="monthly">Monthly Best Seller</option>
         <option value="best">Best Sellers</option>
       </select>
-      <button id="printReportBtn" class="btn" style="background:#1e1b4b;" onclick="printReports()">🖨️ Print</button>
-      <button class="btn green" onclick="exportReportsCSV()">⬇️ Export CSV</button>
+      <button id="printReportBtn" class="btn" style="background:#6b3a6b;" onclick="printReports()">🖨️ Print</button>
+      <div class="export-btn-group">
+        <button class="btn export-btn export-csv" onclick="exportReportsCSV()" title="Export as CSV">
+          <span class="export-icon">📄</span> CSV
+        </button>
+        <button class="btn export-btn export-excel" onclick="exportReportsExcel()" title="Export as Excel">
+          <span class="export-icon">📊</span> Excel
+        </button>
+        <button class="btn export-btn export-pdf" onclick="exportReportsPDF()" title="Export as PDF">
+          <span class="export-icon">📋</span> PDF
+        </button>
+      </div>
     </div>
 
     <!-- Row 2: Custom date pickers (only shows when Custom is selected) -->
