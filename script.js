@@ -5,8 +5,14 @@ let allProducts = [];
 let storeProducts = [];
 let historyCache = [];
 
+// ⚡ O(1) barcode lookup Maps — replaces slow .find() loops
+let productByBarcode = new Map();
+let storeByBarcode   = new Map();
+
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6K3N58inD_aZdmVA6yilTyxSSEE34ng_GXNviFvDTBLdXocmhBppWeCv4U9bcKr-3/exec";
-                      
+
+// ⚡ DOM shortcut — replaces all document.getElementById() calls
+const $ = id => document.getElementById(id);
 
 async function apiRequest(action, payload = {}, _retries = 3) {
 
@@ -110,10 +116,10 @@ async function lookupBarcode(barcode){
   label.textContent   = "Barcode: " + barcode;
   content.innerHTML   = `<div class="blm-loading">🔍 Searching...</div>`;
 
-  // Search in warehouse
-  const warehouseMatch = allProducts.filter(p =>
-    String(p.barcode).trim().toLowerCase() === barcode.toLowerCase()
-  );
+  // ⚡ O(1) warehouse lookup via Map
+  const warehouseMatch = productByBarcode.has(barcode.toLowerCase())
+    ? [productByBarcode.get(barcode.toLowerCase())]
+    : allProducts.filter(p => String(p.barcode).trim().toLowerCase() === barcode.toLowerCase());
 
   // Search in store inventory
   const storeMatch = storeProducts.filter(p =>
@@ -504,6 +510,10 @@ async function loadProducts() {
 
   allProducts = products;
 
+  // ⚡ Build O(1) index after every load
+  productByBarcode.clear();
+  products.forEach(p => productByBarcode.set(String(p.barcode).trim(), p));
+
   const table = document.getElementById("productTable");
 
   let totalStock = 0;
@@ -716,9 +726,8 @@ function addToSalesCart(){
     return;
   }
 
-  const found = allProducts.find(p =>
-    String(p.barcode).trim() === barcode
-  );
+  // ⚡ O(1) lookup via Map
+  const found = productByBarcode.get(barcode);
 
   // If already in cart, just increment qty
   const existing = salesCart.find(i => i.barcode === barcode);
@@ -984,9 +993,8 @@ function autoFillProduct() {
     return;
   }
 
-  const found = allProducts.find(item =>
-    String(item.barcode).trim() === barcode
-  );
+  // ⚡ O(1) lookup via Map instead of .find() loop
+  const found = productByBarcode.get(barcode);
 
   if (!found) return;
 
@@ -1147,39 +1155,18 @@ async function showTab(tabId){
     activeLink.classList.add("active");
   }
 
-  // LOAD DATA ONLY WHEN OPENED
+  // ⚡ Jobs object pattern — cleaner than multiple if statements
+  const tabJobs = {
+    products:       () => loadProducts(),
+    history:        () => loadHistory(),
+    store:          () => loadStoreProducts(),
+    "sold-items":   () => loadSoldItems(),
+    reports:        () => Promise.all([loadDailyReports(), loadBestSellers(), loadSalesTrendChart()]),
+    dashboard:      () => Promise.all([loadWeeklyStockChart(), updateStoreSalesToday(), loadTransactionTimeline()]),
+    "activity-log": () => loadActivityLog()
+  };
 
-  if(tabId === "products"){
-    await loadProducts();
-  }
-
-  if(tabId === "history"){
-    await loadHistory();
-  }
-
-  if(tabId === "store"){
-    await loadStoreProducts();
-  }
-
-  if(tabId === "sold-items"){
-    await loadSoldItems();
-  }
-
-  if(tabId === "reports"){
-    await Promise.all([
-      loadDailyReports(),
-      loadBestSellers(),
-      loadSalesTrendChart()
-    ]);
-  }
-
-  if(tabId === "dashboard"){
-    await Promise.all([
-      loadWeeklyStockChart(),
-      updateStoreSalesToday(),
-      loadTransactionTimeline()
-    ]);
-  }
+  if(tabJobs[tabId]) await tabJobs[tabId]();
 
   if(tabId === "add-stock"){
     setTimeout(()=>{
@@ -1195,6 +1182,10 @@ async function loadStoreProducts() {
   const products = result.products || [];
 
   storeProducts = products;
+
+  // ⚡ Build O(1) index
+  storeByBarcode.clear();
+  products.forEach(p => storeByBarcode.set(String(p.barcode).trim(), p));
 
   const table = document.getElementById("storeTable");
 
@@ -3470,46 +3461,22 @@ btn.innerHTML = btn.dataset.originalText;
 
 }
 
+// ⚡ Shared flash helper — removes duplicate code in success/error
+function _flashBtn(btn, text, cls){
+  if(!btn) return;
+  btn.classList.remove("is-loading");
+  btn.classList.add(cls);
+  const orig = btn.dataset.originalText || btn.innerHTML;
+  btn.innerHTML = text;
+  setTimeout(()=>{ btn.classList.remove(cls); btn.innerHTML = orig; }, 1200);
+}
+
 function setButtonSuccess(btn, text="✓ Success"){
-
-if(!btn) return;
-
-btn.classList.remove("is-loading");
-btn.classList.add("is-success");
-
-const originalText =
-btn.dataset.originalText || btn.innerHTML;
-
-btn.innerHTML = text;
-
-setTimeout(()=>{
-
-btn.classList.remove("is-success");
-btn.innerHTML = originalText;
-
-},1200);
-
+  _flashBtn(btn, text, "is-success");
 }
 
 function setButtonError(btn, text="✕ Failed"){
-
-if(!btn) return;
-
-btn.classList.remove("is-loading");
-btn.classList.add("is-error");
-
-const originalText =
-btn.dataset.originalText || btn.innerHTML;
-
-btn.innerHTML = text;
-
-setTimeout(()=>{
-
-btn.classList.remove("is-error");
-btn.innerHTML = originalText;
-
-},1200);
-
+  _flashBtn(btn, text, "is-error");
 }
 
 function setCurrentBestSellerFilters(){
