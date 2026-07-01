@@ -6301,3 +6301,327 @@ tbody tr:hover {
 .dark-mode .al-table-wrap   { background: #1e1b4b; border-color: #312e81; }
 .dark-mode .al-table td     { border-color: #312e81; color: #c7d2fe; }
 .dark-mode .al-table tbody tr:hover { background: #262352; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   AVA THE BRAND THEME OVERRIDE
+   Colors: Coral-orange #E8522A | Lavender #C9B8D4 | Warm sand #F5EFE8
+   Fonts: Cormorant Garamond (headings) + Montserrat (body/nav)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+/* ── CSS Variables ────────────────────────────────────────────────────── */
+:root {
+  --ava-coral:       #E8522A;
+  --ava-coral-dark:  #C8411C;
+  --ava-coral-light: #F2784F;
+  --ava-lavender:    #C9B8D4;
+  --ava-lavender-bg: #EDE5F4;
+  --ava-sand:        #F5EFE8;
+  --ava-sand-dark:   #E8DDD0;
+  --ava-cream:       #FAF7F4;
+  --ava-dark:        #1A0F0A;
+  --ava-text:        #3D2B1F;
+  --ava-muted:       #8C7B6E;
+}
+
+/* ── Global Font ──────────────────────────────────────────────────────── */
+* {
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+h1, h2, h3, h4,
+.login-brand-title,
+.topbar h2,
+.card-title,
+.al-title, .si-title, .hi-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+/* ── Body Background ──────────────────────────────────────────────────── */
+body {
+  background: linear-gradient(135deg, var(--ava-cream), var(--ava-sand), #F0E8E0) !important;
+}
+
+/* ── Sidebar ──────────────────────────────────────────────────────────── */
+aside {
+  background: var(--ava-dark) !important;
+}
+
+aside h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+aside a:hover,
+aside a.active {
+  background: var(--ava-coral) !important;
+}
+
+aside a.active {
+  border-left-color: var(--ava-lavender) !important;
+}
+
+/* ── Primary Buttons ──────────────────────────────────────────────────── */
+.btn {
+  background: linear-gradient(135deg, var(--ava-coral-light), var(--ava-coral)) !important;
+  box-shadow: 0 2px 8px rgba(232,82,42,.25) !important;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 12px !important;
+}
+
+.btn:hover {
+  background: linear-gradient(135deg, var(--ava-coral), var(--ava-coral-dark)) !important;
+  box-shadow: 0 6px 18px rgba(232,82,42,.38) !important;
+}
+
+.btn:active {
+  box-shadow: 0 2px 6px rgba(232,82,42,.2) !important;
+}
+
+.btn.blue {
+  background: linear-gradient(135deg, var(--ava-lavender), #A889BE) !important;
+  box-shadow: 0 2px 8px rgba(168,137,190,.3) !important;
+}
+
+/* ── Table Headers ────────────────────────────────────────────────────── */
+th,
+#products th,
+#store th,
+.si-table thead tr,
+.hi-table thead tr {
+  background: linear-gradient(135deg, var(--ava-dark), var(--ava-text)) !important;
+  color: var(--ava-lavender) !important;
+}
+
+/* ── Topbar Headings ──────────────────────────────────────────────────── */
+.topbar h2 {
+  color: var(--ava-text) !important;
+  font-size: 34px !important;
+  font-style: italic;
+}
+
+/* ── Cards ────────────────────────────────────────────────────────────── */
+.card h3 { color: var(--ava-text) !important; }
+.card p   { color: var(--ava-muted) !important; }
+
+.dashboard-card:nth-child(1) { border-top-color: var(--ava-coral) !important; }
+.dashboard-card:nth-child(2) { border-top-color: var(--ava-lavender) !important; }
+.dashboard-card:nth-child(3) { border-top-color: var(--ava-sand-dark) !important; }
+.dashboard-card:nth-child(4) { border-top-color: #ef4444 !important; }
+
+/* ── Panel & Section Cards ─────────────────────────────────────────────── */
+.panel h3,
+.section-card h3,
+.report-card h4,
+.card-title {
+  color: var(--ava-text) !important;
+}
+
+/* ── Barcode pills / accent text ──────────────────────────────────────── */
+#products td:first-child,
+#store td:first-child {
+  color: var(--ava-coral) !important;
+}
+
+/* ── Location badge ───────────────────────────────────────────────────── */
+.location-tag {
+  background: var(--ava-lavender-bg) !important;
+  color: #7B5EA7 !important;
+}
+
+/* ── Preview badge ────────────────────────────────────────────────────── */
+.preview-badge {
+  background: #FDE8E0 !important;
+  color: var(--ava-coral) !important;
+}
+
+/* ── Best seller rank badge ───────────────────────────────────────────── */
+.rank-badge {
+  background: linear-gradient(135deg, var(--ava-coral), var(--ava-coral-dark)) !important;
+}
+
+/* ── Best seller qty pill ─────────────────────────────────────────────── */
+.best-seller-qty {
+  background: #FDE8E0 !important;
+  color: var(--ava-coral) !important;
+}
+
+/* ── Best seller name ─────────────────────────────────────────────────── */
+.best-seller-name {
+  color: var(--ava-text) !important;
+}
+
+/* ── Reports hero ─────────────────────────────────────────────────────── */
+.reports-hero {
+  background: linear-gradient(135deg, var(--ava-dark), var(--ava-text)) !important;
+  box-shadow: 0 25px 60px rgba(26,15,10,.3) !important;
+}
+
+/* ── Store revenue card h2 ────────────────────────────────────────────── */
+.store-revenue-card h2,
+.report-kpi-card h2 {
+  background: linear-gradient(135deg, var(--ava-coral), var(--ava-coral-dark)) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* ── Store revenue card decoration ───────────────────────────────────── */
+.store-revenue-card::before {
+  background: linear-gradient(135deg, var(--ava-coral), var(--ava-lavender)) !important;
+}
+
+/* ── Ranking & progress bars ──────────────────────────────────────────── */
+.ranking-bar div,
+.store-progress div,
+.chart-bar div {
+  background: linear-gradient(135deg, var(--ava-coral), var(--ava-coral-dark)) !important;
+  box-shadow: 0 0 14px rgba(232,82,42,.35) !important;
+}
+
+/* ── Report sales total pill ──────────────────────────────────────────── */
+.report-sales-total {
+  background: #FDE8E0 !important;
+  color: var(--ava-coral) !important;
+}
+
+/* ── Loader ring ──────────────────────────────────────────────────────── */
+.loader-ring {
+  border-color: var(--ava-sand-dark) !important;
+  border-top-color: var(--ava-coral) !important;
+}
+
+/* ── Button states ────────────────────────────────────────────────────── */
+.btn.is-success {
+  background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+}
+.btn.is-error {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+}
+
+/* ── MSG modal button ─────────────────────────────────────────────────── */
+.msg-box button {
+  background: linear-gradient(135deg, var(--ava-coral-light), var(--ava-coral)) !important;
+  box-shadow: 0 2px 8px rgba(232,82,42,.25) !important;
+}
+
+/* ── Barcode lookup modal header ──────────────────────────────────────── */
+.blm-header {
+  background: linear-gradient(135deg, var(--ava-dark), var(--ava-text)) !important;
+}
+
+.blm-section-title {
+  color: var(--ava-coral) !important;
+  border-bottom-color: #FDE8E0 !important;
+}
+
+.blm-tag {
+  background: #FDE8E0 !important;
+  color: var(--ava-coral) !important;
+}
+
+.blm-price { color: var(--ava-coral) !important; }
+
+/* ── Notification panel header ────────────────────────────────────────── */
+.notif-panel-header {
+  background: linear-gradient(135deg, var(--ava-dark), var(--ava-text)) !important;
+}
+
+.notif-bell:hover {
+  background: #FDE8E0 !important;
+  border-color: var(--ava-coral) !important;
+}
+
+/* ── Activity log refresh btn ─────────────────────────────────────────── */
+.al-refresh-btn {
+  background: linear-gradient(135deg, var(--ava-coral-light), var(--ava-coral)) !important;
+}
+
+/* ── LOGIN SCREEN ─────────────────────────────────────────────────────── */
+.login-screen {
+  background:
+    radial-gradient(1100px 700px at 14% 18%, rgba(232,82,42,0.12), transparent 60%),
+    radial-gradient(900px 600px at 86% 82%, rgba(201,184,212,0.18), transparent 60%),
+    var(--ava-cream) !important;
+}
+
+/* Left brand panel */
+.login-brand {
+  background: linear-gradient(155deg, var(--ava-dark) 0%, var(--ava-text) 55%, #5C3A2A 100%) !important;
+}
+
+.login-brand-title {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.lp-dot {
+  background: var(--ava-lavender) !important;
+  box-shadow: 0 0 0 4px rgba(201,184,212,0.22) !important;
+}
+
+/* Login button */
+.login-form-panel .login-btn {
+  background: linear-gradient(135deg, var(--ava-coral-light), var(--ava-coral)) !important;
+  box-shadow: 0 14px 30px rgba(232,82,42,.28) !important;
+}
+.login-form-panel .login-btn:hover {
+  box-shadow: 0 18px 36px rgba(232,82,42,.38) !important;
+}
+
+/* Form heading */
+.login-form-head h2 {
+  font-family: 'Cormorant Garamond', serif !important;
+  color: var(--ava-text) !important;
+  font-size: 30px !important;
+  font-style: italic;
+}
+
+/* ── POS Screen ───────────────────────────────────────────────────────── */
+#posScreen {
+  background: linear-gradient(135deg, var(--ava-dark), var(--ava-text)) !important;
+}
+
+.pos-checkout-btn {
+  background: linear-gradient(135deg, var(--ava-coral-light), var(--ava-coral)) !important;
+  box-shadow: 0 8px 20px rgba(232,82,42,.35) !important;
+}
+
+/* ── Topbar search / barcode lookup btn ──────────────────────────────── */
+.topbar-barcode-btn,
+.topbar-lookup-btn {
+  background: #FDE8E0 !important;
+  border-color: #F2C4B0 !important;
+  color: var(--ava-coral) !important;
+}
+
+/* ── Focus ring on inputs ─────────────────────────────────────────────── */
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--ava-coral) !important;
+  box-shadow: 0 0 0 3px rgba(232,82,42,.12) !important;
+}
+
+/* ── SI / HI barcode pills ────────────────────────────────────────────── */
+#soldItemsTable .si-barcode-pill {
+  background: #FDE8E0 !important;
+  color: var(--ava-coral) !important;
+}
+
+/* ── Dark mode overrides ──────────────────────────────────────────────── */
+.dark-mode .login-screen {
+  background:
+    radial-gradient(1100px 700px at 14% 18%, rgba(232,82,42,.2), transparent 60%),
+    radial-gradient(900px 600px at 86% 82%, rgba(201,184,212,.15), transparent 60%),
+    #0f0a08 !important;
+}
+.dark-mode .login-card { background: #1A0F0A !important; border-color: rgba(255,255,255,0.06) !important; }
+.dark-mode .login-form-head h2 { color: var(--ava-sand) !important; }
+.dark-mode .login-form-head p  { color: var(--ava-lavender) !important; }
