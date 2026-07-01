@@ -2748,6 +2748,294 @@ function exportReportsCSV(){
   showMessage("CSV exported successfully!", "success");
 }
 
+// ── Excel Export (.xlsx) ──────────────────────────────────────────────────
+function exportReportsExcel(){
+  if(typeof XLSX === "undefined"){
+    showMessage("Excel library not loaded. Please refresh the page.", "error");
+    return;
+  }
+
+  const history = getFilteredHistory();
+  if(!history.length){ showMessage("Walang data para i-export.", "warning"); return; }
+
+  const wb = XLSX.utils.book_new();
+  const dateLabel = _activeDateRange.from === _activeDateRange.to
+    ? _activeDateRange.from
+    : `${_activeDateRange.from} to ${_activeDateRange.to}`;
+
+  // ── Sheet 1: Sales History ────────────────────────────────────────────
+  const salesRows = [["Date/Time","Barcode","Product","Color","Size","Qty","Price (₱)","Total (₱)","Remarks"]];
+  let totalRevenue = 0, totalQty = 0;
+  history.forEach(item => {
+    salesRows.push([
+      item.datetime||"", item.barcode||"", item.product||"",
+      item.color||"", item.size||"", Number(item.qty)||0,
+      Number(item.price)||0, Number(item.total)||0, item.remarks||""
+    ]);
+    totalRevenue += Number(item.total)||0;
+    totalQty     += Number(item.qty)||0;
+  });
+  salesRows.push([]);
+  salesRows.push(["","","","","","TOTAL QTY:", totalQty, "TOTAL REVENUE:", `₱${totalRevenue.toLocaleString()}`]);
+
+  const wsSales = XLSX.utils.aoa_to_sheet(salesRows);
+  wsSales["!cols"] = [
+    {wch:20},{wch:16},{wch:18},{wch:14},{wch:8},
+    {wch:8},{wch:12},{wch:14},{wch:22}
+  ];
+  XLSX.utils.book_append_sheet(wb, wsSales, "Sales History");
+
+  // ── Sheet 2: Inventory Summary ────────────────────────────────────────
+  if(allProducts && allProducts.length){
+    const invRows = [["Barcode","Product","Category","Color","Size","Stock","Price (₱)","Location","Status"]];
+    allProducts.forEach(p => {
+      const stock = Number(p.stock)||0;
+      const status = stock === 0 ? "Out of Stock" : stock <= 5 ? "Low Stock" : "In Stock";
+      invRows.push([
+        p.barcode||"", p.product||"", p.category||"",
+        p.color||"", p.size||"", stock,
+        Number(p.price)||0, p.location||"Warehouse", status
+      ]);
+    });
+    const wsInv = XLSX.utils.aoa_to_sheet(invRows);
+    wsInv["!cols"] = [
+      {wch:16},{wch:18},{wch:16},{wch:14},{wch:8},
+      {wch:8},{wch:12},{wch:14},{wch:14}
+    ];
+    XLSX.utils.book_append_sheet(wb, wsInv, "Inventory");
+  }
+
+  // ── Sheet 3: Product Summary ──────────────────────────────────────────
+  const productMap = {};
+  history.forEach(item => {
+    const key = `${item.product||""} - ${item.color||""} ${item.size||""}`;
+    if(!productMap[key]) productMap[key] = { product: item.product||"", color: item.color||"", size: item.size||"", totalQty: 0, totalRevenue: 0 };
+    productMap[key].totalQty     += Number(item.qty)||0;
+    productMap[key].totalRevenue += Number(item.total)||0;
+  });
+  const summaryRows = [["Product","Color","Size","Total Qty Sold","Total Revenue (₱)"]];
+  Object.values(productMap)
+    .sort((a,b) => b.totalRevenue - a.totalRevenue)
+    .forEach(p => summaryRows.push([p.product, p.color, p.size, p.totalQty, p.totalRevenue]));
+  const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+  wsSummary["!cols"] = [{wch:18},{wch:14},{wch:8},{wch:16},{wch:18}];
+  XLSX.utils.book_append_sheet(wb, wsSummary, "Product Summary");
+
+  // ── Download ──────────────────────────────────────────────────────────
+  const filename = `AVA-Report-${_activeDateRange.from||formatDate(new Date())}.xlsx`;
+  XLSX.writeFile(wb, filename);
+  showMessage("✅ Excel exported successfully!", "success");
+}
+
+// ── PDF Export ────────────────────────────────────────────────────────────
+async function exportReportsPDF(){
+  if(typeof window.jspdf === "undefined"){
+    showMessage("PDF library not loaded. Please refresh the page.", "error");
+    return;
+  }
+
+  const history = getFilteredHistory();
+  if(!history.length){ showMessage("Walang data para i-export.", "warning"); return; }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+
+  const dateLabel = _activeDateRange.from === _activeDateRange.to
+    ? _activeDateRange.from
+    : `${_activeDateRange.from} to ${_activeDateRange.to}`;
+
+  const AVA_PLUM   = [107, 58, 107];
+  const AVA_CORAL  = [232, 103, 74];
+  const AVA_LIGHT  = [253, 240, 236];
+
+  // ── Page 1: Sales History ─────────────────────────────────────────────
+  // Header bar
+  doc.setFillColor(...AVA_PLUM);
+  doc.rect(0, 0, 297, 22, "F");
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  doc.text("AVA THE BRAND — Sales Report", 14, 10);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Period: ${dateLabel}`, 14, 17);
+
+  // Summary bar
+  const totalRevenue = history.reduce((s,i)=>s+(Number(i.total)||0), 0);
+  const totalQty     = history.reduce((s,i)=>s+(Number(i.qty)||0), 0);
+  const totalTxns    = history.length;
+
+  doc.setFillColor(...AVA_LIGHT);
+  doc.rect(0, 22, 297, 16, "F");
+  doc.setTextColor(...AVA_PLUM);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.text(`Total Revenue: ₱${totalRevenue.toLocaleString()}`, 14, 32);
+  doc.text(`Total Items Sold: ${totalQty}`, 90, 32);
+  doc.text(`Total Transactions: ${totalTxns}`, 170, 32);
+  doc.text(`Generated: ${new Date().toLocaleDateString("en-PH")}`, 230, 32);
+
+  // Sales table
+  const salesBody = history.slice(0, 500).map(item => [
+    item.datetime||"", item.barcode||"", item.product||"",
+    item.color||"", item.size||"",
+    String(item.qty||0), `₱${Number(item.price||0).toLocaleString()}`,
+    `₱${Number(item.total||0).toLocaleString()}`, item.remarks||""
+  ]);
+
+  doc.autoTable({
+    startY: 40,
+    head: [["Date/Time","Barcode","Product","Color","Size","Qty","Price","Total","Remarks"]],
+    body: salesBody,
+    theme: "grid",
+    headStyles: {
+      fillColor: AVA_PLUM,
+      textColor: [255,255,255],
+      fontStyle: "bold",
+      fontSize: 8
+    },
+    bodyStyles: { fontSize: 7.5, textColor: [55, 65, 81] },
+    alternateRowStyles: { fillColor: [253, 246, 240] },
+    columnStyles: {
+      0: {cellWidth: 32}, 1: {cellWidth: 24}, 2: {cellWidth: 28},
+      3: {cellWidth: 20}, 4: {cellWidth: 10}, 5: {cellWidth: 10},
+      6: {cellWidth: 18}, 7: {cellWidth: 20}, 8: {cellWidth: 38}
+    },
+    margin: { left: 14, right: 14 }
+  });
+
+  // ── Page 2: Inventory Summary ─────────────────────────────────────────
+  if(allProducts && allProducts.length){
+    doc.addPage();
+
+    doc.setFillColor(...AVA_PLUM);
+    doc.rect(0, 0, 297, 22, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("AVA THE BRAND — Inventory Report", 14, 10);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Generated: ${new Date().toLocaleDateString("en-PH")}`, 14, 17);
+
+    const totalStock   = allProducts.reduce((s,p)=>s+(Number(p.stock)||0), 0);
+    const lowCount     = allProducts.filter(p=>Number(p.stock)>0&&Number(p.stock)<=5).length;
+    const outCount     = allProducts.filter(p=>Number(p.stock)===0).length;
+
+    doc.setFillColor(...AVA_LIGHT);
+    doc.rect(0, 22, 297, 16, "F");
+    doc.setTextColor(...AVA_PLUM);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Total Products: ${allProducts.length}`, 14, 32);
+    doc.text(`Total Stock: ${totalStock}`, 80, 32);
+    doc.text(`Low Stock: ${lowCount}`, 150, 32);
+    doc.text(`Out of Stock: ${outCount}`, 210, 32);
+
+    const invBody = allProducts.map(p => {
+      const stock = Number(p.stock)||0;
+      const status = stock === 0 ? "OUT" : stock <= 5 ? "LOW" : "OK";
+      return [
+        p.barcode||"", p.product||"", p.category||"",
+        p.color||"", p.size||"", String(stock),
+        `₱${Number(p.price||0).toLocaleString()}`,
+        p.location||"Warehouse", status
+      ];
+    });
+
+    doc.autoTable({
+      startY: 40,
+      head: [["Barcode","Product","Category","Color","Size","Stock","Price","Location","Status"]],
+      body: invBody,
+      theme: "grid",
+      headStyles: { fillColor: AVA_PLUM, textColor: [255,255,255], fontStyle: "bold", fontSize: 8 },
+      bodyStyles: { fontSize: 7.5, textColor: [55,65,81] },
+      alternateRowStyles: { fillColor: [253,246,240] },
+      columnStyles: {
+        0:{cellWidth:26}, 1:{cellWidth:30}, 2:{cellWidth:24},
+        3:{cellWidth:20}, 4:{cellWidth:10}, 5:{cellWidth:14},
+        6:{cellWidth:20}, 7:{cellWidth:24}, 8:{cellWidth:16}
+      },
+      didDrawCell: (data) => {
+        if(data.section === "body" && data.column.index === 8){
+          const val = data.cell.raw;
+          if(val === "OUT") doc.setTextColor(220, 38, 38);
+          else if(val === "LOW") doc.setTextColor(180, 83, 9);
+          else doc.setTextColor(21, 128, 61);
+        }
+      },
+      margin: { left: 14, right: 14 }
+    });
+  }
+
+  // ── Page 3: Best Sellers ──────────────────────────────────────────────
+  const productMap = {};
+  history.forEach(item => {
+    const key = item.product||"Unknown";
+    if(!productMap[key]) productMap[key] = { totalQty:0, totalRevenue:0 };
+    productMap[key].totalQty     += Number(item.qty)||0;
+    productMap[key].totalRevenue += Number(item.total)||0;
+  });
+
+  const bestSellers = Object.entries(productMap)
+    .sort((a,b)=>b[1].totalRevenue-a[1].totalRevenue)
+    .slice(0,20);
+
+  if(bestSellers.length){
+    doc.addPage();
+
+    doc.setFillColor(...AVA_PLUM);
+    doc.rect(0, 0, 297, 22, "F");
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(16);
+    doc.setFont("helvetica","bold");
+    doc.text("AVA THE BRAND — Best Sellers", 14, 10);
+    doc.setFontSize(10);
+    doc.setFont("helvetica","normal");
+    doc.text(`Period: ${dateLabel}`, 14, 17);
+
+    doc.autoTable({
+      startY: 28,
+      head: [["Rank","Product","Total Qty Sold","Total Revenue"]],
+      body: bestSellers.map(([name, data], i) => [
+        `#${i+1}`, name,
+        String(data.totalQty),
+        `₱${data.totalRevenue.toLocaleString()}`
+      ]),
+      theme: "grid",
+      headStyles: { fillColor: AVA_PLUM, textColor:[255,255,255], fontStyle:"bold", fontSize:10 },
+      bodyStyles: { fontSize:9, textColor:[55,65,81] },
+      alternateRowStyles: { fillColor:[253,246,240] },
+      columnStyles: {
+        0:{cellWidth:16,halign:"center"},
+        1:{cellWidth:80},
+        2:{cellWidth:40,halign:"center"},
+        3:{cellWidth:50,halign:"right"}
+      },
+      margin: { left: 14, right: 14 }
+    });
+  }
+
+  // ── Footer on all pages ───────────────────────────────────────────────
+  const pageCount = doc.getNumberOfPages();
+  for(let i = 1; i <= pageCount; i++){
+    doc.setPage(i);
+    doc.setFillColor(...AVA_PLUM);
+    doc.rect(0, 198, 297, 12, "F");
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(8);
+    doc.setFont("helvetica","normal");
+    doc.text("AVA The Brand — Inventory System", 14, 206);
+    doc.text(`Page ${i} of ${pageCount}`, 260, 206);
+  }
+
+  // ── Save ──────────────────────────────────────────────────────────────
+  const filename = `AVA-Report-${_activeDateRange.from||formatDate(new Date())}.pdf`;
+  doc.save(filename);
+  showMessage("✅ PDF exported successfully!", "success");
+}
+
 // ── Store Comparison Bar Chart ────────────────────────────────────────────
 let storeComparisonChart = null;
 let salesBreakdownChart  = null;
