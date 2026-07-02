@@ -1,4 +1,4 @@
-const CACHE_NAME = "ava-inventory-v59";
+const CACHE_NAME = "ava-inventory-v60";
 
 // Files to cache for offline access
 const STATIC_ASSETS = [
@@ -40,46 +40,48 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Fetch — network first, fallback to cache
+// Fetch strategy
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
-  // Always fetch Google Apps Script requests from network (never cache)
+  // Always network for Google Apps Script
   if(url.hostname === "script.google.com"){
     event.respondWith(fetch(event.request));
     return;
   }
 
-  // Network first strategy for HTML
-  if(event.request.mode === "navigate"){
+  // Always network for CDN libraries (chart.js, xlsx, jspdf)
+  if(
+    url.hostname === "cdn.jsdelivr.net" ||
+    url.hostname === "cdnjs.cloudflare.com"
+  ){
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          return response;
-        })
-        .catch(() => caches.match("/index.html"))
+      fetch(event.request).catch(() => caches.match(event.request))
     );
     return;
   }
 
-  // Cache first for static assets (CSS, JS, images)
+  // NETWORK FIRST for all local files (index.html, style.css, script.js, etc.)
+  // This ensures latest version always loads when online
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if(cached) return cached;
-      return fetch(event.request).then((response) => {
+    fetch(event.request)
+      .then((response) => {
+        // Cache the fresh response
         if(response && response.status === 200){
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
         return response;
-      });
-    })
+      })
+      .catch(() => {
+        // Offline fallback — serve from cache
+        return caches.match(event.request)
+          .then((cached) => cached || caches.match("/index.html"));
+      })
   );
 });
 
-// Push notifications (for future use)
+// Push notifications
 self.addEventListener("push", (event) => {
   if(!event.data) return;
   const data = event.data.json();
