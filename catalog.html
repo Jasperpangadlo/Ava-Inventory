@@ -301,6 +301,21 @@
       margin-top: 4px;
     }
 
+    .cat-card-collection {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 6px;
+      background: var(--lavender-bg);
+      color: var(--lavender-dark);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
     .cat-card-total-pill {
       display: inline-flex;
       align-items: center;
@@ -444,6 +459,9 @@
   <select class="cat-filter-select" id="catColorFilter" onchange="filterCatalog()">
     <option value="">All Colors</option>
   </select>
+  <select class="cat-filter-select" id="catCollectionFilter" onchange="filterCatalog()">
+    <option value="">All Collections</option>
+  </select>
   <select class="cat-filter-select" id="catSizeFilter" onchange="filterCatalog()">
     <option value="">All Sizes</option>
     <option value="XS">XS</option>
@@ -490,6 +508,7 @@ async function loadCatalog(){
     _filteredData = [..._catalogData];
 
     populateColorFilter();
+    populateCollectionFilter();
     renderCatalog(_filteredData);
 
   } catch(err) {
@@ -513,19 +532,33 @@ function populateColorFilter(){
   sel.value = cur;
 }
 
+// ── Populate collection filter dropdown ──────────────────────────────────────
+function populateCollectionFilter(){
+  const sel = document.getElementById("catCollectionFilter");
+  const cur = sel.value;
+  const collections = [...new Set(_catalogData.map(p => p.collection).filter(Boolean))].sort();
+  sel.innerHTML = `<option value="">All Collections</option>` +
+    collections.map(c => `<option value="${c}">${c}</option>`).join("");
+  sel.value = cur;
+}
+
 // ── Filter catalog ───────────────────────────────────────────────────────────
 function filterCatalog(){
-  const kw    = document.getElementById("catSearch").value.toLowerCase();
-  const color = document.getElementById("catColorFilter").value.toLowerCase();
-  const size  = document.getElementById("catSizeFilter").value;
+  const kw         = document.getElementById("catSearch").value.toLowerCase();
+  const color      = document.getElementById("catColorFilter").value.toLowerCase();
+  const collection = document.getElementById("catCollectionFilter").value.toLowerCase();
+  const size       = document.getElementById("catSizeFilter").value;
 
   _filteredData = _catalogData.filter(product => {
     const nameMatch = product.style.toLowerCase().includes(kw) ||
                       product.code.toLowerCase().includes(kw) ||
-                      product.colors.some(c => c.color.toLowerCase().includes(kw));
+                      product.colors.some(c => c.color.toLowerCase().includes(kw)) ||
+                      (product.collection || "").toLowerCase().includes(kw);
     if(!nameMatch) return false;
 
     if(color && !product.colors.some(c => c.color.toLowerCase() === color)) return false;
+
+    if(collection && (product.collection || "").toLowerCase() !== collection) return false;
 
     if(size && !product.colors.some(c => (Number(c[size]) || 0) > 0)) return false;
 
@@ -590,6 +623,8 @@ function renderCatalog(catalog){
             <div class="cat-card-info">
               <div class="cat-card-style">${product.style}</div>
               <div class="cat-card-code">${product.code}</div>
+              ${product.collection ? `
+              <div class="cat-card-collection">✨ ${product.collection}</div>` : ""}
               <div class="cat-card-total-pill">
                 📦 ${grandTotal} pcs total
               </div>
