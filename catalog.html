@@ -572,7 +572,7 @@ function filterCatalog(){
 
 // ── Render catalog ───────────────────────────────────────────────────────────
 function renderCatalog(catalog){
-  const main = document.getElementById("catMain");
+  const main  = document.getElementById("catMain");
   const count = document.getElementById("catCount");
 
   count.textContent = `${catalog.length} style${catalog.length !== 1 ? "s" : ""}`;
@@ -586,27 +586,45 @@ function renderCatalog(catalog){
     return;
   }
 
-  const sizes = ["XS","S","M","L","XL"];
+  const sizes      = ["XS","S","M","L","XL"];
+  const colorFilter = document.getElementById("catColorFilter").value.toLowerCase();
+  const sizeFilter  = document.getElementById("catSizeFilter").value;
 
   main.innerHTML = `<div class="cat-grid">${
     catalog.map(product => {
-      const grandTotal = product.colors.reduce((s, c) =>
-        s + sizes.reduce((ss, sz) => ss + (Number(c[sz]) || 0), 0), 0);
 
-      // Image path — looks for images/{stylename}.png (lowercase, spaces to dashes)
+      // ⚡ Filter color rows based on active color/size filter
+      let visibleColors = product.colors;
+      if(colorFilter){
+        visibleColors = visibleColors.filter(c => c.color.toLowerCase() === colorFilter);
+      }
+      if(sizeFilter){
+        visibleColors = visibleColors.filter(c => (Number(c[sizeFilter]) || 0) > 0);
+      }
+
+      // Grand total only from visible rows
+      const grandTotal = visibleColors.reduce((s, c) =>
+        sizes.reduce((ss, sz) => ss + (Number(c[sz]) || 0), s), 0);
+
       const imgSlug = product.style.toLowerCase()
         .replace(/\s*\(.*?\)\s*/g, "")
         .trim()
         .replace(/\s+/g, "-");
-      const imgSrc  = `images/${imgSlug}.png`;
+      const imgSrc = `images/${imgSlug}.png`;
 
-      const colorRows = product.colors.map(c => {
+      const colorRows = visibleColors.map(c => {
         const rowTotal = sizes.reduce((s, sz) => s + (Number(c[sz]) || 0), 0);
+
         const cells = sizes.map(sz => {
+          // If size filter is active, highlight only that column
           const qty = Number(c[sz]) || 0;
           const cls = qty === 0 ? "zero" : qty <= 3 ? "low" : "ok";
-          return `<td><span class="cat-qty ${cls}">${qty > 0 ? qty : "—"}</span></td>`;
+          const highlight = sizeFilter && sz === sizeFilter
+            ? "style='background:rgba(237,229,244,.5);'"
+            : "";
+          return `<td ${highlight}><span class="cat-qty ${cls}">${qty > 0 ? qty : "—"}</span></td>`;
         }).join("");
+
         return `
           <tr>
             <td>${c.color || "—"}</td>
@@ -636,7 +654,11 @@ function renderCatalog(catalog){
             <thead>
               <tr>
                 <th>Body Color</th>
-                <th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th>
+                <th${sizeFilter==="XS"?" style='background:rgba(255,255,255,.2)'"  :""}>XS</th>
+                <th${sizeFilter==="S" ?" style='background:rgba(255,255,255,.2)'"  :""}>S</th>
+                <th${sizeFilter==="M" ?" style='background:rgba(255,255,255,.2)'"  :""}>M</th>
+                <th${sizeFilter==="L" ?" style='background:rgba(255,255,255,.2)'"  :""}>L</th>
+                <th${sizeFilter==="XL"?" style='background:rgba(255,255,255,.2)'"  :""}>XL</th>
                 <th>Total</th>
               </tr>
             </thead>
