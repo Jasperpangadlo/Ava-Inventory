@@ -463,7 +463,7 @@
     <option value="">All Collections</option>
   </select>
   <select class="cat-filter-select" id="catSizeFilter" onchange="filterCatalog()">
-    <option value="">All Sizes</option>
+    <option value="" selected>All Sizes</option>
     <option value="XS">XS</option>
     <option value="S">S</option>
     <option value="M">M</option>
@@ -525,21 +525,23 @@ async function loadCatalog(){
 // ── Populate color filter dropdown ───────────────────────────────────────────
 function populateColorFilter(){
   const sel = document.getElementById("catColorFilter");
-  const cur = sel.value;
+  const cur = sel.value || "";
   const colors = [...new Set(_catalogData.flatMap(p => p.colors.map(c => c.color)).filter(Boolean))].sort();
   sel.innerHTML = `<option value="">All Colors</option>` +
     colors.map(c => `<option value="${c}">${c}</option>`).join("");
   sel.value = cur;
+  if(!sel.value) sel.selectedIndex = 0;
 }
 
 // ── Populate collection filter dropdown ──────────────────────────────────────
 function populateCollectionFilter(){
   const sel = document.getElementById("catCollectionFilter");
-  const cur = sel.value;
+  const cur = sel.value || "";
   const collections = [...new Set(_catalogData.map(p => p.collection).filter(Boolean))].sort();
   sel.innerHTML = `<option value="">All Collections</option>` +
     collections.map(c => `<option value="${c}">${c}</option>`).join("");
   sel.value = cur;
+  if(!sel.value) sel.selectedIndex = 0;
 }
 
 // ── Filter catalog ───────────────────────────────────────────────────────────
