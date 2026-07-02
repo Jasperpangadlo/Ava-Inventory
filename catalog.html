@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AVA Product Catalog</title>
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,400;1,600&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --coral:       #E8522A;
+      --coral-dark:  #C8411C;
+      --coral-light: #F2784F;
+      --lavender:    #C9B8D4;
+      --lavender-mid:#A889BE;
+      --lavender-bg: #EDE5F4;
+      --lavender-dark:#7B5EA7;
+      --cream:       #FAF7F4;
+      --sand:        #F5EFE8;
+      --text:        #2D1F35;
+      --muted:       #8C7A9A;
+      --border:      #E8DDD0;
+    }
+
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: linear-gradient(135deg, #F7F4F8, #EDE5F4, #F5EEF8);
+      min-height: 100vh;
+      color: var(--text);
+    }
+
+    /* ── Header ───────────────────────────────────────────────────────── */
+    .cat-header {
+      background: linear-gradient(135deg, var(--lavender-dark), var(--lavender-mid));
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 20px rgba(123,94,167,.25);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .cat-header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .cat-header img {
+      height: 36px;
+      border-radius: 8px;
+    }
+
+    .cat-header-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 26px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 0.01em;
+    }
+
+    .cat-header-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,.75);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .cat-header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cat-refresh-btn {
+      background: rgba(255,255,255,.18);
+      border: 1.5px solid rgba(255,255,255,.35);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .cat-refresh-btn:hover {
+      background: rgba(255,255,255,.28);
+      border-color: rgba(255,255,255,.6);
+    }
+
+    .cat-back-btn {
+      background: linear-gradient(135deg, var(--coral-light), var(--coral));
+      border: none;
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(232,82,42,.3);
+      transition: all .2s;
+    }
+    .cat-back-btn:hover {
+      box-shadow: 0 6px 18px rgba(232,82,42,.4);
+      transform: translateY(-1px);
+    }
+
+    /* ── Announcement bar ─────────────────────────────────────────────── */
+    .cat-announce {
+      background: var(--lavender);
+      color: var(--text);
+      text-align: center;
+      padding: 8px 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── Toolbar ──────────────────────────────────────────────────────── */
+    .cat-toolbar {
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: rgba(255,255,255,.6);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+    }
+
+    .cat-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 14px;
+      flex: 1;
+      min-width: 200px;
+      max-width: 360px;
+      transition: border-color .2s;
+    }
+    .cat-search:focus-within {
+      border-color: var(--lavender-mid);
+      box-shadow: 0 0 0 3px rgba(201,184,212,.2);
+    }
+    .cat-search input {
+      border: none;
+      outline: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      width: 100%;
+      background: transparent;
+    }
+
+    .cat-filter-select {
+      padding: 9px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .cat-filter-select:focus {
+      border-color: var(--lavender-mid);
+      box-shadow: 0 0 0 3px rgba(201,184,212,.2);
+    }
+
+    .cat-count {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* ── Loading ──────────────────────────────────────────────────────── */
+    .cat-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      gap: 16px;
+    }
+    .cat-spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid var(--lavender-bg);
+      border-top-color: var(--coral);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .cat-loading p {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Grid container ───────────────────────────────────────────────── */
+    .cat-grid {
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* ── Product Card ─────────────────────────────────────────────────── */
+    .cat-card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(123,94,167,.10);
+      border: 1px solid rgba(201,184,212,.3);
+      overflow: hidden;
+      transition: box-shadow .25s, transform .25s;
+    }
+    .cat-card:hover {
+      box-shadow: 0 10px 40px rgba(123,94,167,.18);
+      transform: translateY(-2px);
+    }
+
+    /* Card header */
+    .cat-card-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 20px 24px 14px;
+      border-bottom: 1px solid var(--lavender-bg);
+      background: linear-gradient(135deg, rgba(237,229,244,.4), rgba(255,255,255,.8));
+    }
+
+    .cat-card-img-wrap {
+      width: 90px;
+      height: 110px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--lavender-bg);
+      flex-shrink: 0;
+      border: 1.5px solid rgba(201,184,212,.4);
+    }
+
+    .cat-card-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .3s;
+    }
+    .cat-card:hover .cat-card-img-wrap img {
+      transform: scale(1.05);
+    }
+
+    .cat-card-info {
+      flex: 1;
+    }
+
+    .cat-card-style {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-style: italic;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .cat-card-code {
+      font-size: 11px;
+      color: var(--coral);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .cat-card-total-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      background: linear-gradient(135deg, var(--coral-light), var(--coral));
+      color: #fff;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    /* Color rows table */
+    .cat-card-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .cat-card-table thead tr {
+      background: linear-gradient(135deg, var(--lavender-dark), var(--lavender-mid));
+    }
+
+    .cat-card-table thead th {
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 10px 16px;
+      text-align: center;
+    }
+    .cat-card-table thead th:first-child {
+      text-align: left;
+    }
+
+    .cat-card-table tbody tr {
+      border-bottom: 1px solid var(--lavender-bg);
+      transition: background .15s;
+    }
+    .cat-card-table tbody tr:last-child { border-bottom: none; }
+    .cat-card-table tbody tr:hover { background: rgba(237,229,244,.25); }
+
+    .cat-card-table tbody td {
+      padding: 11px 16px;
+      font-size: 13px;
+      text-align: center;
+      color: var(--text);
+    }
+    .cat-card-table tbody td:first-child {
+      text-align: left;
+      font-weight: 600;
+      color: var(--lavender-dark);
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    /* Size qty cell */
+    .cat-qty {
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .cat-qty.zero   { color: #ef4444; }
+    .cat-qty.low    { color: #f59e0b; }
+    .cat-qty.ok     { color: #10b981; }
+
+    /* Row total */
+    .cat-row-total {
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--coral);
+    }
+
+    /* ── Empty state ──────────────────────────────────────────────────── */
+    .cat-empty {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+    }
+    .cat-empty h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-style: italic;
+      color: var(--lavender-dark);
+      margin-bottom: 10px;
+    }
+    .cat-empty p { font-size: 13px; }
+
+    /* ── Footer ───────────────────────────────────────────────────────── */
+    .cat-footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-top: 1px solid var(--border);
+      margin-top: 12px;
+    }
+
+    /* ── Responsive ───────────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .cat-header  { padding: 14px 16px; }
+      .cat-toolbar { padding: 14px 16px; }
+      .cat-grid    { padding: 16px; gap: 20px; }
+      .cat-card-header { flex-direction: column; align-items: flex-start; }
+      .cat-card-table thead th,
+      .cat-card-table tbody td { padding: 8px 10px; font-size: 11px; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ── Announcement Bar ──────────────────────────────────────────────────── -->
+<div class="cat-announce">AVA The Brand — Product Catalog</div>
+
+<!-- ── Header ───────────────────────────────────────────────────────────── -->
+<header class="cat-header">
+  <div class="cat-header-left">
+    <img src="logo.png" alt="AVA Logo" onerror="this.style.display='none'">
+    <div>
+      <div class="cat-header-title">AVA The Brand</div>
+      <div class="cat-header-sub">Product Catalog</div>
+    </div>
+  </div>
+  <div class="cat-header-right">
+    <button class="cat-refresh-btn" onclick="loadCatalog()">↻ Refresh</button>
+    <a href="index.html" class="cat-back-btn">← Back to Inventory</a>
+  </div>
+</header>
+
+<!-- ── Toolbar ───────────────────────────────────────────────────────────── -->
+<div class="cat-toolbar">
+  <div class="cat-search">
+    <span>🔍</span>
+    <input id="catSearch" placeholder="Search style or color..." oninput="filterCatalog()">
+  </div>
+  <select class="cat-filter-select" id="catColorFilter" onchange="filterCatalog()">
+    <option value="">All Colors</option>
+  </select>
+  <select class="cat-filter-select" id="catSizeFilter" onchange="filterCatalog()">
+    <option value="">All Sizes</option>
+    <option value="XS">XS</option>
+    <option value="S">S</option>
+    <option value="M">M</option>
+    <option value="L">L</option>
+    <option value="XL">XL</option>
+  </select>
+  <div class="cat-count" id="catCount">Loading...</div>
+</div>
+
+<!-- ── Main Content ──────────────────────────────────────────────────────── -->
+<main id="catMain">
+  <div class="cat-loading">
+    <div class="cat-spinner"></div>
+    <p>Loading catalog...</p>
+  </div>
+</main>
+
+<!-- ── Footer ───────────────────────────────────────────────────────────── -->
+<footer class="cat-footer">AVA Inventory System · Product Catalog</footer>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6K3N58inD_aZdmVA6yilTyxSSEE34ng_GXNviFvDTBLdXocmhBppWeCv4U9bcKr-3/exec";
+
+let _catalogData   = [];
+let _filteredData  = [];
+
+// ── Fetch catalog from Apps Script ──────────────────────────────────────────
+async function loadCatalog(){
+  document.getElementById("catMain").innerHTML = `
+    <div class="cat-loading">
+      <div class="cat-spinner"></div>
+      <p>Loading catalog...</p>
+    </div>`;
+  document.getElementById("catCount").textContent = "Loading...";
+
+  try {
+    const url = `${WEB_APP_URL}?action=getCatalog`;
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    _catalogData  = data.catalog || [];
+    _filteredData = [..._catalogData];
+
+    populateColorFilter();
+    renderCatalog(_filteredData);
+
+  } catch(err) {
+    document.getElementById("catMain").innerHTML = `
+      <div class="cat-empty">
+        <h3>Could not load catalog</h3>
+        <p>Check your internet connection or Apps Script deployment.<br><br>
+        <small style="color:#ef4444">${err.message}</small></p>
+      </div>`;
+    document.getElementById("catCount").textContent = "Error";
+  }
+}
+
+// ── Populate color filter dropdown ───────────────────────────────────────────
+function populateColorFilter(){
+  const sel = document.getElementById("catColorFilter");
+  const cur = sel.value;
+  const colors = [...new Set(_catalogData.flatMap(p => p.colors.map(c => c.color)).filter(Boolean))].sort();
+  sel.innerHTML = `<option value="">All Colors</option>` +
+    colors.map(c => `<option value="${c}">${c}</option>`).join("");
+  sel.value = cur;
+}
+
+// ── Filter catalog ───────────────────────────────────────────────────────────
+function filterCatalog(){
+  const kw    = document.getElementById("catSearch").value.toLowerCase();
+  const color = document.getElementById("catColorFilter").value.toLowerCase();
+  const size  = document.getElementById("catSizeFilter").value;
+
+  _filteredData = _catalogData.filter(product => {
+    const nameMatch = product.style.toLowerCase().includes(kw) ||
+                      product.code.toLowerCase().includes(kw) ||
+                      product.colors.some(c => c.color.toLowerCase().includes(kw));
+    if(!nameMatch) return false;
+
+    if(color && !product.colors.some(c => c.color.toLowerCase() === color)) return false;
+
+    if(size && !product.colors.some(c => (Number(c[size]) || 0) > 0)) return false;
+
+    return true;
+  });
+
+  renderCatalog(_filteredData);
+}
+
+// ── Render catalog ───────────────────────────────────────────────────────────
+function renderCatalog(catalog){
+  const main = document.getElementById("catMain");
+  const count = document.getElementById("catCount");
+
+  count.textContent = `${catalog.length} style${catalog.length !== 1 ? "s" : ""}`;
+
+  if(!catalog.length){
+    main.innerHTML = `
+      <div class="cat-empty">
+        <h3>No products found</h3>
+        <p>Try adjusting your search or filters.</p>
+      </div>`;
+    return;
+  }
+
+  const sizes = ["XS","S","M","L","XL"];
+
+  main.innerHTML = `<div class="cat-grid">${
+    catalog.map(product => {
+      const grandTotal = product.colors.reduce((s, c) =>
+        s + sizes.reduce((ss, sz) => ss + (Number(c[sz]) || 0), 0), 0);
+
+      // Image path — looks for images/{stylename}.png (lowercase, spaces to dashes)
+      const imgSlug = product.style.toLowerCase()
+        .replace(/\s*\(.*?\)\s*/g, "")
+        .trim()
+        .replace(/\s+/g, "-");
+      const imgSrc  = `images/${imgSlug}.png`;
+
+      const colorRows = product.colors.map(c => {
+        const rowTotal = sizes.reduce((s, sz) => s + (Number(c[sz]) || 0), 0);
+        const cells = sizes.map(sz => {
+          const qty = Number(c[sz]) || 0;
+          const cls = qty === 0 ? "zero" : qty <= 3 ? "low" : "ok";
+          return `<td><span class="cat-qty ${cls}">${qty > 0 ? qty : "—"}</span></td>`;
+        }).join("");
+        return `
+          <tr>
+            <td>${c.color || "—"}</td>
+            ${cells}
+            <td class="cat-row-total">${rowTotal}</td>
+          </tr>`;
+      }).join("");
+
+      return `
+        <div class="cat-card">
+          <div class="cat-card-header">
+            <div class="cat-card-img-wrap">
+              <img src="${imgSrc}" alt="${product.style}"
+                onerror="this.src='logo.png'">
+            </div>
+            <div class="cat-card-info">
+              <div class="cat-card-style">${product.style}</div>
+              <div class="cat-card-code">${product.code}</div>
+              <div class="cat-card-total-pill">
+                📦 ${grandTotal} pcs total
+              </div>
+            </div>
+          </div>
+          <table class="cat-card-table">
+            <thead>
+              <tr>
+                <th>Body Color</th>
+                <th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>${colorRows}</tbody>
+          </table>
+        </div>`;
+    }).join("")
+  }</div>`;
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+loadCatalog();
+</script>
+</body>
+</html>
