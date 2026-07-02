@@ -9,7 +9,8 @@ let historyCache = [];
 let productByBarcode = new Map();
 let storeByBarcode   = new Map();
 
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6K3N58inD_aZdmVA6yilTyxSSEE34ng_GXNviFvDTBLdXocmhBppWeCv4U9bcKr-3/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwymQ1xaCN5yW3WczU-TPGgF2dnn2l25YyStRm0ED1oM3CurdCctabBAS3YOWRTo2nj9Q/exec";
+
 
 // ⚡ DOM shortcut — replaces all document.getElementById() calls
 const $ = id => document.getElementById(id);
