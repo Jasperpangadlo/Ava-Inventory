@@ -639,6 +639,10 @@ document.getElementById("price").value = "";
 }
 
 async function loadProducts() {
+  // Show skeleton while loading
+  const table = document.getElementById("productTable");
+  if(table) table.innerHTML = skeletonRows(8, 6);
+
   const result = await apiRequest("getProducts");
   const products = result.products || [];
 
@@ -648,8 +652,6 @@ async function loadProducts() {
   productByBarcode.clear();
   products.forEach(p => productByBarcode.set(String(p.barcode).trim(), p));
 
-  const table = document.getElementById("productTable");
-
   let totalStock = 0;
   let lowStock = 0;
   let outStock = 0;
@@ -657,7 +659,7 @@ async function loadProducts() {
 
   if (products.length === 0) {
     table.innerHTML =
-    "<tr><td colspan='8'>Wala pang products sa database.</td></tr>";
+    emptyStateRow(8, { icon:"📦", title:"Wala pang products", desc:"Mag-add ng bagong product gamit ang Add Stock tab.", color:"es-blue" });
     return;
   }
 
@@ -1146,15 +1148,18 @@ function autoFillProduct() {
 
 async function loadHistory() {
 
-  const records = historyCache;
-
   const table =
   document.getElementById("historyTable");
 
   if (!table) return;
 
+  // Show skeleton while loading
+  table.innerHTML = skeletonRows(9, 5);
+
+  const records = historyCache;
+
   if (records.length === 0) {
-    table.innerHTML = "<tr><td colspan='9' class='hi-empty-row'>No stock out history yet.</td></tr>";
+    table.innerHTML = emptyStateRow(9, { icon:"📜", title:"Walang history pa", desc:"Mag-appear ang records dito kapag may stock out na.", color:"es-purple" });
     return;
   }
 
@@ -1226,7 +1231,7 @@ function filterHistory() {
   const table = document.getElementById("historyTable");
   if (!table) return;
   if (filtered.length === 0) {
-    table.innerHTML = "<tr><td colspan='9' class='hi-empty-row'>No results found.</td></tr>";
+    table.innerHTML = emptyStateRow(9, { icon:"🔍", title:"Walang nahanap", desc:"Subukan ang ibang search term o date range.", color:"es-amber" });
     return;
   }
   let html = "";
@@ -1269,9 +1274,18 @@ async function showTab(tabId){
 
   tabs.forEach(tab=>{
     tab.style.display="none";
+    tab.classList.remove("tab-entering");
   });
 
-  document.getElementById(tabId).style.display="block";
+  const activeTab = document.getElementById(tabId);
+  activeTab.style.display="block";
+
+  // Trigger fade-in animation
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      activeTab.classList.add("tab-entering");
+    });
+  });
 
   const links =
   document.querySelectorAll("aside a");
@@ -1328,7 +1342,7 @@ async function loadStoreProducts() {
   if (products.length === 0) {
 
     table.innerHTML =
-    "<tr><td colspan='6'>No store products yet.</td></tr>";
+    emptyStateRow(6, { icon:"🏬", title:"Walang store products", desc:"Mag-send ng products mula sa warehouse papunta sa store.", color:"es-green" });
 
     return;
   }
@@ -4436,6 +4450,10 @@ let soldItemsData = [];
 
 async function loadSoldItems(){
 
+  // Show skeleton while loading
+  const siTable = document.getElementById("soldItemsTable");
+  if(siTable) siTable.innerHTML = skeletonRows(8, 5);
+
   const records = historyCache;
 
   soldItemsData =
@@ -4464,7 +4482,7 @@ function renderSoldItems(data){
 
   if(data.length === 0){
     table.innerHTML =
-    `<tr><td colspan="8" class="si-empty-row">No sold items found.</td></tr>`;
+    emptyStateRow(8, { icon:"🛍️", title:"Walang sold items", desc:"Mag-appear ang sold items dito kapag may nai-deduct na sales.", color:"es-rose" });
     return;
   }
 
@@ -5196,14 +5214,14 @@ async function logActivity(type, action, details) {
 async function loadActivityLog() {
   const tbody = document.getElementById("activityLogTable");
   if (!tbody) return;
-  tbody.innerHTML = `<tr><td colspan="4" class="al-empty-row">Loading...</td></tr>`;
+  tbody.innerHTML = skeletonRows(4, 5);;
   try {
     const result = await apiRequest("getActivityLog", {});
     activityLogData = Array.isArray(result.data) ? result.data.reverse() : [];
     _populateAlUserFilter();
     renderActivityLog(activityLogData);
   } catch(e) {
-    tbody.innerHTML = `<tr><td colspan="4" class="al-empty-row">Failed to load. Try refreshing.</td></tr>`;
+    tbody.innerHTML = emptyStateRow(4, { icon:"⚠️", title:"Hindi ma-load ang data", desc:"I-check ang internet connection at i-click ang Refresh.", color:"es-amber" });
   }
 }
 
@@ -5236,7 +5254,7 @@ function renderActivityLog(data) {
   setEl("alSystemActions",system);
 
   if (data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" class="al-empty-row">No activity records found.</td></tr>`;
+    tbody.innerHTML = emptyStateRow(4, { icon:"🕵️", title:"Walang activity records", desc:"Mag-appear dito ang lahat ng system actions.", color:"es-purple" });
     return;
   }
 
@@ -5526,3 +5544,62 @@ window.addEventListener("appinstalled", () => {
   _pwaInstallPrompt = null;
   addNotification("success", "✅ App Installed!", "AVA Inventory is now installed on your device.");
 });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SKELETON LOADING HELPERS
+   ══════════════════════════════════════════════════════════════════════════ */
+
+// Generate skeleton rows for any table
+function skeletonRows(cols, rows = 5) {
+  const widths = ["60%","80%","50%","70%","40%","65%","55%","75%"];
+  let html = "";
+  for(let r = 0; r < rows; r++){
+    html += `<tr class="skeleton-row">`;
+    for(let c = 0; c < cols; c++){
+      const w = widths[(r + c) % widths.length];
+      html += `<td><span class="skeleton skeleton-cell" style="width:${w};"></span></td>`;
+    }
+    html += `</tr>`;
+  }
+  return html;
+}
+
+// Generate skeleton stat cards
+function skeletonStatCards(count = 4) {
+  let html = "";
+  for(let i = 0; i < count; i++){
+    html += `
+      <div class="skeleton-card">
+        <span class="skeleton skeleton-icon"></span>
+        <div style="flex:1;">
+          <span class="skeleton skeleton-line" style="width:50%;display:block;"></span>
+          <span class="skeleton skeleton-line-sm" style="width:35%;display:block;"></span>
+        </div>
+      </div>`;
+  }
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EMPTY STATE HELPER
+   ══════════════════════════════════════════════════════════════════════════ */
+
+function emptyStateRow(cols, config) {
+  const {
+    icon = "📭",
+    title = "No data found",
+    desc = "",
+    color = "es-purple"
+  } = config;
+
+  return `
+    <tr>
+      <td colspan="${cols}" class="empty-state-cell">
+        <div class="empty-state ${color}">
+          <div class="empty-state-illustration">${icon}</div>
+          <p class="empty-state-title">${title}</p>
+          ${desc ? `<p class="empty-state-desc">${desc}</p>` : ""}
+        </div>
+      </td>
+    </tr>`;
+}
