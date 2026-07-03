@@ -659,7 +659,7 @@ async function loadProducts() {
 
   if (products.length === 0) {
     table.innerHTML =
-    emptyStateRow(8, { icon:"📦", title:"Wala pang products", desc:"Mag-add ng bagong product gamit ang Add Stock tab.", color:"es-blue" });
+    emptyStateRow(8, { icon:"📦", title:"No products yet", desc:"Add a new product using the Add Stock tab.", color:"es-blue" });
     return;
   }
 
@@ -1159,7 +1159,7 @@ async function loadHistory() {
   const records = historyCache;
 
   if (records.length === 0) {
-    table.innerHTML = emptyStateRow(9, { icon:"📜", title:"Walang history pa", desc:"Mag-appear ang records dito kapag may stock out na.", color:"es-purple" });
+    table.innerHTML = emptyStateRow(9, { icon:"📜", title:"No history yet", desc:"Records will appear here once stock has been deducted.", color:"es-purple" });
     return;
   }
 
@@ -1231,7 +1231,7 @@ function filterHistory() {
   const table = document.getElementById("historyTable");
   if (!table) return;
   if (filtered.length === 0) {
-    table.innerHTML = emptyStateRow(9, { icon:"🔍", title:"Walang nahanap", desc:"Subukan ang ibang search term o date range.", color:"es-amber" });
+    table.innerHTML = emptyStateRow(9, { icon:"🔍", title:"No results found", desc:"Try a different search term or date range.", color:"es-amber" });
     return;
   }
   let html = "";
@@ -1342,7 +1342,7 @@ async function loadStoreProducts() {
   if (products.length === 0) {
 
     table.innerHTML =
-    emptyStateRow(6, { icon:"🏬", title:"Walang store products", desc:"Mag-send ng products mula sa warehouse papunta sa store.", color:"es-green" });
+    emptyStateRow(6, { icon:"🏬", title:"No store products yet", desc:"Send products from the warehouse to this store.", color:"es-green" });
 
     return;
   }
@@ -1936,7 +1936,7 @@ function updateClock() {
         
           previewImg.src = "images/christine.png";
 
-        } else if (productName.includes("elie")) {
+        } else if (productName.includes("elie set")) {
         
           previewImg.src = "images/elie.png";
 
@@ -4482,7 +4482,7 @@ function renderSoldItems(data){
 
   if(data.length === 0){
     table.innerHTML =
-    emptyStateRow(8, { icon:"🛍️", title:"Walang sold items", desc:"Mag-appear ang sold items dito kapag may nai-deduct na sales.", color:"es-rose" });
+    emptyStateRow(8, { icon:"🛍️", title:"No sold items yet", desc:"Sold items will appear here once sales have been recorded.", color:"es-rose" });
     return;
   }
 
@@ -5214,14 +5214,14 @@ async function logActivity(type, action, details) {
 async function loadActivityLog() {
   const tbody = document.getElementById("activityLogTable");
   if (!tbody) return;
-  tbody.innerHTML = skeletonRows(4, 5);;
+  tbody.innerHTML = skeletonRows(4, 5);
   try {
     const result = await apiRequest("getActivityLog", {});
     activityLogData = Array.isArray(result.data) ? result.data.reverse() : [];
     _populateAlUserFilter();
     renderActivityLog(activityLogData);
   } catch(e) {
-    tbody.innerHTML = emptyStateRow(4, { icon:"⚠️", title:"Hindi ma-load ang data", desc:"I-check ang internet connection at i-click ang Refresh.", color:"es-amber" });
+    tbody.innerHTML = emptyStateRow(4, { icon:"⚠️", title:"Failed to load data", desc:"Check your internet connection and click Refresh to try again.", color:"es-amber" });
   }
 }
 
@@ -5254,7 +5254,7 @@ function renderActivityLog(data) {
   setEl("alSystemActions",system);
 
   if (data.length === 0) {
-    tbody.innerHTML = emptyStateRow(4, { icon:"🕵️", title:"Walang activity records", desc:"Mag-appear dito ang lahat ng system actions.", color:"es-purple" });
+    tbody.innerHTML = emptyStateRow(4, { icon:"🕵️", title:"No activity records yet", desc:"All system actions will be tracked and displayed here.", color:"es-purple" });
     return;
   }
 
