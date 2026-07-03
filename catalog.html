@@ -606,10 +606,21 @@ function renderCatalog(catalog){
       const grandTotal = visibleColors.reduce((s, c) =>
         sizes.reduce((ss, sz) => ss + (Number(c[sz]) || 0), s), 0);
 
-      const imgSlug = product.style.toLowerCase()
-        .replace(/\s*\(.*?\)\s*/g, "")
-        .trim()
-        .replace(/\s+/g, "-");
+      // Image filename mapping for special cases
+      const imgOverrides = {
+        "elie set":   "Elie_Set",
+        "brie tube":  "brie tube",
+        "bella kids": "bella-kids",
+        "bella (kids)": "bella-kids",
+        "brie kids":  "brie-kids",
+      };
+
+      const styleKey = product.style.toLowerCase().trim();
+      const imgSlug = imgOverrides[styleKey] ||
+        product.style.toLowerCase()
+          .replace(/\s*\(.*?\)\s*/g, "")
+          .trim()
+          .replace(/\s+/g, "-");
       const imgSrc = `images/${imgSlug}.png`;
 
       const colorRows = visibleColors.map(c => {
