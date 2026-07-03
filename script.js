@@ -1936,7 +1936,7 @@ function updateClock() {
         
           previewImg.src = "images/christine.png";
 
-        } else if (productName.includes("elie-set")) {
+        } else if (productName.includes("elie set")) {
         
           previewImg.src = "images/elie.png";
 
