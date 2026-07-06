@@ -126,6 +126,89 @@
       transform: translateY(-1px);
     }
 
+    .cat-print-btn {
+      background: rgba(255,255,255,.18);
+      border: 1.5px solid rgba(255,255,255,.35);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cat-print-btn:hover {
+      background: rgba(255,255,255,.28);
+      border-color: rgba(255,255,255,.6);
+    }
+
+    /* ── Print Styles ─────────────────────────────────────────────────── */
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+      .cat-header,
+      .cat-announce,
+      .cat-toolbar,
+      .cat-footer { display: none !important; }
+
+      body { background: #fff !important; }
+
+      .cat-grid { padding: 0 !important; gap: 20px !important; }
+
+      .cat-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+        margin-bottom: 16px;
+      }
+
+      .cat-card:hover {
+        transform: none !important;
+        box-shadow: none !important;
+      }
+
+      .cat-card-header {
+        background: #f5f0fa !important;
+      }
+
+      .cat-card-table thead tr {
+        background: #7B5EA7 !important;
+      }
+
+      .cat-card-table thead th {
+        color: #fff !important;
+      }
+
+      /* Print header */
+      #printHeader {
+        display: block !important;
+        text-align: center;
+        padding: 16px 0 20px;
+        border-bottom: 2px solid #7B5EA7;
+        margin-bottom: 24px;
+      }
+      #printHeader h1 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 28px;
+        font-style: italic;
+        color: #7B5EA7;
+      }
+      #printHeader p {
+        font-size: 11px;
+        color: #8C7A9A;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-top: 4px;
+      }
+    }
+
     /* ── Announcement bar ─────────────────────────────────────────────── */
     .cat-announce {
       background: var(--lavender);
@@ -427,6 +510,42 @@
       .cat-card-table thead th,
       .cat-card-table tbody td { padding: 8px 10px; font-size: 11px; }
     }
+    /* ── Color Swatches ───────────────────────────────────────────────── */
+    .cat-color-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cat-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    /* ── Low Stock Warning ────────────────────────────────────────────── */
+    .cat-row-low-warning {
+      background: rgba(254,242,242,0.6) !important;
+    }
+    .cat-row-low-warning td:first-child {
+      color: #dc2626 !important;
+    }
+    .cat-low-badge {
+      display: inline-block;
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 999px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
   </style>
 </head>
 
@@ -446,6 +565,7 @@
   </div>
   <div class="cat-header-right">
     <button class="cat-refresh-btn" onclick="loadCatalog()">↻ Refresh</button>
+    <button class="cat-print-btn" onclick="printCatalog()">🖨️ Print</button>
     <a href="index.html" class="cat-back-btn">← Back to Inventory</a>
   </div>
 </header>
@@ -471,6 +591,12 @@
     <option value="XL">XL</option>
   </select>
   <div class="cat-count" id="catCount">Loading...</div>
+</div>
+
+<!-- Print-only header -->
+<div id="printHeader" style="display:none;">
+  <h1>AVA The Brand — Product Catalog</h1>
+  <p id="printDate"></p>
 </div>
 
 <!-- ── Main Content ──────────────────────────────────────────────────────── -->
@@ -628,9 +754,47 @@ function renderCatalog(catalog){
 
       const colorRows = visibleColors.map(c => {
         const rowTotal = sizes.reduce((s, sz) => s + (Number(c[sz]) || 0), 0);
+        const isLow = rowTotal > 0 && rowTotal <= 3;
+
+        // Complete AVA color swatch map
+        const swatchMap = {
+          "beige":        "#d4b896",
+          "black":        "#1c1c1c",
+          "blue":         "#3b82f6",
+          "bone":         "#e8e0d0",
+          "bow":          "#f5e6f0",
+          "brown":        "#7c4a1e",
+          "butter":       "#f5e6a3",
+          "calla green":  "#7aab6e",
+          "copper":       "#b87333",
+          "dark denim":   "#2b3d5c",
+          "dark grey":    "#4b5563",
+          "dusty rose":   "#c9a0a0",
+          "fin green":    "#4a7c59",
+          "grey":         "#9ca3af",
+          "light blue":   "#93c5fd",
+          "light denim":  "#7ba7c4",
+          "light grey":   "#d1d5db",
+          "light yellow": "#fef9c3",
+          "lime":         "#a3e635",
+          "navy":         "#1e3a5f",
+          "off white":    "#f5f0e8",
+          "olive":        "#6b7c3d",
+          "pastel blue":  "#bfdbfe",
+          "pastel yellow":"#fde68a",
+          "pink":         "#f9a8d4",
+          "powder blue":  "#bae6fd",
+          "red":          "#ef4444",
+          "white":        "#f9fafb",
+          "wine":         "#722f37",
+          "wine red":     "#8b1a2a",
+          "yellow":       "#fbbf24",
+        };
+
+        const colorKey   = (c.color || "").toLowerCase().trim();
+        const swatchColor = swatchMap[colorKey] || "#e5e7eb";
 
         const cells = sizes.map(sz => {
-          // If size filter is active, highlight only that column
           const qty = Number(c[sz]) || 0;
           const cls = qty === 0 ? "zero" : qty <= 3 ? "low" : "ok";
           const highlight = sizeFilter && sz === sizeFilter
@@ -640,8 +804,14 @@ function renderCatalog(catalog){
         }).join("");
 
         return `
-          <tr>
-            <td>${c.color || "—"}</td>
+          <tr class="${isLow ? "cat-row-low-warning" : ""}">
+            <td>
+              <div class="cat-color-cell">
+                <span class="cat-swatch" style="background:${swatchColor};"></span>
+                ${c.color || "—"}
+                ${isLow ? `<span class="cat-low-badge">Low</span>` : ""}
+              </div>
+            </td>
             ${cells}
             <td class="cat-row-total">${rowTotal}</td>
           </tr>`;
@@ -681,6 +851,19 @@ function renderCatalog(catalog){
         </div>`;
     }).join("")
   }</div>`;
+}
+
+// ── Print catalog ─────────────────────────────────────────────────────────
+function printCatalog(){
+  // Set print date
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-PH", {
+    year: "numeric", month: "long", day: "numeric"
+  });
+  document.getElementById("printDate").textContent =
+    `Printed: ${dateStr} · ${_filteredData.length} style${_filteredData.length !== 1 ? "s" : ""}`;
+
+  window.print();
 }
 
 // ── Init ─────────────────────────────────────────────────────────────────────
