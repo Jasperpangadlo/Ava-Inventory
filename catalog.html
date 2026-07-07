@@ -549,6 +549,52 @@
     /* ── Lightbox ─────────────────────────────────────────────────────── */
     .cat-card-img-wrap { cursor: zoom-in; }
 
+    /* ── Price Display ────────────────────────────────────────────────── */
+    .cat-card-price {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 8px;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--lavender-dark);
+      letter-spacing: 0.01em;
+    }
+    .cat-card-price-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-right: 2px;
+    }
+
+    /* ── Out of Stock Overlay ─────────────────────────────────────────── */
+    .cat-card-img-wrap {
+      position: relative;
+    }
+    .cat-oos-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      backdrop-filter: blur(2px);
+    }
+    .cat-oos-badge {
+      background: #dc2626;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 999px;
+      box-shadow: 0 2px 8px rgba(220,38,38,0.4);
+    }
+
     .cat-lightbox {
       position: fixed;
       inset: 0;
@@ -655,6 +701,12 @@
     <option value="L">L</option>
     <option value="XL">XL</option>
   </select>
+  <select class="cat-filter-select" id="catSortFilter" onchange="filterCatalog()">
+    <option value="az">A → Z</option>
+    <option value="za">Z → A</option>
+    <option value="stock-asc">Stock: Low → High</option>
+    <option value="stock-desc">Stock: High → Low</option>
+  </select>
   <div class="cat-count" id="catCount">Loading...</div>
 </div>
 
@@ -750,6 +802,7 @@ function filterCatalog(){
   const color      = document.getElementById("catColorFilter").value.toLowerCase();
   const collection = document.getElementById("catCollectionFilter").value.toLowerCase();
   const size       = document.getElementById("catSizeFilter").value;
+  const sort       = document.getElementById("catSortFilter")?.value || "az";
 
   _filteredData = _catalogData.filter(product => {
     const nameMatch = product.style.toLowerCase().includes(kw) ||
@@ -757,15 +810,19 @@ function filterCatalog(){
                       product.colors.some(c => c.color.toLowerCase().includes(kw)) ||
                       (product.collection || "").toLowerCase().includes(kw);
     if(!nameMatch) return false;
-
     if(color && !product.colors.some(c => c.color.toLowerCase() === color)) return false;
-
     if(collection && (product.collection || "").toLowerCase() !== collection) return false;
-
     if(size && !product.colors.some(c => (Number(c[size]) || 0) > 0)) return false;
-
     return true;
   });
+
+  // Sort
+  const sizes = ["XS","S","M","L","XL"];
+  const getTotal = p => p.colors.reduce((s,c) => sizes.reduce((ss,sz) => ss+(Number(c[sz])||0), s), 0);
+  if(sort === "az")           _filteredData.sort((a,b) => a.style.localeCompare(b.style));
+  else if(sort === "za")      _filteredData.sort((a,b) => b.style.localeCompare(a.style));
+  else if(sort === "stock-asc")  _filteredData.sort((a,b) => getTotal(a) - getTotal(b));
+  else if(sort === "stock-desc") _filteredData.sort((a,b) => getTotal(b) - getTotal(a));
 
   renderCatalog(_filteredData);
 }
@@ -899,12 +956,21 @@ function renderCatalog(catalog){
             <div class="cat-card-img-wrap" onclick="openLightbox('${imgSrc}','${product.style}')">
               <img src="${imgSrc}" alt="${product.style}"
                 onerror="this.src='logo.png'">
+              ${grandTotal === 0 ? `
+              <div class="cat-oos-overlay">
+                <span class="cat-oos-badge">Out of Stock</span>
+              </div>` : ""}
             </div>
             <div class="cat-card-info">
               <div class="cat-card-style">${product.style}</div>
               <div class="cat-card-code">${product.code}</div>
               ${product.collection ? `
               <div class="cat-card-collection">✨ ${product.collection}</div>` : ""}
+              ${product.price ? `
+              <div class="cat-card-price">
+                <span class="cat-card-price-label">SRP</span>
+                ₱${Number(product.price).toLocaleString()}
+              </div>` : ""}
               <div class="cat-card-total-pill">
                 📦 ${grandTotal} pcs total
               </div>
