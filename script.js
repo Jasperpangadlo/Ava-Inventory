@@ -950,7 +950,7 @@ async function submitSalesCart(){
   for(const item of salesCart){
     const remarks = deductFrom === "Warehouse"
       ? "Warehouse - " + salesType
-      : deductFrom + " - Walk-in";
+      : deductFrom + " - " + salesType.replace(" Sales", "");
 
     const result = await apiRequest("stockOut", {
       barcode: item.barcode,
