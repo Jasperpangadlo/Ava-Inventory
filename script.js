@@ -1072,7 +1072,7 @@ if(cells.length < 8) return;
 const barcode = cells[0].textContent.toLowerCase();
 const product = cells[1].textContent.toLowerCase();
 const rowCategory = cells[2].textContent.toLowerCase();
-const rowColor = cells[3].textContent.toLowerCase();
+const rowColor = cells[3].textContent.toLowerCase().trim();
 const size = cells[4].textContent.toLowerCase();
 const stock = Number(cells[5].textContent) || 0;
 
@@ -1086,7 +1086,7 @@ const categoryMatch =
 !category || rowCategory === category;
 
 const colorMatch =
-!color || rowColor === color;
+!color || rowColor.includes(color) || color.includes(rowColor);
 
 let statusMatch = true;
 
