@@ -70,7 +70,7 @@ body{
 
     .controls{
 display:grid;
-grid-template-columns: 250px 100px auto auto auto 320px;
+grid-template-columns: 250px 100px auto auto auto auto 320px;
 gap:8px;
 align-items:start;
 margin-bottom:15px;
@@ -112,6 +112,7 @@ text-align:center;
 <button onclick="generateLabels()">Generate</button>
 <button onclick="clearAll()">Clear</button>
 <button onclick="window.print()">Print</button>
+<button onclick="toggleHistory()" style="background:#7B5EA7;color:white;border:none;padding:0 16px;border-radius:4px;cursor:pointer;font-size:14px;">📋 History</button>
 
 <div id="cart" class="cart-list"></div>
 
@@ -897,6 +898,138 @@ document.getElementById("barcodeSelect").value="";
 document.getElementById("qty").value=1;
 
 }
+<!-- ── Print History Panel ─────────────────────────────────────────── -->
+<div id="historyPanel" style="display:none;margin-top:20px;border:1px solid #ddd;border-radius:8px;overflow:hidden;">
+
+  <div style="background:#7B5EA7;color:white;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;">
+    <strong>📋 Print History</strong>
+    <div style="display:flex;gap:8px;">
+      <button onclick="clearHistory()" style="background:rgba(255,255,255,.2);color:white;border:1px solid rgba(255,255,255,.4);border-radius:4px;padding:4px 12px;cursor:pointer;font-size:12px;">🗑 Clear All</button>
+      <button onclick="toggleHistory()" style="background:none;color:white;border:none;cursor:pointer;font-size:16px;">✕</button>
+    </div>
+  </div>
+
+  <div id="historyEmpty" style="padding:24px;text-align:center;color:#aaa;font-size:13px;">
+    No print history yet. Generate and print labels to see history here.
+  </div>
+
+  <table id="historyTable" style="width:100%;border-collapse:collapse;display:none;">
+    <thead>
+      <tr style="background:#EDE5F4;font-size:12px;text-align:left;">
+        <th style="padding:8px 12px;">Date & Time</th>
+        <th style="padding:8px 12px;">Product</th>
+        <th style="padding:8px 12px;">Barcode</th>
+        <th style="padding:8px 12px;text-align:center;">Qty</th>
+        <th style="padding:8px 12px;text-align:center;">Action</th>
+      </tr>
+    </thead>
+    <tbody id="historyBody"></tbody>
+  </table>
+
+</div>
+
+<script>
+// ── Print History ─────────────────────────────────────────────────────────
+
+function loadHistory(){
+  return JSON.parse(localStorage.getItem("ava_label_history") || "[]");
+}
+
+function saveHistory(history){
+  localStorage.setItem("ava_label_history", JSON.stringify(history));
+}
+
+function addToHistory(cartItems){
+  const history = loadHistory();
+  const now = new Date().toLocaleString("en-PH");
+  cartItems.forEach(x => {
+    const [code, name] = x.item.split("|");
+    history.unshift({
+      datetime: now,
+      name: name || code,
+      code,
+      qty: x.qty
+    });
+  });
+  // Keep only last 200 records
+  if(history.length > 200) history.length = 200;
+  saveHistory(history);
+}
+
+function renderHistory(){
+  const history = loadHistory();
+  const tbody   = document.getElementById("historyBody");
+  const empty   = document.getElementById("historyEmpty");
+  const table   = document.getElementById("historyTable");
+
+  if(!history.length){
+    empty.style.display = "block";
+    table.style.display = "none";
+    return;
+  }
+
+  empty.style.display = "none";
+  table.style.display = "table";
+
+  tbody.innerHTML = history.map((h, i) => `
+    <tr style="border-bottom:1px solid #f0e8f8;font-size:13px;${i%2===0?'background:#faf7fc':''}">
+      <td style="padding:8px 12px;color:#6b7280;">${h.datetime}</td>
+      <td style="padding:8px 12px;font-weight:600;">${h.name}</td>
+      <td style="padding:8px 12px;color:#7B5EA7;font-family:monospace;">${h.code}</td>
+      <td style="padding:8px 12px;text-align:center;font-weight:700;">${h.qty}</td>
+      <td style="padding:8px 12px;text-align:center;">
+        <button onclick="reprintItem(${i})"
+          style="background:#E8522A;color:white;border:none;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:11px;">
+          🖨 Reprint
+        </button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function toggleHistory(){
+  const panel = document.getElementById("historyPanel");
+  const isHidden = panel.style.display === "none";
+  panel.style.display = isHidden ? "block" : "none";
+  if(isHidden) renderHistory();
+}
+
+function clearHistory(){
+  if(!confirm("Clear all print history?")) return;
+  localStorage.removeItem("ava_label_history");
+  renderHistory();
+}
+
+function reprintItem(index){
+  const history = loadHistory();
+  const h = history[index];
+  if(!h) return;
+
+  const labels = document.getElementById("labels");
+  labels.innerHTML = "";
+
+  for(let i = 0; i < h.qty; i++){
+    labels.innerHTML += `
+      <div class="label">
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(h.code)}&code=Code128&dpi=300&hidehrt=True">
+        <div class="name">${h.name}</div>
+        <div class="barcode-code">${h.code}</div>
+      </div>`;
+  }
+
+  // Scroll to labels and print
+  labels.scrollIntoView({ behavior: "smooth" });
+  setTimeout(() => window.print(), 600);
+}
+
+// ── Override window.print to save history ────────────────────────────────
+const _origPrint = window.print.bind(window);
+window.print = function(){
+  if(cart.length > 0){
+    addToHistory(cart);
+  }
+  _origPrint();
+};
 </script>
 </body>
   
