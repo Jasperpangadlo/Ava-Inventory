@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Barcode Labels</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -23,7 +24,8 @@
       box-sizing: border-box;
     }
     
-    .label img {
+    .label img,
+    .label .barcode-svg {
       width: 150px;
       height: 28px;
     }
@@ -1017,17 +1019,22 @@ function generateLabels(){
 
    for(let i=0;i<x.qty;i++){
 
-labels.innerHTML+=`
-<div class="label">
+     const div = document.createElement("div");
+     div.className = "label";
+     div.innerHTML = `
+       <svg class="barcode-svg"></svg>
+       <div class="name">${name}</div>
+       <div class="barcode-code">${code}</div>
+     `;
+     labels.appendChild(div);
 
-<img src="https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(code)}&code=Code128&dpi=300&hidehrt=True">
-
-<div class="name">${name}</div>
-
-<div class="barcode-code">${code}</div>
-
-</div>
-`;
+     JsBarcode(div.querySelector(".barcode-svg"), code, {
+       format: "CODE128",
+       width: 1.5,
+       height: 28,
+       displayValue: false,
+       margin: 0
+     });
 
    }
 
@@ -1161,12 +1168,22 @@ function reprintItem(index){
   labels.innerHTML = "";
 
   for(let i = 0; i < h.qty; i++){
-    labels.innerHTML += `
-      <div class="label">
-        <img src="https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(h.code)}&code=Code128&dpi=300&hidehrt=True">
-        <div class="name">${h.name}</div>
-        <div class="barcode-code">${h.code}</div>
-      </div>`;
+    const div = document.createElement("div");
+    div.className = "label";
+    div.innerHTML = `
+      <svg class="barcode-svg"></svg>
+      <div class="name">${h.name}</div>
+      <div class="barcode-code">${h.code}</div>
+    `;
+    labels.appendChild(div);
+
+    JsBarcode(div.querySelector(".barcode-svg"), h.code, {
+      format: "CODE128",
+      width: 1.5,
+      height: 28,
+      displayValue: false,
+      margin: 0
+    });
   }
 
   // Scroll to labels and print
