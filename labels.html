@@ -10,30 +10,36 @@
     }
 
     .labels {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 5px;
+    align-items: flex-start;
   }
 
     .label {
       border: 1px solid #ccc;
-      width: 220px;
-      height: 85px;
+      width: fit-content;
+      min-width: 120px;
       text-align: center;
-      padding: 5px;
+      padding: 4px 6px;
       box-sizing: border-box;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
     }
     
     .label img,
     .label .barcode-svg {
-      width: 150px;
-      height: 28px;
+      width: 130px;
+      height: 35px;
+      display: block;
     }
     
     .name {
-      font-size: 12px;
-      margin-top: 2px;
+      font-size: 11px;
+      margin-top: 1px;
       font-weight: bold;
+      white-space: nowrap;
     }
 
    @media print {
