@@ -1921,5 +1921,116 @@ if ("serviceWorker" in navigator) {
 }
 </script>
   
+<!-- ── Custom Logout Confirmation Modal ──────────────────────────────────── -->
+<div id="logoutModal" style="
+  display:none;
+  position:fixed;inset:0;z-index:99999;
+  background:rgba(0,0,0,.45);
+  backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;">
+
+  <div style="
+    background:#fff;
+    border-radius:20px;
+    padding:32px 28px;
+    width:100%;max-width:360px;
+    box-shadow:0 24px 60px rgba(0,0,0,.2);
+    text-align:center;
+    animation:popIn .25s ease;">
+
+    <!-- Icon -->
+    <div style="
+      width:64px;height:64px;
+      background:linear-gradient(135deg,#FDE8E0,#F2C4B0);
+      border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:28px;margin:0 auto 16px;">
+      👋
+    </div>
+
+    <!-- Title -->
+    <h3 style="
+      font-family:'Cormorant Garamond',Georgia,serif;
+      font-size:24px;font-style:italic;
+      color:#2D1F35;margin:0 0 8px;">
+      Leaving so soon?
+    </h3>
+
+    <!-- Message -->
+    <p style="font-size:13px;color:#8C7A9A;margin:0 0 24px;line-height:1.6;">
+      Are you sure you want to log out of<br>
+      <strong style="color:#2D1F35;">AVA Inventory System</strong>?
+    </p>
+
+    <!-- Buttons -->
+    <div style="display:flex;gap:12px;">
+      <button onclick="document.getElementById('logoutModal').style.display='none'"
+        style="
+          flex:1;padding:12px;
+          background:#EDE5F4;color:#7B5EA7;
+          border:none;border-radius:12px;
+          font-weight:700;font-size:14px;
+          cursor:pointer;transition:all .2s;">
+        Cancel
+      </button>
+      <button onclick="confirmLogout()"
+        style="
+          flex:1;padding:12px;
+          background:linear-gradient(135deg,#F2784F,#E8522A);
+          color:#fff;border:none;border-radius:12px;
+          font-weight:700;font-size:14px;
+          cursor:pointer;
+          box-shadow:0 4px 14px rgba(232,82,42,.3);
+          transition:all .2s;">
+        Yes, Log Out
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+@keyframes popIn {
+  from { transform: scale(.85); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+</style>
+
+<script>
+// ── Override logoutUser to show custom modal ──────────────────────────────
+function logoutUser(){
+  document.getElementById("logoutModal").style.display = "flex";
+}
+
+function confirmLogout(){
+  document.getElementById("logoutModal").style.display = "none";
+
+  const user = localStorage.getItem("avaUser") || "Unknown";
+  if(typeof logActivity === "function"){
+    logActivity("user", "Logout", `${user} logged out`);
+  }
+
+  localStorage.removeItem("avaLoggedIn");
+  localStorage.removeItem("avaUser");
+  localStorage.removeItem("avaRole");
+  localStorage.removeItem("avaStore");
+
+  const posScreen = document.getElementById("posScreen");
+  if(posScreen) posScreen.style.display = "none";
+
+  const layout = document.querySelector(".layout");
+  if(layout) layout.style.display = "none";
+
+  document.getElementById("loginScreen").style.display = "flex";
+  document.getElementById("username").value = "";
+  document.getElementById("password").value = "";
+}
+
+// Close modal on backdrop click
+document.getElementById("logoutModal").addEventListener("click", function(e){
+  if(e.target === this) this.style.display = "none";
+});
+</script>
+
 </body>
 </html>
