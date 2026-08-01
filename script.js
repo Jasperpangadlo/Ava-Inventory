@@ -5145,55 +5145,8 @@ btn.innerHTML = "Processing...";
   
 
 function logoutUser() {
-const btn =
-document.getElementById("logoutbtn");
-
-btn.classList.add("btn-loading");
-
-const originalText =
-btn.innerHTML;
-
-btn.innerHTML = "Processing...";
-  
-  const confirmLogout =
-  confirm("Are you sure you want to log out?");
-
-  if (!confirmLogout) {
-
-    btn.classList.remove("btn-loading");
-    btn.innerHTML = originalText;
-    return;
-  }
-
-  localStorage.removeItem("avaLoggedIn");
-  localStorage.removeItem("avaUser");
-  localStorage.removeItem("avaRole");
-  localStorage.removeItem("avaStore");
-
-  // Hide POS if showing
-  const posScreen = document.getElementById("posScreen");
-  if(posScreen) posScreen.style.display = "none";
-
-  // Hide admin layout so it doesn't show behind login screen
-  const layout = document.querySelector(".layout");
-  if(layout) layout.style.display = "none";
-
-  document.getElementById(
-    "loginScreen"
-  ).style.display = "flex";
-
-  document.getElementById(
-    "username"
-  ).value = "";
-
-  document.getElementById(
-    "password"
-  ).value = "";
-
-  btn.classList.remove("btn-loading");
-
-  btn.innerHTML = originalText;
-
+  // Show custom logout modal instead of browser confirm
+  document.getElementById("logoutModal").style.display = "flex";
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
