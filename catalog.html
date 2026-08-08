@@ -501,6 +501,92 @@
       margin-top: 12px;
     }
 
+    /* ── Tabs ─────────────────────────────────────────────────────── */
+    .cat-tabs {
+      display: flex;
+      background: rgba(255,255,255,.6);
+      border-bottom: 2px solid var(--lavender-bg);
+      padding: 0 32px;
+      backdrop-filter: blur(8px);
+    }
+    .cat-tab-btn {
+      padding: 14px 28px;
+      border: none;
+      background: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all .2s;
+    }
+    .cat-tab-btn:hover { color: var(--lavender-dark); }
+    .cat-tab-btn.active { color: var(--coral); border-bottom-color: var(--coral); }
+
+    /* ── Fabric Grid ──────────────────────────────────────────────── */
+    .fab-grid { padding: 28px 32px; display: flex; flex-direction: column; gap: 24px; }
+    .fab-card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(123,94,167,.10);
+      border: 1px solid rgba(201,184,212,.3);
+      overflow: hidden;
+      transition: box-shadow .25s, transform .25s;
+    }
+    .fab-card:hover { box-shadow: 0 10px 40px rgba(123,94,167,.18); transform: translateY(-2px); }
+    .fab-card-header {
+      background: linear-gradient(135deg, rgba(237,229,244,.5), rgba(255,255,255,.9));
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--lavender-bg);
+    }
+    .fab-card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px; font-style: italic; font-weight: 600;
+      color: var(--text); line-height: 1.3;
+    }
+    .fab-card-meta { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+    .fab-meta-pill {
+      background: var(--lavender-bg); color: var(--lavender-dark);
+      padding: 3px 12px; border-radius: 999px;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .fab-table { width: 100%; border-collapse: collapse; }
+    .fab-table thead tr { background: linear-gradient(135deg, var(--lavender-dark), var(--lavender-mid)); }
+    .fab-table thead th {
+      color: #fff; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 10px 16px; text-align: left;
+    }
+    .fab-table thead th:nth-child(2),
+    .fab-table thead th:last-child { text-align: center; }
+    .fab-table tbody tr { border-bottom: 1px solid var(--lavender-bg); transition: background .15s; }
+    .fab-table tbody tr:last-child { border-bottom: none; }
+    .fab-table tbody tr:hover { background: rgba(237,229,244,.2); }
+    .fab-table tbody td { padding: 10px 16px; font-size: 13px; color: var(--text); vertical-align: middle; }
+    .fab-color-name { font-weight: 700; color: var(--lavender-dark); text-transform: uppercase; font-size: 12px; letter-spacing: 0.04em; }
+    .fab-balance { text-align: center; font-weight: 800; font-size: 15px; }
+    .fab-balance.zero { background: #ef4444; color: #fff; border-radius: 6px; padding: 2px 10px; display: inline-block; }
+    .fab-balance.low  { color: #f59e0b; }
+    .fab-balance.ok   { color: #10b981; }
+    .fab-swatch {
+      width: 56px; height: 40px; border-radius: 8px;
+      object-fit: cover; border: 1.5px solid var(--border);
+      cursor: pointer; transition: transform .2s; display: block; margin: 0 auto;
+    }
+    .fab-swatch:hover { transform: scale(1.1); }
+    .fab-swatch-empty {
+      width: 56px; height: 40px; border-radius: 8px;
+      background: var(--lavender-bg); display: flex;
+      align-items: center; justify-content: center;
+      font-size: 18px; border: 1.5px dashed var(--lavender);
+      margin: 0 auto;
+    }
+
     /* ── Responsive ───────────────────────────────────────────────────── */
     @media (max-width: 640px) {
       .cat-header  { padding: 14px 16px; }
@@ -681,6 +767,12 @@
   </div>
 </header>
 
+<!-- ── Tab Buttons ─────────────────────────────────────────────────────────── -->
+<div class="cat-tabs">
+  <button class="cat-tab-btn active" onclick="switchTab('products', this)">🗂️ Products</button>
+  <button class="cat-tab-btn" onclick="switchTab('fabrics', this)">🧵 Fabrics</button>
+</div>
+
 <!-- ── Toolbar ───────────────────────────────────────────────────────────── -->
 <div class="cat-toolbar">
   <div class="cat-search">
@@ -733,8 +825,37 @@
   </div>
 </div>
 
+<!-- ── Fabrics Content ────────────────────────────────────────────────────── -->
+<div id="fabricsMain" style="display:none;">
+
+  <!-- Fabrics Toolbar -->
+  <div class="cat-toolbar">
+    <div class="cat-search">
+      <span>🔍</span>
+      <input id="fabricSearch" placeholder="Search fabric, color, supplier..." oninput="filterFabrics()">
+    </div>
+    <select class="cat-filter-select" id="fabricSupplierFilter" onchange="filterFabrics()">
+      <option value="">All Suppliers</option>
+    </select>
+    <select class="cat-filter-select" id="fabricStockFilter" onchange="filterFabrics()">
+      <option value="">All Stock</option>
+      <option value="available">Available</option>
+      <option value="out">Out of Stock</option>
+    </select>
+    <div class="cat-count" id="fabricCount">Loading...</div>
+  </div>
+
+  <div id="fabricGrid" class="fab-grid">
+    <div class="cat-loading">
+      <div class="cat-spinner"></div>
+      <p>Loading fabrics...</p>
+    </div>
+  </div>
+
+</div>
+
 <!-- ── Footer ───────────────────────────────────────────────────────────── -->
-<footer class="cat-footer">AVA Inventory System · Product Catalog</footer>
+<footer class="cat-footer">AVA Inventory System · Product & Fabric Catalog</footer>
 
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwymQ1xaCN5yW3WczU-TPGgF2dnn2l25YyStRm0ED1oM3CurdCctabBAS3YOWRTo2nj9Q/exec";
@@ -1030,6 +1151,157 @@ function closeLightbox(e) {
 document.addEventListener("keydown", e => {
   if(e.key === "Escape") closeLightbox();
 });
+
+// ── Tab Switching ────────────────────────────────────────────────────────────
+let _activeTab = "products";
+
+function switchTab(tab, btn){
+  _activeTab = tab;
+  document.querySelectorAll(".cat-tab-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+
+  // Show/hide toolbar and main
+  const productToolbar = document.querySelector(".cat-toolbar");
+  const productMain    = document.getElementById("catMain");
+  const fabricsMain    = document.getElementById("fabricsMain");
+
+  if(tab === "products"){
+    productToolbar.style.display = "flex";
+    productMain.style.display    = "block";
+    fabricsMain.style.display    = "none";
+    if(!_catalogData.length) loadCatalog();
+  } else {
+    productToolbar.style.display = "none";
+    productMain.style.display    = "none";
+    fabricsMain.style.display    = "block";
+    if(!_fabricData.length) loadFabrics();
+  }
+}
+
+// ── Fabric Data ───────────────────────────────────────────────────────────────
+let _fabricData     = [];
+let _filteredFabric = [];
+
+async function loadFabrics(){
+  const grid = document.getElementById("fabricGrid");
+  grid.innerHTML = `<div class="cat-loading"><div class="cat-spinner"></div><p>Loading fabrics...</p></div>`;
+  document.getElementById("fabricCount").textContent = "Loading...";
+
+  try {
+    const url  = `${WEB_APP_URL}?action=getFabrics`;
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    _fabricData     = data.fabrics || [];
+    _filteredFabric = [..._fabricData];
+
+    populateFabricSupplierFilter();
+    renderFabrics(_filteredFabric);
+
+  } catch(err) {
+    grid.innerHTML = `
+      <div class="cat-empty">
+        <h3>Could not load fabrics</h3>
+        <p>${err.message}</p>
+      </div>`;
+    document.getElementById("fabricCount").textContent = "Error";
+  }
+}
+
+function populateFabricSupplierFilter(){
+  const sel = document.getElementById("fabricSupplierFilter");
+  const cur = sel.value || "";
+  const suppliers = [...new Set(_fabricData.map(f => f.supplier).filter(Boolean))].sort();
+  sel.innerHTML = `<option value="">All Suppliers</option>` +
+    suppliers.map(s => `<option value="${s}">${s}</option>`).join("");
+  sel.value = cur;
+  if(!sel.value) sel.selectedIndex = 0;
+}
+
+function filterFabrics(){
+  const kw       = document.getElementById("fabricSearch").value.toLowerCase();
+  const supplier = document.getElementById("fabricSupplierFilter").value.toLowerCase();
+  const stock    = document.getElementById("fabricStockFilter").value;
+
+  _filteredFabric = _fabricData.filter(f => {
+    const nameMatch =
+      f.itemNo.toLowerCase().includes(kw) ||
+      f.description.toLowerCase().includes(kw) ||
+      (f.supplier || "").toLowerCase().includes(kw) ||
+      f.colors.some(c => c.color.toLowerCase().includes(kw));
+    if(!nameMatch) return false;
+    if(supplier && (f.supplier || "").toLowerCase() !== supplier) return false;
+    if(stock === "available" && !f.colors.some(c => Number(c.balance) > 0)) return false;
+    if(stock === "out"       &&  f.colors.some(c => Number(c.balance) > 0)) return false;
+    return true;
+  });
+
+  renderFabrics(_filteredFabric);
+}
+
+function renderFabrics(fabrics){
+  const grid  = document.getElementById("fabricGrid");
+  const count = document.getElementById("fabricCount");
+
+  count.textContent = `${fabrics.length} fabric${fabrics.length !== 1 ? "s" : ""}`;
+
+  if(!fabrics.length){
+    grid.innerHTML = `
+      <div class="cat-empty">
+        <h3>No fabrics found</h3>
+        <p>Try adjusting your search or filters.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = fabrics.map(f => {
+    const totalYds    = f.colors.reduce((s,c) => s + (Number(c.balance)||0), 0);
+    const outOfStock  = f.colors.every(c => Number(c.balance) === 0);
+    const statusPill  = outOfStock
+      ? `<span class="fab-meta-pill" style="background:#FDE8E0;color:#E8522A;">❌ Out of Stock</span>`
+      : `<span class="fab-meta-pill" style="background:#D1FAE5;color:#065F46;">✅ Available</span>`;
+
+    const colorRows = f.colors.map(c => {
+      const bal = Number(c.balance) || 0;
+      const cls = bal === 0 ? "zero" : bal < 20 ? "low" : "ok";
+      const swatch = c.swatchUrl
+        ? `<img class="fab-swatch" src="${c.swatchUrl}" alt="${c.color}"
+             onclick="openLightbox('${c.swatchUrl}','${c.color}')"
+             onerror="this.outerHTML='<div class=\\'fab-swatch-empty\\'>🧵</div>'">`
+        : `<div class="fab-swatch-empty">🧵</div>`;
+
+      return `<tr>
+        <td><span class="fab-color-name">${c.color}</span></td>
+        <td style="text-align:center;"><span class="fab-balance ${cls}">${bal === 0 ? "0" : bal + " yds"}</span></td>
+        <td>${swatch}</td>
+      </tr>`;
+    }).join("");
+
+    return `
+      <div class="fab-card">
+        <div class="fab-card-header">
+          <div class="fab-card-title">${f.itemNo} — ${f.description}</div>
+          <div class="fab-card-meta">
+            ${f.supplier ? `<span class="fab-meta-pill">🏭 ${f.supplier}</span>` : ""}
+            ${f.qtyRolls ? `<span class="fab-meta-pill">📦 ${f.qtyRolls} roll${f.qtyRolls > 1 ? "s" : ""}</span>` : ""}
+            ${f.arrivalDate ? `<span class="fab-meta-pill">📅 ${f.arrivalDate}</span>` : ""}
+            <span class="fab-meta-pill">📏 ${totalYds.toFixed(2)} yds total</span>
+            ${statusPill}
+          </div>
+        </div>
+        <table class="fab-table">
+          <thead>
+            <tr>
+              <th>Color</th>
+              <th>Balance (yds)</th>
+              <th style="text-align:center;">Swatch</th>
+            </tr>
+          </thead>
+          <tbody>${colorRows}</tbody>
+        </table>
+      </div>`;
+  }).join("");
+}
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 loadCatalog();
