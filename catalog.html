@@ -543,7 +543,7 @@
       padding: 3px 12px; border-radius: 999px;
       font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
     }
-    .fab-table { width: 100%; border-collapse: collapse; }
+    .fab-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
     .fab-table thead tr { background: linear-gradient(135deg, var(--lavender-dark), var(--lavender-mid)); }
     .fab-table thead th {
       color: #fff; font-size: 11px; font-weight: 700;
@@ -1221,8 +1221,8 @@ function renderFabrics(fabrics){
              onerror="this.outerHTML='<div class=\\'fab-swatch-empty\\'>🧵</div>'">`
         : `<div class="fab-swatch-empty">🧵</div>`;
       return `<tr>
-        <td><span class="fab-color-name">${c.color}</span></td>
-        <td style="text-align:center;width:200px;"><span class="fab-balance ${cls}">${bal === 0 ? "0" : bal + " yds"}</span></td>
+        <td style="width:55%;"><span class="fab-color-name">${c.color}</span></td>
+        <td style="width:25%;text-align:center;"><span class="fab-balance ${cls}">${bal === 0 ? "0" : bal + " yds"}</span></td>
         <td>${swatch}</td>
       </tr>`;
     }).join("");
@@ -1239,9 +1239,9 @@ function renderFabrics(fabrics){
         <table class="fab-table">
           <thead>
             <tr>
-              <th>Color</th>
-              <th style="text-align:center;width:200px;">Balance (yds)</th>
-              <th style="text-align:center;">Swatch</th>
+              <th style="width:55%;text-align:left;">Color</th>
+              <th style="width:25%;text-align:center;">Balance (yds)</th>
+              <th style="width:20%;text-align:center;">Swatch</th>
             </tr>
           </thead>
           <tbody>${colorRows}</tbody>
