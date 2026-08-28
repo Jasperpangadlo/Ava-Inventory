@@ -105,7 +105,7 @@
 
       <div class="pos-header">
         <div>
-          <h2 id="posStoreName">Store 1</h2>
+          <h2 id="posStoreName">Podium</h2>
           <span id="posClock" class="pos-clock"></span>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
@@ -207,7 +207,7 @@
 
       <div class="pos-history-header">
         <div>
-          <h2 id="posHistoryStoreName">Store 1</h2>
+          <h2 id="posHistoryStoreName">Podium</h2>
           <p style="color:#6b7280;font-size:13px;">Transaction History</p>
         </div>
         <div style="display:flex;gap:10px;align-items:center;">
@@ -366,7 +366,7 @@
       <div class="rcpt-logo">
         <img src="logo.png" alt="Logo" style="height:48px;object-fit:contain;">
       </div>
-      <h2 class="rcpt-store-name" id="rcptStoreName">Store 1</h2>
+      <h2 class="rcpt-store-name" id="rcptStoreName">Podium</h2>
       <p class="rcpt-tagline">Thank you for your purchase!</p>
 
       <div class="rcpt-divider"></div>
@@ -518,8 +518,8 @@
       <div class="db-date-pill" id="todayDate"></div>
     </div>
     <div id="branchRanking">
-      <div class="rank-item">🥇 Store 1 - ₱0</div>
-      <div class="rank-item">🥈 Store 2 - ₱0</div>
+      <div class="rank-item">🥇 Podium - ₱0</div>
+      <div class="rank-item">🥈 Glorietta - ₱0</div>
       <div class="rank-item">🥉 Store 3 - ₱0</div>
     </div>
   </div>
@@ -531,12 +531,12 @@
     </div>
     <div id="salesChart">
       <div class="db-chart-row">
-        <span>Store 1</span>
+        <span>Podium</span>
         <div class="chart-bar"><div id="barStore1"></div></div>
         <span id="barStore1Amount">₱0</span>
       </div>
       <div class="db-chart-row">
-        <span>Store 2</span>
+        <span>Glorietta</span>
         <div class="chart-bar"><div id="barStore2"></div></div>
         <span id="barStore2Amount">₱0</span>
       </div>
@@ -852,8 +852,8 @@
       <div class="so-field">
         <label>Destination Store</label>
         <select id="toStore">
-          <option>Store 1</option>
-          <option>Store 2</option>
+          <option>Podium</option>
+          <option>Glorietta</option>
           <option>Store 3</option>
         </select>
       </div>
@@ -885,8 +885,8 @@
       <div class="so-field">
         <label>From Store</label>
         <select id="fromStore">
-          <option>Store 1</option>
-          <option>Store 2</option>
+          <option>Podium</option>
+          <option>Glorietta</option>
           <option>Store 3</option>
         </select>
       </div>
@@ -928,8 +928,8 @@
       📷
     </button>
     <select id="deductFrom" class="so-select">
-      <option value="Store 1">Store 1</option>
-      <option value="Store 2">Store 2</option>
+      <option value="Podium">Podium</option>
+      <option value="Glorietta">Glorietta</option>
       <option value="Store 3">Store 3</option>
       <option value="Warehouse">Warehouse</option>
     </select>
@@ -1113,8 +1113,8 @@
     <select id="soldLocationFilter" onchange="filterSoldItems()">
       <option value="">All Locations</option>
       <option value="warehouse">Warehouse</option>
-      <option value="store 1">Store 1</option>
-      <option value="store 2">Store 2</option>
+      <option value="podium">Podium</option>
+      <option value="glorietta">Glorietta</option>
       <option value="store 3">Store 3</option>
     </select>
     <div class="si-date-filter">
@@ -1244,8 +1244,8 @@
     <span style="font-size:13px;font-weight:700;color:#6b7280;">Filter by:</span>
     <div style="display:flex;gap:6px;flex-wrap:wrap;">
       <button class="kpi-store-btn active" onclick="setKpiStoreFilter('all',this)">🏪 All Stores</button>
-      <button class="kpi-store-btn" onclick="setKpiStoreFilter('store 1',this)">Store 1</button>
-      <button class="kpi-store-btn" onclick="setKpiStoreFilter('store 2',this)">Store 2</button>
+      <button class="kpi-store-btn" onclick="setKpiStoreFilter('podium',this)">Podium</button>
+      <button class="kpi-store-btn" onclick="setKpiStoreFilter('glorietta',this)">Glorietta</button>
       <button class="kpi-store-btn" onclick="setKpiStoreFilter('store 3',this)">Store 3</button>
       <button class="kpi-store-btn online" onclick="setKpiStoreFilter('online',this)">🌐 Online</button>
     </div>
@@ -1278,13 +1278,13 @@
   <!-- Store Revenue Cards -->
   <div class="store-revenue-grid" id="storeRevenueGrid">
     <div class="store-revenue-card" id="storeRevenueCard1">
-      <div class="store-card-top"><span>🏪 Store 1</span><span class="store-rank" id="storeRank1">🥇</span></div>
+      <div class="store-card-top"><span>🏪 Podium</span><span class="store-rank" id="storeRank1">🥇</span></div>
       <h2 id="reportStore1Sales">₱0</h2>
       <p id="reportStore1Qty">0 items sold</p>
       <div class="store-progress"><div id="store1Progress"></div></div>
     </div>
     <div class="store-revenue-card" id="storeRevenueCard2">
-      <div class="store-card-top"><span>🏪 Store 2</span><span class="store-rank" id="storeRank2">🥈</span></div>
+      <div class="store-card-top"><span>🏪 Glorietta</span><span class="store-rank" id="storeRank2">🥈</span></div>
       <h2 id="reportStore2Sales">₱0</h2>
       <p id="reportStore2Qty">0 items sold</p>
       <div class="store-progress"><div id="store2Progress"></div></div>
@@ -1329,8 +1329,8 @@
         <input type="month" id="trendMonth" onchange="reloadSalesTrendWithLoader()">
         <select id="trendStoreFilter" onchange="reloadSalesTrendWithLoader()">
           <option value="">All Stores</option>
-          <option value="Store 1">Store 1</option>
-          <option value="Store 2">Store 2</option>
+          <option value="Podium">Podium</option>
+          <option value="Glorietta">Glorietta</option>
           <option value="Store 3">Store 3</option>
         </select>
       </div>
@@ -1392,7 +1392,7 @@
       <div class="bs-store-header">
         <div class="bs-store-icon">🏪</div>
         <div>
-          <h3>Store 1</h3>
+          <h3>Podium</h3>
           <p id="bsStore1Total">₱0 total sales</p>
         </div>
       </div>
@@ -1405,7 +1405,7 @@
       <div class="bs-store-header">
         <div class="bs-store-icon">🏪</div>
         <div>
-          <h3>Store 2</h3>
+          <h3>Glorietta</h3>
           <p id="bsStore2Total">₱0 total sales</p>
         </div>
       </div>
@@ -1524,7 +1524,7 @@
       <div id="warehouseOnlineReport"></div>
     </div>
     <div class="report-card">
-      <h4>🏪 Store 1 → Walk-in Sales</h4>
+      <h4>🏪 Podium → Walk-in Sales</h4>
       <div class="report-summary">
         <span>Qty: <b id="store1WalkinQty">0</b></span>
         <span>Total: <b id="store1WalkinSummaryTotal">₱0</b></span>
@@ -1532,7 +1532,7 @@
       <div id="store1WalkinReport"></div>
     </div>
     <div class="report-card">
-      <h4>🏪 Store 2 → Walk-in Sales</h4>
+      <h4>🏪 Glorietta → Walk-in Sales</h4>
       <div class="report-summary">
         <span>Qty: <b id="store2WalkinQty">0</b></span>
         <span>Total: <b id="store2WalkinSummaryTotal">₱0</b></span>
@@ -1568,12 +1568,12 @@
 <!-- ══ STORE CARDS ═══════════════════════════════════════════════════════ -->
 <div class="st-cards-grid">
 
-  <!-- Store 1 -->
+  <!-- Podium -->
   <div class="st-card st-card1">
     <div class="st-card-glow"></div>
     <div class="st-card-top">
       <div class="st-card-icon">🏪</div>
-      <div class="st-card-label">Store 1</div>
+      <div class="st-card-label">Podium</div>
       <div id="store1Status" class="st-status-badge">Healthy</div>
     </div>
     <div class="st-card-stats">
@@ -1601,12 +1601,12 @@
     </div>
   </div>
 
-  <!-- Store 2 -->
+  <!-- Glorietta -->
   <div class="st-card st-card2">
     <div class="st-card-glow"></div>
     <div class="st-card-top">
       <div class="st-card-icon">🏪</div>
-      <div class="st-card-label">Store 2</div>
+      <div class="st-card-label">Glorietta</div>
       <div id="store2Status" class="st-status-badge">Healthy</div>
     </div>
     <div class="st-card-stats">
