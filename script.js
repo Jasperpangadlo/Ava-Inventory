@@ -2579,8 +2579,8 @@ if(remarks.includes("walk")){
   walkinTotal += total;
 }
 
-if(remarks.includes("store 1")&&remarks.includes("walk")) store1Sales[product]=(store1Sales[product]||0)+qty;
-if(remarks.includes("store 2")&&remarks.includes("walk")) store2Sales[product]=(store2Sales[product]||0)+qty;
+if(remarks.includes("podium")&&remarks.includes("walk")) store1Sales[product]=(store1Sales[product]||0)+qty;
+if(remarks.includes("glorietta")&&remarks.includes("walk")) store2Sales[product]=(store2Sales[product]||0)+qty;
 if(remarks.includes("store 3")&&remarks.includes("walk")) store3Sales[product]=(store3Sales[product]||0)+qty;
 
 if(remarks.includes("add stock")){
@@ -2600,10 +2600,10 @@ else if(remarks.includes("online")){
   onlineSales[product] = (onlineSales[product]||0) + qty;
   warehouseOnlineHtml+=row; summary.warehouseOnline.qty+=qty; summary.warehouseOnline.total+=total;
 }
-else if(remarks.startsWith("store 1")&&remarks.includes("walk")){
+else if(remarks.startsWith("podium")&&remarks.includes("walk")){
   store1WalkinHtml+=row; store1Total+=total; summary.store1Walkin.qty+=qty; summary.store1Walkin.total+=total;
 }
-else if(remarks.startsWith("store 2")&&remarks.includes("walk")){
+else if(remarks.startsWith("glorietta")&&remarks.includes("walk")){
   store2WalkinHtml+=row; store2Total+=total; summary.store2Walkin.qty+=qty; summary.store2Walkin.total+=total;
 }
 else if(remarks.startsWith("store 3")&&remarks.includes("walk")){
@@ -2708,11 +2708,11 @@ async function loadBestSellers(){
       online[product]  = (online[product]  || 0) + qty;
       overall[product] = (overall[product] || 0) + qty;
       totals.online   += total;
-    } else if(remarks.includes("store 1")){
+    } else if(remarks.includes("podium")){
       store1[product]  = (store1[product]  || 0) + qty;
       overall[product] = (overall[product] || 0) + qty;
       totals.store1   += total;
-    } else if(remarks.includes("store 2")){
+    } else if(remarks.includes("glorietta")){
       store2[product]  = (store2[product]  || 0) + qty;
       overall[product] = (overall[product] || 0) + qty;
       totals.store2   += total;
@@ -3195,7 +3195,7 @@ function loadStoreComparisonChart(s1, s2, s3){
   storeComparisonChart = new Chart(canvas,{
     type:"bar",
     data:{
-      labels:["Store 1","Store 2","Store 3"],
+      labels:["Podium","Glorietta","Store 3"],
       datasets:[{
         label:"Revenue",
         data:[s1,s2,s3],
@@ -3666,12 +3666,12 @@ Number(item.total) || 0;
 
 if(itemDate !== today) return;
 
-if(remarks.includes("store 1") && remarks.includes("walk")){
+if(remarks.includes("podium") && remarks.includes("walk")){
 store1 += total;
 store1Qty += Number(item.qty) || 0;
 }
 
-if(remarks.includes("store 2") && remarks.includes("walk")){
+if(remarks.includes("glorietta") && remarks.includes("walk")){
 store2 += total;
 store2Qty += Number(item.qty) || 0;
 }
@@ -3708,8 +3708,8 @@ products.forEach(item=>{
 
 const stock = Number(item.stock) || 0;
 
-if(item.location === "Store 1") store1 += stock;
-if(item.location === "Store 2") store2 += stock;
+if(item.location === "Podium") store1 += stock;
+if(item.location === "Glorietta") store2 += stock;
 if(item.location === "Store 3") store3 += stock;
 
 });
@@ -3773,8 +3773,8 @@ document.getElementById("store3Sales")
 ) || 0;
 
 const stores = [
-{name:"Store 1", sales:s1},
-{name:"Store 2", sales:s2},
+{name:"Podium", sales:s1},
+{name:"Glorietta", sales:s2},
 {name:"Store 3", sales:s3}
 ];
 
@@ -3968,8 +3968,8 @@ allSales[product] = (allSales[product] || 0) + qty;
 const bestSeller = Object.entries(allSales).sort((a,b)=>b[1]-a[1])[0];
 
 const storeData = [
-{name:"Store 1", sales:store1Total, qty:Object.values(store1Sales).reduce((a,b)=>a+b,0)},
-{name:"Store 2", sales:store2Total, qty:Object.values(store2Sales).reduce((a,b)=>a+b,0)},
+{name:"Podium", sales:store1Total, qty:Object.values(store1Sales).reduce((a,b)=>a+b,0)},
+{name:"Glorietta", sales:store2Total, qty:Object.values(store2Sales).reduce((a,b)=>a+b,0)},
 {name:"Store 3", sales:store3Total, qty:Object.values(store3Sales).reduce((a,b)=>a+b,0)}
 ];
 
@@ -3984,20 +3984,20 @@ let kpiBest     = bestSeller ? bestSeller[0] : "-";
 let kpiTop      = storeData[0].sales > 0 ? storeData[0].name : "-";
 let kpiLabel    = "Walk-in + Online sales";
 
-if(kf === "store 1"){
+if(kf === "podium"){
   kpiRev   = store1Total;
-  kpiItems = storeData.find(s=>s.name==="Store 1").qty;
+  kpiItems = storeData.find(s=>s.name==="Podium").qty;
   const b  = Object.entries(store1Sales).sort((a,b)=>b[1]-a[1])[0];
   kpiBest  = b ? b[0] : "-";
-  kpiTop   = "Store 1";
-  kpiLabel = "Store 1 Walk-in sales";
-} else if(kf === "store 2"){
+  kpiTop   = "Podium";
+  kpiLabel = "Podium Walk-in sales";
+} else if(kf === "glorietta"){
   kpiRev   = store2Total;
-  kpiItems = storeData.find(s=>s.name==="Store 2").qty;
+  kpiItems = storeData.find(s=>s.name==="Glorietta").qty;
   const b  = Object.entries(store2Sales).sort((a,b)=>b[1]-a[1])[0];
   kpiBest  = b ? b[0] : "-";
-  kpiTop   = "Store 2";
-  kpiLabel = "Store 2 Walk-in sales";
+  kpiTop   = "Glorietta";
+  kpiLabel = "Glorietta Walk-in sales";
 } else if(kf === "store 3"){
   kpiRev   = store3Total;
   kpiItems = storeData.find(s=>s.name==="Store 3").qty;
@@ -4032,8 +4032,8 @@ animateNumber("reportStore1Sales", store1Total, "₱");
 animateNumber("reportStore2Sales", store2Total, "₱");
 animateNumber("reportStore3Sales", store3Total, "₱");
 
-document.getElementById("reportStore1Qty").textContent = storeData.find(s=>s.name==="Store 1").qty + " items sold";
-document.getElementById("reportStore2Qty").textContent = storeData.find(s=>s.name==="Store 2").qty + " items sold";
+document.getElementById("reportStore1Qty").textContent = storeData.find(s=>s.name==="Podium").qty + " items sold";
+document.getElementById("reportStore2Qty").textContent = storeData.find(s=>s.name==="Glorietta").qty + " items sold";
 document.getElementById("reportStore3Qty").textContent = storeData.find(s=>s.name==="Store 3").qty + " items sold";
 
 const max = Math.max(store1Total, store2Total, store3Total, 1);
@@ -4675,7 +4675,7 @@ let posCart = [];
 let posStoreProducts = [];
 
 function showPosScreen(){
-  const store = localStorage.getItem("avaStore") || "Store 1";
+  const store = localStorage.getItem("avaStore") || "Podium";
   const user  = localStorage.getItem("avaUser")  || "";
 
   document.getElementById("posScreen").style.display = "block";
@@ -4728,7 +4728,7 @@ function showPosTab(tab){
 let _posHistoryData = [];
 
 async function loadPosHistory(){
-  const store    = localStorage.getItem("avaStore") || "Store 1";
+  const store    = localStorage.getItem("avaStore") || "Podium";
   const dateEl   = document.getElementById("posHistoryDate");
   const date     = dateEl ? dateEl.value : "";
   const tbody    = document.getElementById("posHistoryTableBody");
@@ -4823,7 +4823,7 @@ function updatePosClock(){
 }
 
 async function loadPosStocks(){
-  const store = localStorage.getItem("avaStore") || "Store 1";
+  const store = localStorage.getItem("avaStore") || "Podium";
   const result = await apiRequest("getStoreProducts", { store });
   posStoreProducts = result.products || [];
   filterPosStocks();
@@ -4892,7 +4892,7 @@ function renderPosStocks(products){
 }
 
 async function loadPosSalesStats(){
-  const store = localStorage.getItem("avaStore") || "Store 1";
+  const store = localStorage.getItem("avaStore") || "Podium";
   const _now = new Date();
   const today = `${_now.getMonth()+1}/${_now.getDate()}/${_now.getFullYear()}`;
 
@@ -5054,7 +5054,7 @@ async function posCheckout(){
     }
   }
 
-  const store     = localStorage.getItem("avaStore") || "Store 1";
+  const store     = localStorage.getItem("avaStore") || "Podium";
   const btn       = document.getElementById("posCheckoutBtn");
   const origText  = btn.innerHTML;
   btn.innerHTML   = "Processing...";
