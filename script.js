@@ -1911,10 +1911,9 @@ function updateClock() {
         document.getElementById("previewStock").innerText =
           document.getElementById("stock").value || "-";
 
-        // Update cart count
-        const rows = document.querySelectorAll("#stockCartTable tr:not(#asCartEmpty)");
+        // Update cart count — use stockCart.length for accuracy
         const countEl = document.getElementById("asCartCount");
-        if(countEl) countEl.textContent = rows.length + " item" + (rows.length !== 1 ? "s" : "");
+        if(countEl) countEl.textContent = stockCart.length + " item" + (stockCart.length !== 1 ? "s" : "");
 
         const productName =
         document.getElementById("product").value
@@ -2111,10 +2110,12 @@ document.getElementById("barcode").focus();
 }
 
 function renderStockCart() {
-  const tbody =
-  document.getElementById("stockCartTable");
-
+  const tbody = document.getElementById("stockCartTable");
   if(!tbody) return;
+
+  // Always update count badge
+  const countEl = document.getElementById("asCartCount");
+  if(countEl) countEl.textContent = stockCart.length + " item" + (stockCart.length !== 1 ? "s" : "");
 
   if(stockCart.length === 0){
     tbody.innerHTML = "";
@@ -2124,7 +2125,6 @@ function renderStockCart() {
   let html = "";
 
   stockCart.forEach((item, index) => {
-
     html += `
       <tr>
         <td>${item.barcode}</td>
@@ -2141,7 +2141,6 @@ function renderStockCart() {
         </td>
       </tr>
     `;
-
   });
 
   tbody.innerHTML = html;
