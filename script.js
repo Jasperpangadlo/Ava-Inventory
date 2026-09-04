@@ -2861,6 +2861,20 @@ function formatDate(d){
   return `${yyyy}-${mm}-${dd}`;
 }
 
+// ⚡ Parse "M/d/yyyy HH:mm:ss" format from Apps Script
+function parseDatetime(str){
+  if(!str) return new Date(0);
+  // Already a valid ISO or standard format
+  const d = new Date(str);
+  if(!isNaN(d)) return d;
+  // Try manual parse for "M/d/yyyy HH:mm:ss"
+  const m = String(str).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(.*)/);
+  if(m){
+    return new Date(`${m[3]}-${m[1].padStart(2,"0")}-${m[2].padStart(2,"0")}${m[4]}`);
+  }
+  return new Date(0);
+}
+
 function getFilteredHistory(){
   const history = historyCache || [];
   const { from, to } = _activeDateRange;
@@ -4462,6 +4476,11 @@ async function loadSoldItems(){
   const siTable = document.getElementById("soldItemsTable");
   if(siTable) siTable.innerHTML = skeletonRows(8, 5);
 
+  // ⚡ Load history if cache is empty
+  if(!historyCache || historyCache.length === 0){
+    await loadHistoryCache();
+  }
+
   const records = historyCache;
 
   soldItemsData =
@@ -4602,8 +4621,7 @@ locationMatch =
 remarks.includes(location);
 }
 
-const itemDate =
-new Date(item.datetime || item.date);
+const itemDate = parseDatetime(item.datetime || item.date);
 
 if(dateFrom){
 const from =
