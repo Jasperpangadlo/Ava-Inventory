@@ -749,6 +749,7 @@
   </div>
   <div class="cat-header-right">
     <button class="cat-refresh-btn" onclick="loadCatalog()">↻ Refresh</button>
+    <button class="cat-refresh-btn" onclick="showQRCode()" style="background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35);">📱 QR Code</button>
     <button class="cat-print-btn" onclick="printCatalog()">🖨️ Print</button>
     <a href="index.html" class="cat-back-btn">← Back to Inventory</a>
   </div>
@@ -1253,5 +1254,140 @@ function renderFabrics(fabrics){
 // ── Init ─────────────────────────────────────────────────────────────────────
 loadCatalog();
 </script>
+<!-- ── QR Code Modal ──────────────────────────────────────────────────────── -->
+<div id="qrModal" style="
+  display:none;position:fixed;inset:0;z-index:99999;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;">
+
+  <div style="
+    background:#fff;border-radius:24px;padding:36px 32px;
+    width:100%;max-width:360px;text-align:center;
+    box-shadow:0 24px 60px rgba(0,0,0,.25);
+    animation:popIn .25s ease;">
+
+    <!-- Header -->
+    <div style="margin-bottom:20px;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-style:italic;font-weight:600;color:#2D1F35;">
+        Scan to View Catalog
+      </div>
+      <p style="font-size:12px;color:#8C7A9A;margin-top:6px;letter-spacing:0.04em;text-transform:uppercase;">
+        AVA The Brand · Product Catalog
+      </p>
+    </div>
+
+    <!-- QR Code -->
+    <div id="qrCodeContainer" style="
+      display:flex;align-items:center;justify-content:center;
+      background:#F7F4F8;border-radius:16px;padding:20px;
+      margin-bottom:20px;border:2px solid #EDE5F4;">
+      <canvas id="qrCanvas"></canvas>
+    </div>
+
+    <!-- URL display -->
+    <div style="
+      background:#EDE5F4;border-radius:10px;padding:10px 14px;
+      font-size:11px;color:#7B5EA7;font-weight:600;
+      word-break:break-all;margin-bottom:20px;
+      letter-spacing:0.01em;" id="qrUrlDisplay"></div>
+
+    <!-- Buttons -->
+    <div style="display:flex;gap:10px;">
+      <button onclick="downloadQR()"
+        style="flex:1;padding:12px;background:linear-gradient(135deg,#F2784F,#E8522A);
+               color:#fff;border:none;border-radius:12px;font-weight:700;
+               font-size:13px;cursor:pointer;letter-spacing:0.04em;">
+        ⬇ Download
+      </button>
+      <button onclick="closeQRModal()"
+        style="flex:1;padding:12px;background:#EDE5F4;color:#7B5EA7;
+               border:none;border-radius:12px;font-weight:700;
+               font-size:13px;cursor:pointer;">
+        Close
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+let _qrInstance = null;
+
+function showQRCode(){
+  const modal = document.getElementById("qrModal");
+  modal.style.display = "flex";
+
+  // Get current page URL (catalog.html)
+  const url = window.location.href.split("?")[0].split("#")[0];
+  document.getElementById("qrUrlDisplay").textContent = url;
+
+  const container = document.getElementById("qrCodeContainer");
+  const canvas    = document.getElementById("qrCanvas");
+
+  // Clear previous QR
+  canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+  container.innerHTML = '<canvas id="qrCanvas"></canvas>';
+
+  // Generate QR using qrcodejs
+  new QRCode(document.getElementById("qrCanvas"), {
+    text:          url,
+    width:         200,
+    height:        200,
+    colorDark:     "#2D1F35",
+    colorLight:    "#F7F4F8",
+    correctLevel:  QRCode.CorrectLevel.H
+  });
+}
+
+function closeQRModal(){
+  document.getElementById("qrModal").style.display = "none";
+}
+
+function downloadQR(){
+  setTimeout(() => {
+    const canvas = document.querySelector("#qrCodeContainer canvas");
+    if(!canvas) return;
+
+    // Create a white-background download canvas
+    const dl = document.createElement("canvas");
+    dl.width  = 260;
+    dl.height = 300;
+    const ctx = dl.getContext("2d");
+
+    // White background
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, 260, 300);
+
+    // Draw QR centered
+    ctx.drawImage(canvas, 30, 20, 200, 200);
+
+    // Add label
+    ctx.fillStyle = "#2D1F35";
+    ctx.font = "bold 13px Montserrat, Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("AVA The Brand", 130, 242);
+    ctx.fillStyle = "#8C7A9A";
+    ctx.font = "11px Arial, sans-serif";
+    ctx.fillText("Product Catalog", 130, 260);
+
+    const link = document.createElement("a");
+    link.download = "ava-catalog-qr.png";
+    link.href = dl.toDataURL("image/png");
+    link.click();
+  }, 300);
+}
+
+// Close on backdrop click
+document.getElementById("qrModal").addEventListener("click", function(e){
+  if(e.target === this) closeQRModal();
+});
+
+// Close on Escape
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape") closeQRModal();
+});
+</script>
+
 </body>
 </html>
