@@ -1272,11 +1272,10 @@ loadCatalog();
         AVA The Brand · Product Catalog
       </p>
     </div>
-    <div style="display:flex;align-items:center;justify-content:center;
+    <div id="qrContainer" style="
+      display:flex;align-items:center;justify-content:center;
       background:#F7F4F8;border-radius:16px;padding:20px;
-      margin-bottom:20px;border:2px solid #EDE5F4;">
-      <img id="qrImage" src="" alt="QR Code"
-        style="width:200px;height:200px;border-radius:8px;display:block;">
+      margin-bottom:20px;border:2px solid #EDE5F4;min-height:200px;">
     </div>
     <div id="qrUrlDisplay" style="
       background:#EDE5F4;border-radius:10px;padding:10px 14px;
@@ -1297,14 +1296,26 @@ loadCatalog();
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
+let _qr = null;
+
 function showQRCode(){
   document.getElementById("qrModal").style.display = "flex";
   const url = window.location.href.split("?")[0].split("#")[0];
   document.getElementById("qrUrlDisplay").textContent = url;
-  // Google Charts QR API — no library needed, works directly
-  document.getElementById("qrImage").src =
-    `https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${encodeURIComponent(url)}&chco=2D1F35&chf=bg,s,F7F4F8`;
+
+  const container = document.getElementById("qrContainer");
+  container.innerHTML = "";
+
+  _qr = new QRCode(container, {
+    text: url,
+    width: 180,
+    height: 180,
+    colorDark: "#2D1F35",
+    colorLight: "#F7F4F8",
+    correctLevel: QRCode.CorrectLevel.H
+  });
 }
 
 function closeQRModal(){
@@ -1312,19 +1323,17 @@ function closeQRModal(){
 }
 
 function downloadQR(){
-  const url = window.location.href.split("?")[0].split("#")[0];
-  const src = `https://chart.googleapis.com/chart?chs=400x400&cht=qr&chl=${encodeURIComponent(url)}&chco=2D1F35&chf=bg,s,FFFFFF`;
-  const a = document.createElement("a");
-  a.href = src;
-  a.download = "ava-catalog-qr.png";
-  a.target = "_blank";
-  a.click();
+  const canvas = document.querySelector("#qrContainer canvas");
+  if(!canvas){ alert("QR not ready yet."); return; }
+  const link = document.createElement("a");
+  link.download = "ava-catalog-qr.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
 }
 
 document.getElementById("qrModal").addEventListener("click", function(e){
   if(e.target === this) closeQRModal();
 });
-
 document.addEventListener("keydown", e => {
   if(e.key === "Escape") closeQRModal();
 });
