@@ -751,7 +751,6 @@
     <button class="cat-refresh-btn" onclick="loadCatalog()">↻ Refresh</button>
     <button class="cat-refresh-btn" onclick="showQRCode()" style="background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35);">📱 QR Code</button>
     <button class="cat-print-btn" onclick="printCatalog()">🖨️ Print</button>
-    <a href="index.html" class="cat-back-btn">← Back to Inventory</a>
   </div>
 </header>
 
@@ -969,7 +968,6 @@ function renderCatalog(catalog){
         "bella kids":   "bella-kids",
         "bella (kids)": "bella-kids",
         "brie kids":    "brie-kids",
-        "brie (kids)":  "brie-kids",
         "simone top":   "simone",
         "erin skirt":   "erin",
       };
@@ -977,8 +975,7 @@ function renderCatalog(catalog){
       const styleKey = product.style.toLowerCase().trim();
       const imgSlug = imgOverrides[styleKey] ||
         product.style.toLowerCase()
-          .replace(/\(kids\)/gi, "kids")  // (Kids) → kids
-          .replace(/[()]/g, "")           // remove remaining parens
+          .replace(/\s*\(.*?\)\s*/g, "")
           .trim()
           .replace(/\s+/g, "-");
 
