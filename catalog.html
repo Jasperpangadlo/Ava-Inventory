@@ -969,6 +969,7 @@ function renderCatalog(catalog){
         "bella kids":   "bella-kids",
         "bella (kids)": "bella-kids",
         "brie kids":    "brie-kids",
+        "brie (kids)":  "brie-kids",
         "simone top":   "simone",
         "erin skirt":   "erin",
       };
@@ -976,7 +977,8 @@ function renderCatalog(catalog){
       const styleKey = product.style.toLowerCase().trim();
       const imgSlug = imgOverrides[styleKey] ||
         product.style.toLowerCase()
-          .replace(/\s*\(.*?\)\s*/g, "")
+          .replace(/\(kids\)/gi, "kids")  // (Kids) → kids
+          .replace(/[()]/g, "")           // remove remaining parens
           .trim()
           .replace(/\s+/g, "-");
 
