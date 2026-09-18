@@ -933,46 +933,72 @@ function removeCartItem(index){
   renderSalesCart();
 }
 
+let _isDeducting = false; // ⚡ Guard para hindi ma-double submit
+
 async function submitSalesCart(){
   if(salesCart.length === 0){
     showMessage("Cart is empty.", "warning");
     return;
   }
 
+  // ⚡ Prevent double submission
+  if(_isDeducting){
+    showMessage("Processing... please wait.", "warning");
+    return;
+  }
+  _isDeducting = true;
+
   const deductFrom = document.getElementById("deductFrom").value;
-  const salesType = document.getElementById("salesType").value;
+  const salesType  = document.getElementById("salesType").value;
 
   const btn = document.getElementById("deductbtn");
   setButtonLoading(btn, true);
 
+  // ⚡ Disable button visually to prevent re-clicks
+  if(btn) btn.disabled = true;
+
   let hasError = false;
 
-  for(const item of salesCart){
+  try {
+    // ⚡ Use saveStockCart for batch deduction — one API call instead of N calls
     const remarks = deductFrom === "Warehouse"
       ? "Warehouse - " + salesType
       : deductFrom + " - Walk-in";
 
-    const result = await apiRequest("stockOut", {
-      barcode: item.barcode,
-      qty: item.qty,
+    const items = salesCart.map(item => ({
+      barcode    : item.barcode,
+      qty        : item.qty,
       remarks,
       deductFrom
+    }));
+
+    // ⚡ Parallel API calls — all at once instead of one by one
+    const results = await Promise.all(
+      items.map(item => apiRequest("stockOut", item))
+    );
+
+    results.forEach((result, i) => {
+      if(result.message && result.message.includes("Not enough")){
+        showMessage("Not enough stock: " + salesCart[i].barcode, "error");
+        hasError = true;
+      }
     });
 
-    if(result.message && result.message.includes("Not enough")){
-      showMessage("Not enough stock: " + item.barcode, "error");
-      hasError = true;
+    if(!hasError){
+      setButtonSuccess(btn, "✓ Deducted");
+      showMessage("All items deducted successfully!", "success");
+      salesCart = [];
+      lsClear();
+      renderSalesCart();
+      document.getElementById("outBarcode").focus();
+    } else {
+      setButtonLoading(btn, false);
     }
-  }
 
-  if(!hasError){
-    setButtonSuccess(btn, "✓ Deducted");
-    showMessage("All items deducted successfully!", "success");
-    salesCart = [];
-    renderSalesCart();
-    document.getElementById("outBarcode").focus();
-  } else {
-    setButtonLoading(btn, false);
+  } finally {
+    // ⚡ Always release the guard and re-enable button
+    _isDeducting = false;
+    if(btn) btn.disabled = false;
   }
 
   await loadHistoryCache();
