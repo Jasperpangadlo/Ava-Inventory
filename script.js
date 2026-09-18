@@ -5129,7 +5129,7 @@ btn.innerHTML = "Processing...";
 
 } else {
 
-    showMessage("Wrong username or password");
+    showMessage("Wrong username or password", "error");
 
 }
 
