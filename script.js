@@ -1617,6 +1617,8 @@ async function refreshAllData() {
 
   try {
 
+    if (typeof clearApiCache === "function") clearApiCache();
+
     const products = document.getElementById("products");
     const history = document.getElementById("history");
     const soldItems = document.getElementById("sold-items");
