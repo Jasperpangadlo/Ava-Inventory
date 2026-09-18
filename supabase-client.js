@@ -9,6 +9,25 @@ const SUPABASE_ANON_KEY = "sb_publishable_Z-sNfyMvnXcaLunFpfV4aQ_oHZipoj-"; // P
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// Fetches ALL rows from a table, working around Supabase's default 1000-row
+// per-request limit by paging through with .range() until exhausted.
+async function fetchAllRows(table, orderCol = null, ascending = false) {
+  const pageSize = 1000;
+  let allRows = [];
+  let from = 0;
+
+  while (true) {
+    let query = sb.from(table).select("*").range(from, from + pageSize - 1);
+    if (orderCol) query = query.order(orderCol, { ascending });
+    const { data, error } = await query;
+    if (error) throw error;
+    allRows = allRows.concat(data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+  return allRows;
+}
+
 // Converts a Postgres ISO timestamp (2026-09-18T10:16:32+00:00) into the
 // "M/D/YYYY HH:mm:ss" style the rest of the app expects/displays.
 function formatDatetime(iso) {
@@ -47,8 +66,7 @@ async function apiRequest(action, payload = {}) {
       }
 
       case "getProducts": {
-        const { data, error } = await sb.from("inventory").select("*");
-        if (error) throw error;
+        const data = await fetchAllRows("inventory");
         return { products: data };
       }
 
@@ -59,11 +77,7 @@ async function apiRequest(action, payload = {}) {
       }
 
       case "getHistory": {
-        const { data, error } = await sb
-          .from("deduct_history")
-          .select("*")
-          .order("datetime", { ascending: false });
-        if (error) throw error;
+        const data = await fetchAllRows("deduct_history", "datetime", false);
         const records = data.map(r => ({
           ...r,
           qty: r.quantity_out,
@@ -74,8 +88,7 @@ async function apiRequest(action, payload = {}) {
       }
 
       case "getStoreInventory": {
-        const { data, error } = await sb.from("store_inventory").select("*");
-        if (error) throw error;
+        const data = await fetchAllRows("store_inventory");
         const products = data.map(p => ({ ...p, location: p.store }));
         return { products };
       }
@@ -143,11 +156,7 @@ async function apiRequest(action, payload = {}) {
       }
 
       case "getActivityLog": {
-        const { data, error } = await sb
-          .from("activity_log")
-          .select("*")
-          .order("datetime", { ascending: false });
-        if (error) throw error;
+        const data = await fetchAllRows("activity_log", "datetime", false);
         const mapped = data.map(r => ({
           ...r,
           user: r.user_name,
@@ -157,8 +166,7 @@ async function apiRequest(action, payload = {}) {
       }
 
       case "getCatalog": {
-        const { data, error } = await sb.from("catalog").select("*");
-        if (error) throw error;
+        const data = await fetchAllRows("catalog");
 
         // Group flat rows (style + body_color + sizes) into { style, collection, price, colors:[...] }
         const grouped = {};
@@ -180,8 +188,7 @@ async function apiRequest(action, payload = {}) {
       }
 
       case "getFabrics": {
-        const { data, error } = await sb.from("fabrics").select("*");
-        if (error) throw error;
+        const data = await fetchAllRows("fabrics");
 
         // Group flat rows (item_code + color + balance) into { itemNo, description, colors:[...] }
         const grouped = {};
