@@ -5,7 +5,7 @@
    ══════════════════════════════════════════════════════════════════════════ */
 
 const SUPABASE_URL = "https://aiczonqwwfxvikowmzcr.supabase.co"; // your project URL
-const SUPABASE_ANON_KEY = "PASTE_YOUR_ANON_KEY_HERE"; // Project Settings > API
+const SUPABASE_ANON_KEY = "sb_publishable_Z-sNfyMvnXcaLunFpfV4aQ_oHZipoj-"; // Project Settings > API
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
