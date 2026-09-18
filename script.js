@@ -34,8 +34,8 @@ for(let attempt = 1; attempt <= _retries; attempt++){
     } catch(e) {
       // Not JSON — likely a Google error page
       if(attempt < _retries){
-        // Wait before retrying (500ms, 1000ms, 1500ms...)
-        await new Promise(r => setTimeout(r, attempt * 500));
+        // Wait before retrying (200ms, 400ms...)
+        await new Promise(r => setTimeout(r, attempt * 200));
         continue;
       }
       console.error("API URL:", url);
@@ -50,7 +50,7 @@ for(let attempt = 1; attempt <= _retries; attempt++){
     // Network error
     if(attempt < _retries){
       showConnectionBanner(`Connection issue. Retrying (${attempt}/${_retries})...`, "warning");
-      await new Promise(r => setTimeout(r, attempt * 500));
+      await new Promise(r => setTimeout(r, attempt * 200));
       continue;
     }
 
@@ -960,29 +960,25 @@ async function submitSalesCart(){
   let hasError = false;
 
   try {
-    // ⚡ Use saveStockCart for batch deduction — one API call instead of N calls
+    // ⚡ ONE API call for all items — batchStockOut
     const remarks = deductFrom === "Warehouse"
       ? "Warehouse - " + salesType
       : deductFrom + " - Walk-in";
 
-    const items = salesCart.map(item => ({
-      barcode    : item.barcode,
-      qty        : item.qty,
-      remarks,
-      deductFrom
-    }));
-
-    // ⚡ Parallel API calls — all at once instead of one by one
-    const results = await Promise.all(
-      items.map(item => apiRequest("stockOut", item))
-    );
-
-    results.forEach((result, i) => {
-      if(result.message && result.message.includes("Not enough")){
-        showMessage("Not enough stock: " + salesCart[i].barcode, "error");
-        hasError = true;
-      }
+    const result = await apiRequest("batchStockOut", {
+      items: salesCart.map(item => ({
+        barcode    : item.barcode,
+        qty        : item.qty,
+        remarks,
+        deductFrom
+      }))
     });
+
+    const errors = result.errors || [];
+    if(errors.length > 0){
+      errors.forEach(e => showMessage("Not enough stock: " + e, "error"));
+      hasError = true;
+    }
 
     if(!hasError){
       // ⚡ Clear cart immediately before anything else
