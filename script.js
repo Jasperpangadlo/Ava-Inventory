@@ -12,6 +12,10 @@ let storeByBarcode   = new Map();
 // ⚡ DOM shortcut — replaces all document.getElementById() calls
 const $ = id => document.getElementById(id);
 
+// Clears any saved draft of the sales cart (currently a no-op placeholder —
+// add localStorage.removeItem(...) here if a cart draft key is introduced later)
+function lsClear(){}
+
 // apiRequest() now lives in supabase-client.js (loaded before this file)
 
 // ── Connection Banner ─────────────────────────────────────────────────────────
