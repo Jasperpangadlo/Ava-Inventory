@@ -17,17 +17,21 @@ const $ = id => document.getElementById(id);
 
 async function apiRequest(action, payload = {}, _retries = 3) {
 
-const params = new URLSearchParams({
-  action,
-  data: JSON.stringify(payload)
-});
+// ⚡ Use POST for batchStockOut to avoid URL length limit
+const usePOST = action === "batchStockOut";
 
-const url = `${WEB_APP_URL}?${params}`;
+const url = usePOST
+  ? WEB_APP_URL
+  : `${WEB_APP_URL}?${new URLSearchParams({ action, data: JSON.stringify(payload) })}`;
 
 for(let attempt = 1; attempt <= _retries; attempt++){
   try {
-    const response = await fetch(url);
-    const text     = await response.text();
+    const response = await fetch(url, usePOST ? {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({ action, ...payload })
+    } : {});
+    const text = await response.text();
 
     try {
       return JSON.parse(text);
