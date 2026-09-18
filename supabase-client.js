@@ -9,6 +9,32 @@ const SUPABASE_ANON_KEY = "sb_publishable_Z-sNfyMvnXcaLunFpfV4aQ_oHZipoj-"; // P
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// ── Simple in-memory cache ──────────────────────────────────────────────
+// Avoids re-fetching from Supabase every time a tab is reopened.
+// Cleared automatically after CACHE_TTL_MS, or manually after any write.
+const CACHE_TTL_MS = 30000; // 30 seconds
+const _cache = new Map();
+
+function cacheGet(key) {
+  const entry = _cache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.time > CACHE_TTL_MS) {
+    _cache.delete(key);
+    return null;
+  }
+  return entry.value;
+}
+
+function cacheSet(key, value) {
+  _cache.set(key, { value, time: Date.now() });
+}
+
+// Call after any write (saveProduct, stockOut, etc.) so stale reads aren't served.
+function cacheInvalidate(...keys) {
+  if (keys.length === 0) { _cache.clear(); return; }
+  keys.forEach(k => _cache.delete(k));
+}
+
 // Fetches ALL rows from a table, working around Supabase's default 1000-row
 // per-request limit by paging through with .range() until exhausted.
 async function fetchAllRows(table, orderCol = null, ascending = false) {
@@ -66,17 +92,24 @@ async function apiRequest(action, payload = {}) {
       }
 
       case "getProducts": {
+        const cached = cacheGet("getProducts");
+        if (cached) return cached;
         const data = await fetchAllRows("inventory");
-        return { products: data };
+        const result = { products: data };
+        cacheSet("getProducts", result);
+        return result;
       }
 
       case "saveProduct": {
         const { error } = await sb.from("inventory").upsert(payload, { onConflict: "barcode" });
         if (error) return { message: "Error saving: " + error.message };
+        cacheInvalidate("getProducts");
         return { message: "Saved!" };
       }
 
       case "getHistory": {
+        const cached = cacheGet("getHistory");
+        if (cached) return cached;
         const data = await fetchAllRows("deduct_history", "datetime", false);
         const records = data.map(r => ({
           ...r,
@@ -84,23 +117,34 @@ async function apiRequest(action, payload = {}) {
           remarks: r.remark,
           datetime: formatDatetime(r.datetime)
         }));
-        return { records };
+        const result = { records };
+        cacheSet("getHistory", result);
+        return result;
       }
 
       case "getStoreInventory": {
+        const cached = cacheGet("getStoreInventory");
+        if (cached) return cached;
         const data = await fetchAllRows("store_inventory");
         const products = data.map(p => ({ ...p, location: p.store }));
-        return { products };
+        const result = { products };
+        cacheSet("getStoreInventory", result);
+        return result;
       }
 
       case "getStoreProducts": {
+        const cacheKey = "getStoreProducts:" + payload.store;
+        const cached = cacheGet(cacheKey);
+        if (cached) return cached;
         const { data, error } = await sb
           .from("store_inventory")
           .select("*")
           .eq("store", payload.store);
         if (error) throw error;
         const products = data.map(p => ({ ...p, storeQty: p.stock }));
-        return { products };
+        const result = { products };
+        cacheSet(cacheKey, result);
+        return result;
       }
 
       case "getSalesStats": {
@@ -127,6 +171,7 @@ async function apiRequest(action, payload = {}) {
           p_deduct_from: payload.deductFrom
         });
         if (error) return { message: "Error: " + error.message };
+        cacheInvalidate("getProducts", "getHistory", "getStoreInventory", "getStoreProducts:" + payload.deductFrom);
         return data;
       }
 
@@ -140,6 +185,8 @@ async function apiRequest(action, payload = {}) {
           }))
         });
         if (error) return { errors: [error.message] };
+        cacheInvalidate("getProducts", "getHistory", "getStoreInventory");
+        payload.items.forEach(i => cacheInvalidate("getStoreProducts:" + i.deductFrom));
         return data;
       }
 
@@ -152,20 +199,27 @@ async function apiRequest(action, payload = {}) {
           details: payload.details
         });
         if (error) console.warn("logActivity error:", error);
+        cacheInvalidate("getActivityLog");
         return { success: true };
       }
 
       case "getActivityLog": {
+        const cached = cacheGet("getActivityLog");
+        if (cached) return cached;
         const data = await fetchAllRows("activity_log", "datetime", false);
         const mapped = data.map(r => ({
           ...r,
           user: r.user_name,
           datetime: formatDatetime(r.datetime)
         }));
-        return { data: mapped };
+        const result = { data: mapped };
+        cacheSet("getActivityLog", result);
+        return result;
       }
 
       case "getCatalog": {
+        const cached = cacheGet("getCatalog");
+        if (cached) return cached;
         const data = await fetchAllRows("catalog");
 
         // Group flat rows (style + body_color + sizes) into { style, collection, price, colors:[...] }
@@ -184,10 +238,14 @@ async function apiRequest(action, payload = {}) {
             xs: row.xs, s: row.s, m: row.m, l: row.l, xl: row.xl
           });
         });
-        return { catalog: Object.values(grouped) };
+        const result = { catalog: Object.values(grouped) };
+        cacheSet("getCatalog", result);
+        return result;
       }
 
       case "getFabrics": {
+        const cached = cacheGet("getFabrics");
+        if (cached) return cached;
         const data = await fetchAllRows("fabrics");
 
         // Group flat rows (item_code + color + balance) into { itemNo, description, colors:[...] }
@@ -206,7 +264,9 @@ async function apiRequest(action, payload = {}) {
             swatchUrl: row.swatch_url
           });
         });
-        return { fabrics: Object.values(grouped) };
+        const result = { fabrics: Object.values(grouped) };
+        cacheSet("getFabrics", result);
+        return result;
       }
 
       default:
