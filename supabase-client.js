@@ -35,6 +35,10 @@ function cacheInvalidate(...keys) {
   keys.forEach(k => _cache.delete(k));
 }
 
+// Exposed globally so the "Refresh Data" button can force a clean re-fetch
+// for everyone, in case another user/device changed something.
+window.clearApiCache = () => cacheInvalidate();
+
 // Fetches ALL rows from a table, working around Supabase's default 1000-row
 // per-request limit by paging through with .range() until exhausted.
 async function fetchAllRows(table, orderCol = null, ascending = false) {
