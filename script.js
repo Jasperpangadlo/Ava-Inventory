@@ -985,22 +985,23 @@ async function submitSalesCart(){
     });
 
     if(!hasError){
-      setButtonSuccess(btn, "✓ Deducted");
-      showMessage("All items deducted successfully!", "success");
+      // ⚡ Clear cart immediately before anything else
       salesCart = [];
       lsClear();
       renderSalesCart();
       document.getElementById("outBarcode").focus();
+      setButtonSuccess(btn, "✓ Deducted");
+      showMessage("All items deducted successfully!", "success");
     } else {
       setButtonLoading(btn, false);
     }
 
   } finally {
-    // ⚡ Always release the guard and re-enable button
     _isDeducting = false;
     if(btn) btn.disabled = false;
   }
 
+  // Reload data after cart is already cleared
   await loadHistoryCache();
   await Promise.all([loadProducts(), loadStoreProducts(), loadHistory()]);
 
