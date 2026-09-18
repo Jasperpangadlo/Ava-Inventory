@@ -9,6 +9,17 @@ const SUPABASE_ANON_KEY = "sb_publishable_Z-sNfyMvnXcaLunFpfV4aQ_oHZipoj-"; // P
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// Converts a Postgres ISO timestamp (2026-09-18T10:16:32+00:00) into the
+// "M/D/YYYY HH:mm:ss" style the rest of the app expects/displays.
+function formatDatetime(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  const pad = n => String(n).padStart(2, "0");
+  return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()} ` +
+         `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
 async function apiRequest(action, payload = {}) {
   try {
     switch (action) {
@@ -53,13 +64,20 @@ async function apiRequest(action, payload = {}) {
           .select("*")
           .order("datetime", { ascending: false });
         if (error) throw error;
-        return { records: data };
+        const records = data.map(r => ({
+          ...r,
+          qty: r.quantity_out,
+          remarks: r.remark,
+          datetime: formatDatetime(r.datetime)
+        }));
+        return { records };
       }
 
       case "getStoreInventory": {
         const { data, error } = await sb.from("store_inventory").select("*");
         if (error) throw error;
-        return { products: data };
+        const products = data.map(p => ({ ...p, location: p.store }));
+        return { products };
       }
 
       case "getStoreProducts": {
@@ -130,7 +148,58 @@ async function apiRequest(action, payload = {}) {
           .select("*")
           .order("datetime", { ascending: false });
         if (error) throw error;
-        return { data };
+        const mapped = data.map(r => ({
+          ...r,
+          user: r.user_name,
+          datetime: formatDatetime(r.datetime)
+        }));
+        return { data: mapped };
+      }
+
+      case "getCatalog": {
+        const { data, error } = await sb.from("catalog").select("*");
+        if (error) throw error;
+
+        // Group flat rows (style + body_color + sizes) into { style, collection, price, colors:[...] }
+        const grouped = {};
+        data.forEach(row => {
+          if (!grouped[row.style]) {
+            grouped[row.style] = {
+              style: row.style,
+              collection: row.collection,
+              price: row.price,
+              colors: []
+            };
+          }
+          grouped[row.style].colors.push({
+            color: row.body_color,
+            xs: row.xs, s: row.s, m: row.m, l: row.l, xl: row.xl
+          });
+        });
+        return { catalog: Object.values(grouped) };
+      }
+
+      case "getFabrics": {
+        const { data, error } = await sb.from("fabrics").select("*");
+        if (error) throw error;
+
+        // Group flat rows (item_code + color + balance) into { itemNo, description, colors:[...] }
+        const grouped = {};
+        data.forEach(row => {
+          if (!grouped[row.item_code]) {
+            grouped[row.item_code] = {
+              itemNo: row.item_code,
+              description: row.description,
+              colors: []
+            };
+          }
+          grouped[row.item_code].colors.push({
+            color: row.color,
+            balance: row.balance,
+            swatchUrl: row.swatch_url
+          });
+        });
+        return { fabrics: Object.values(grouped) };
       }
 
       default:
