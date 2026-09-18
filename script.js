@@ -9,61 +9,10 @@ let historyCache = [];
 let productByBarcode = new Map();
 let storeByBarcode   = new Map();
 
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwymQ1xaCN5yW3WczU-TPGgF2dnn2l25YyStRm0ED1oM3CurdCctabBAS3YOWRTo2nj9Q/exec";
-
-
 // ⚡ DOM shortcut — replaces all document.getElementById() calls
 const $ = id => document.getElementById(id);
 
-async function apiRequest(action, payload = {}, _retries = 3) {
-
-// ⚡ Use POST for batchStockOut to avoid URL length limit
-const usePOST = action === "batchStockOut";
-
-const url = usePOST
-  ? WEB_APP_URL
-  : `${WEB_APP_URL}?${new URLSearchParams({ action, data: JSON.stringify(payload) })}`;
-
-for(let attempt = 1; attempt <= _retries; attempt++){
-  try {
-    const response = await fetch(url, usePOST ? {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ action, ...payload })
-    } : {});
-    const text = await response.text();
-
-    try {
-      return JSON.parse(text);
-    } catch(e) {
-      // Not JSON — likely a Google error page
-      if(attempt < _retries){
-        // Wait before retrying (200ms, 400ms...)
-        await new Promise(r => setTimeout(r, attempt * 200));
-        continue;
-      }
-      console.error("API URL:", url);
-      console.error("API RESPONSE:", text);
-      showConnectionBanner("Server error. Retrying failed — please refresh.", "error");
-      throw new Error("API did not return JSON. Check Apps Script deployment or action: " + action);
-    }
-
-  } catch(err) {
-    if(err.message.includes("API did not return JSON")) throw err;
-
-    // Network error
-    if(attempt < _retries){
-      showConnectionBanner(`Connection issue. Retrying (${attempt}/${_retries})...`, "warning");
-      await new Promise(r => setTimeout(r, attempt * 200));
-      continue;
-    }
-
-    showConnectionBanner("No internet connection. Please check your network.", "error");
-    throw err;
-  }
-}
-
-}
+// apiRequest() now lives in supabase-client.js (loaded before this file)
 
 // ── Connection Banner ─────────────────────────────────────────────────────────
 let _bannerTimeout = null;
