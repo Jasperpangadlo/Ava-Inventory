@@ -4749,7 +4749,10 @@ async function loadPosHistory(){
   // Filter by store and date
   _posHistoryData = history.filter(item => {
     const remarks = String(item.remarks || "").toLowerCase();
-    const matchStore = remarks.includes(store.toLowerCase());
+    const storeLower = store.toLowerCase();
+    // Match kung nasa remarks ang store name (hal. "Podium - Walk-in")
+    // O kung Warehouse ang pinagmulan (dapat visible sa lahat ng store)
+    const matchStore = remarks.includes(storeLower) || remarks.includes("warehouse");
 
     if(!matchStore) return false;
 
