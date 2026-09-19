@@ -111,6 +111,41 @@ async function apiRequest(action, payload = {}) {
         return { message: "Saved!" };
       }
 
+      case "saveStockCart": {
+        const items = payload.items || [];
+        for (const item of items) {
+          const barcode = String(item.barcode).trim();
+          if (!barcode) continue;
+
+          // Get current stock for this barcode, kung meron na
+          const { data: existing, error: fetchErr } = await sb
+            .from("inventory")
+            .select("stock")
+            .eq("barcode", barcode)
+            .maybeSingle();
+          if (fetchErr) return { message: "Error reading " + barcode + ": " + fetchErr.message };
+
+          const addQty = Number(item.stock) || 0;
+          const currentStock = existing ? Number(existing.stock) || 0 : 0;
+          const newStock = currentStock + addQty; // ⚡ additive, hindi overwrite
+
+          const upsertPayload = {
+            barcode,
+            product: item.product,
+            category: item.category,
+            color: item.color,
+            size: item.size,
+            price: item.price,
+            stock: newStock
+          };
+
+          const { error } = await sb.from("inventory").upsert(upsertPayload, { onConflict: "barcode" });
+          if (error) return { message: "Error saving " + barcode + ": " + error.message };
+        }
+        cacheInvalidate("getProducts");
+        return { message: "All stock saved!" };
+      }
+
       case "getHistory": {
         const cached = cacheGet("getHistory");
         if (cached) return cached;
