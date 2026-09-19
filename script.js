@@ -843,7 +843,7 @@ function addToSalesCart(){
   }
 
   if(availableStock <= 0){
-    showMessage("Out of stock: " + (found.product || barcode) + " — hindi maaaring i-add.", "error");
+    showMessage("Out of stock: " + (found.product || barcode) + " — Can't be added.", "error");
     field.value = "";
     field.focus();
     return;
