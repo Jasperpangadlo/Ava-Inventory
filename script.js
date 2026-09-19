@@ -822,9 +822,42 @@ function addToSalesCart(){
   // ⚡ O(1) lookup via Map
   const found = productByBarcode.get(barcode);
 
-  // If already in cart, just increment qty
+  // Determine which source we're deducting from (Warehouse or a specific store)
+  const deductFrom = document.getElementById("deductFrom")?.value || "Warehouse";
+
+  let availableStock;
+  if(deductFrom === "Warehouse"){
+    availableStock = Number(found ? found.stock : 0) || 0;
+  } else {
+    const storeItem = storeProducts.find(p =>
+      String(p.barcode).trim() === barcode && p.store === deductFrom
+    );
+    availableStock = Number(storeItem ? storeItem.stock : 0) || 0;
+  }
+
+  if(!found){
+    showMessage("Product not found: " + barcode, "warning");
+    field.value = "";
+    field.focus();
+    return;
+  }
+
+  if(availableStock <= 0){
+    showMessage("Out of stock: " + (found.product || barcode) + " — hindi maaaring i-add.", "error");
+    field.value = "";
+    field.focus();
+    return;
+  }
+
+  // If already in cart, just increment qty — but never beyond available stock
   const existing = salesCart.find(i => i.barcode === barcode);
   if(existing){
+    if(existing.qty + 1 > availableStock){
+      showMessage("Max stock reached for " + (found.product || barcode) + " (" + availableStock + " available).", "warning");
+      field.value = "";
+      field.focus();
+      return;
+    }
     existing.qty += 1;
     renderSalesCart();
     field.value = "";
@@ -1302,6 +1335,12 @@ async function showTab(tabId){
     setTimeout(()=>{
       document.getElementById("barcode").focus();
     },100);
+  }
+
+  if(tabId === "sales"){
+    // ⚡ Load warehouse + store stock silently so out-of-stock check works
+    if(productByBarcode.size === 0) loadProducts();
+    if(storeProducts.length === 0) loadStoreProducts();
   }
 
 }
