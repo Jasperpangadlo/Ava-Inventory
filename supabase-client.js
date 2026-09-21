@@ -143,7 +143,7 @@ async function apiRequest(action, payload = {}) {
           if (error) return { message: "Error saving " + barcode + ": " + error.message };
 
           // 📦 Log this addition so it can show up in the History tab as "Stock In"
-          await sb.from("stock_in_history").insert({
+          const { error: logErr } = await sb.from("stock_in_history").insert({
             datetime: new Date().toISOString(),
             barcode,
             product: item.product,
@@ -153,6 +153,7 @@ async function apiRequest(action, payload = {}) {
             price: item.price,
             remark: "Add Stock"
           });
+          if (logErr) console.error("stock_in_history insert error:", logErr);
         }
         cacheInvalidate("getProducts", "getStockInHistory");
         return { message: "All stock saved!" };
