@@ -141,9 +141,36 @@ async function apiRequest(action, payload = {}) {
 
           const { error } = await sb.from("inventory").upsert(upsertPayload, { onConflict: "barcode" });
           if (error) return { message: "Error saving " + barcode + ": " + error.message };
+
+          // 📦 Log this addition so it can show up in the History tab as "Stock In"
+          await sb.from("stock_in_history").insert({
+            datetime: new Date().toISOString(),
+            barcode,
+            product: item.product,
+            color: item.color,
+            size: item.size,
+            quantity_in: addQty,
+            price: item.price,
+            remark: "Add Stock"
+          });
         }
-        cacheInvalidate("getProducts");
+        cacheInvalidate("getProducts", "getStockInHistory");
         return { message: "All stock saved!" };
+      }
+
+      case "getStockInHistory": {
+        const cached = cacheGet("getStockInHistory");
+        if (cached) return cached;
+        const data = await fetchAllRows("stock_in_history", "datetime", false);
+        const records = data.map(r => ({
+          ...r,
+          qty: r.quantity_in,
+          remarks: r.remark,
+          datetime: formatDatetime(r.datetime)
+        }));
+        const result = { records };
+        cacheSet("getStockInHistory", result);
+        return result;
       }
 
       case "getHistory": {
