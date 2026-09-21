@@ -4,6 +4,7 @@ let salesTrendChart = null;
 let allProducts = [];
 let storeProducts = [];
 let historyCache = [];
+let stockInCache = [];
 
 // ⚡ O(1) barcode lookup Maps — replaces slow .find() loops
 let productByBarcode = new Map();
@@ -550,6 +551,9 @@ async function loadHistoryCache(){
   historyCache =
   result.records || [];
 
+  const inResult = await apiRequest("getStockInHistory");
+  stockInCache = inResult.records || [];
+
   return historyCache;
 }
 
@@ -843,7 +847,7 @@ function addToSalesCart(){
   }
 
   if(availableStock <= 0){
-    showMessage("Out of stock: " + (found.product || barcode) + " — Can't be added.", "error");
+    showMessage("Out of stock: " + (found.product || barcode) + " — hindi maaaring i-add.", "error");
     field.value = "";
     field.focus();
     return;
@@ -1169,17 +1173,22 @@ async function loadHistory() {
   // Show skeleton while loading
   table.innerHTML = skeletonRows(9, 5);
 
-  const records = historyCache;
+  // ⚡ Merge Stock Out (historyCache) + Stock In (stockInCache), newest first
+  const outRecords = historyCache.map(r => ({ ...r, _type: "OUT" }));
+  const inRecords  = stockInCache.map(r => ({ ...r, _type: "IN" }));
+  const records = [...outRecords, ...inRecords].sort((a, b) =>
+    new Date(b.datetime) - new Date(a.datetime)
+  );
 
   if (records.length === 0) {
-    table.innerHTML = emptyStateRow(9, { icon:"📜", title:"Walang history pa", desc:"Mag-appear ang records dito kapag may stock out na.", color:"es-purple" });
+    table.innerHTML = emptyStateRow(9, { icon:"📜", title:"Walang history pa", desc:"Mag-appear ang records dito kapag may stock out o stock in na.", color:"es-purple" });
     return;
   }
 
-  // Update summary cards
+  // Update summary cards (Stock Out lang ang binibilang sa Total Value, para tumpak ang "sales" metric)
   const totalMovements = records.length;
   const totalQty   = records.reduce((s,i)=>s+(Number(i.qty)||0), 0);
-  const totalValue = records.reduce((s,i)=>s+(Number(i.total)||0), 0);
+  const totalValue = outRecords.reduce((s,i)=>s+(Number(i.total)||0), 0);
 
   const elMov = document.getElementById("hiTotalMovements");
   const elQty = document.getElementById("hiTotalQty");
@@ -1194,7 +1203,10 @@ async function loadHistory() {
     const remarks = String(item.remarks || "");
     const remarkLower = remarks.toLowerCase();
     let remarkBadge;
-    if(remarkLower.includes("online")){
+
+    if(item._type === "IN"){
+      remarkBadge = `<span class="hi-remark-stockin" style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:6px;">📦 ${remarks || "Add Stock"}</span>`;
+    } else if(remarkLower.includes("online")){
       remarkBadge = `<span class="hi-remark-online">🌐 ${remarks}</span>`;
     } else if(remarkLower.includes("walk")){
       remarkBadge = `<span class="hi-remark-walkin">🚶 ${remarks}</span>`;
@@ -1204,6 +1216,9 @@ async function loadHistory() {
       remarkBadge = `<span class="hi-remark-default">${remarks}</span>`;
     }
 
+    const qtyDisplay   = item._type === "IN" ? `<span style="color:#15803d;font-weight:600;">+${item.qty}</span>` : item.qty;
+    const totalDisplay = item._type === "IN" ? "—" : `₱${item.total}`;
+
     html += `
       <tr>
         <td>${item.datetime}</td>
@@ -1211,9 +1226,9 @@ async function loadHistory() {
         <td><b>${item.product}</b></td>
         <td>${item.color}</td>
         <td><span class="hi-size-badge">${item.size}</span></td>
-        <td>${item.qty}</td>
+        <td>${qtyDisplay}</td>
         <td>₱${item.price}</td>
-        <td class="hi-total">₱${item.total}</td>
+        <td class="hi-total">${totalDisplay}</td>
         <td>${remarkBadge}</td>
       </tr>
     `;
