@@ -1,4 +1,4 @@
-const CACHE_NAME = "ava-inventory-v90";
+const CACHE_NAME = "ava-inventory-v91";
 
 // Files to cache for offline access
 const STATIC_ASSETS = [
