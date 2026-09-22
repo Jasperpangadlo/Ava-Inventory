@@ -66,15 +66,17 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Cache the fresh response
-        if(response && response.status === 200){
+        // ⚡ Only cache GET requests — the Cache API cannot store POST/PUT/PATCH/DELETE
+        // (e.g. Supabase insert/update calls), attempting to do so throws.
+        if(event.request.method === "GET" && response && response.status === 200){
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
         return response;
       })
       .catch(() => {
-        // Offline fallback — serve from cache
+        // Offline fallback — serve from cache (GET only; nothing to fall back to for writes)
+        if(event.request.method !== "GET") return Promise.reject();
         return caches.match(event.request)
           .then((cached) => cached || caches.match("/index.html"));
       })
