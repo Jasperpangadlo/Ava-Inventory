@@ -4767,18 +4767,58 @@ renderSoldItems(filtered);
 }
 
 
+// ⚡ Waits for Supabase to actually finish restoring the session from storage
+// before we trust the result. Calling getSession() immediately on a fresh page
+// load can race ahead of that restore and wrongly report "no session".
+function waitForSupabaseSession(){
+  return new Promise((resolve) => {
+    let done = false;
+    const { data: sub } = sb.auth.onAuthStateChange((event, session) => {
+      if(!done){
+        done = true;
+        sub.subscription.unsubscribe();
+        resolve(session);
+      }
+    });
+    // Safety net in case the event never fires for some reason
+    setTimeout(async () => {
+      if(!done){
+        done = true;
+        sub.subscription.unsubscribe();
+        const { data } = await sb.auth.getSession();
+        resolve(data?.session || null);
+      }
+    }, 2000);
+  });
+}
+
 window.onload = async () => {
 
-  if(localStorage.getItem("avaLoggedIn") === "true"){
+  // ⚡ Check the REAL Supabase session, not just the local "avaLoggedIn" flag.
+  // This prevents a stale/expired session from silently breaking data calls
+  // while the UI still thinks the user is logged in.
+  const session = await waitForSupabaseSession();
+  const hasValidSession = !!session;
+
+  if(localStorage.getItem("avaLoggedIn") === "true" && hasValidSession){
     document.getElementById("loginScreen").style.display = "none";
     if(localStorage.getItem("avaRole") === "user"){
       showPosScreen();
       return;
     }
   } else {
-    // Not logged in — hide admin layout so it doesn't peek behind login screen
+    // Either never logged in, or the session expired/is invalid — force re-login
+    // and clear out any stale flags so the UI doesn't get confused later.
+    localStorage.removeItem("avaLoggedIn");
+    localStorage.removeItem("avaUser");
+    localStorage.removeItem("avaRole");
+    localStorage.removeItem("avaStore");
+
     const layout = document.querySelector(".layout");
     if(layout) layout.style.display = "none";
+    const posScreen = document.getElementById("posScreen");
+    if(posScreen) posScreen.style.display = "none";
+    document.getElementById("loginScreen").style.display = "flex";
     return;
   }
 
