@@ -2301,6 +2301,7 @@ stockCart = [];
 renderStockCart();
 
 await loadProducts();
+await loadHistoryCache();
 
 document.getElementById("barcode").focus();
 
