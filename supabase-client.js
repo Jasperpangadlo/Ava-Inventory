@@ -123,7 +123,7 @@ async function apiRequest(action, payload = {}) {
             .select("stock")
             .eq("barcode", barcode)
             .maybeSingle();
-          if (fetchErr) return { message: "Error reading " + barcode + ": " + fetchErr.message };
+          if (fetchErr) return { success: false, message: "Error reading " + barcode + ": " + fetchErr.message };
 
           const addQty = Number(item.stock) || 0;
           const currentStock = existing ? Number(existing.stock) || 0 : 0;
@@ -140,7 +140,7 @@ async function apiRequest(action, payload = {}) {
           };
 
           const { error } = await sb.from("inventory").upsert(upsertPayload, { onConflict: "barcode" });
-          if (error) return { message: "Error saving " + barcode + ": " + error.message };
+          if (error) return { success: false, message: "Error saving " + barcode + ": " + error.message };
 
           // 📦 Log this addition so it can show up in the History tab as "Stock In"
           const { error: logErr } = await sb.from("stock_in_history").insert({
@@ -156,7 +156,7 @@ async function apiRequest(action, payload = {}) {
           if (logErr) console.error("stock_in_history insert error:", logErr);
         }
         cacheInvalidate("getProducts", "getStockInHistory");
-        return { message: "All stock saved!" };
+        return { success: true, message: "All stock saved!" };
       }
 
       case "getStockInHistory": {
