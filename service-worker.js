@@ -1,4 +1,4 @@
-const CACHE_NAME = "ava-inventory-v92";
+const CACHE_NAME = "ava-inventory-v93";
 
 // Files to cache for offline access
 const STATIC_ASSETS = [
@@ -40,46 +40,77 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// App code that changes often — always fetch fresh so updates are never stale
+const APP_CODE_FILES = ["/index.html", "/script.js", "/supabase-client.js", "/"];
+
+// Truly static assets that rarely change — safe to serve instantly from cache
+const CACHE_FIRST_ASSETS = ["/logo.png", "/manifest.json", "/style.css"];
+
 // Fetch strategy
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
-  // Always network for Google Apps Script
-  if(url.hostname === "script.google.com"){
+  // ⚡ Supabase API calls — always straight to network, never touch the cache.
+  // (Also covers old Google Apps Script URLs, if any remain.)
+  if(url.hostname.endsWith("supabase.co") || url.hostname === "script.google.com"){
     event.respondWith(fetch(event.request));
     return;
   }
 
-  // Always network for CDN libraries (chart.js, xlsx, jspdf)
-  if(
-    url.hostname === "cdn.jsdelivr.net" ||
-    url.hostname === "cdnjs.cloudflare.com"
-  ){
+  // Only GET requests are cacheable at all — writes always go straight to network
+  if(event.request.method !== "GET"){
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // CDN libraries (chart.js, xlsx, jspdf) — cache-first, these are pinned/versioned URLs
+  if(url.hostname === "cdn.jsdelivr.net" || url.hostname === "cdnjs.cloudflare.com"){
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
+      caches.match(event.request).then((cached) => {
+        if(cached) return cached;
+        return fetch(event.request).then((response) => {
+          if(response && response.status === 200){
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        });
+      })
     );
     return;
   }
 
-  // NETWORK FIRST for all local files (index.html, style.css, script.js, etc.)
-  // This ensures latest version always loads when online
+  // App code (index.html, script.js, supabase-client.js) — NETWORK FIRST.
+  // Freshness matters most here; always try the network so updates are picked up immediately.
+  if(APP_CODE_FILES.includes(url.pathname) || (url.origin === self.location.origin && url.pathname.endsWith(".js") && !CACHE_FIRST_ASSETS.includes(url.pathname))){
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if(response && response.status === 200){
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match("/index.html")))
+    );
+    return;
+  }
+
+  // Everything else considered "static" (images, manifest, fonts, css) — CACHE FIRST,
+  // instant load from cache, then quietly refresh the cache in the background for next time.
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // ⚡ Only cache GET requests — the Cache API cannot store POST/PUT/PATCH/DELETE
-        // (e.g. Supabase insert/update calls), attempting to do so throws.
-        if(event.request.method === "GET" && response && response.status === 200){
+    caches.match(event.request).then((cached) => {
+      const networkUpdate = fetch(event.request).then((response) => {
+        if(response && response.status === 200){
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
         return response;
-      })
-      .catch(() => {
-        // Offline fallback — serve from cache (GET only; nothing to fall back to for writes)
-        if(event.request.method !== "GET") return Promise.reject();
-        return caches.match(event.request)
-          .then((cached) => cached || caches.match("/index.html"));
-      })
+      }).catch(() => cached);
+
+      return cached || networkUpdate;
+    })
   );
 });
 
