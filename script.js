@@ -4770,7 +4770,15 @@ renderSoldItems(filtered);
 // ⚡ Waits for Supabase to actually finish restoring the session from storage
 // before we trust the result. Calling getSession() immediately on a fresh page
 // load can race ahead of that restore and wrongly report "no session".
-function waitForSupabaseSession(){
+async function waitForSupabaseSession(){
+  // Fast path — session already available, no need to wait for anything
+  const { data } = await sb.auth.getSession();
+  if(data?.session){
+    return data.session;
+  }
+
+  // Ambiguous (null) — could be a genuine "not logged in", or the restore
+  // just hasn't finished yet. Give it a brief moment via the auth event.
   return new Promise((resolve) => {
     let done = false;
     const { data: sub } = sb.auth.onAuthStateChange((event, session) => {
@@ -4780,15 +4788,13 @@ function waitForSupabaseSession(){
         resolve(session);
       }
     });
-    // Safety net in case the event never fires for some reason
-    setTimeout(async () => {
+    setTimeout(() => {
       if(!done){
         done = true;
         sub.subscription.unsubscribe();
-        const { data } = await sb.auth.getSession();
-        resolve(data?.session || null);
+        resolve(null);
       }
-    }, 2000);
+    }, 800);
   });
 }
 
