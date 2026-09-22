@@ -1102,6 +1102,23 @@ function filterProducts(){
     return searchMatch && categoryMatch && colorMatch && statusMatch;
   });
 
+  // ⚡ Sort so sizes appear in the natural order: XS → S → M → L → XL → XXL
+  const SIZE_ORDER = ["XS","S","M","L","XL","XXL","XXXL"];
+  const sizeRank = (sz) => {
+    const idx = SIZE_ORDER.indexOf(String(sz || "").toUpperCase().trim());
+    return idx === -1 ? 999 : idx;
+  };
+
+  filteredProducts.sort((a, b) => {
+    const productCompare = String(a.product || "").localeCompare(String(b.product || ""));
+    if (productCompare !== 0) return productCompare;
+
+    const colorCompare = String(a.color || "").localeCompare(String(b.color || ""));
+    if (colorCompare !== 0) return colorCompare;
+
+    return sizeRank(a.size) - sizeRank(b.size);
+  });
+
   productsPage = 1;
   renderProductsPage();
 }
