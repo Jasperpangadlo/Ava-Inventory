@@ -940,6 +940,16 @@ async function submitSalesCart(){
     showMessage("Processing... please wait.", "warning");
     return;
   }
+
+  // ⚡ Safety net: confirm before large deductions (many line items or high total qty)
+  const totalQtyInCart = salesCart.reduce((s, i) => s + (Number(i.qty) || 0), 0);
+  if(salesCart.length > 5 || totalQtyInCart > 20){
+    const confirmed = confirm(
+      `You're about to deduct ${salesCart.length} item(s), ${totalQtyInCart} pieces total.\n\nAre you sure you want to proceed?`
+    );
+    if(!confirmed) return;
+  }
+
   _isDeducting = true;
 
   const deductFrom = document.getElementById("deductFrom").value;
@@ -2349,19 +2359,25 @@ return;
 
 }
 
-await apiRequest(
+const result = await apiRequest(
   "saveStockCart",
   {
     items: stockCart
   }
 );
 
+if(!result || result.success === false){
+  setButtonLoading(btn, false);
+  showMessage(result?.message || "Failed to save stock. Please try again.", "error");
+  return;
+}
+
 setButtonSuccess(
 btn,
 "✓ Saved"
 );
 
-showSuccess("All stock saved!");
+showSuccess(result.message || "All stock saved!");
 
 stockCart = [];
 renderStockCart();
@@ -5293,6 +5309,52 @@ async function logActivity(type, action, details) {
     await apiRequest("logActivity", { datetime, user, type, action, details });
   } catch(e) {
     console.warn("logActivity silent fail:", e);
+  }
+}
+
+// ── Full Data Backup/Export ─────────────────────────────────────────────────
+async function exportFullBackup(){
+  try {
+    showMessage("Preparing backup... please wait.", "info");
+
+    const [products, history, stockIn, storeInv, activity, catalog, fabrics] = await Promise.all([
+      apiRequest("getProducts"),
+      apiRequest("getHistory"),
+      apiRequest("getStockInHistory"),
+      apiRequest("getStoreInventory"),
+      apiRequest("getActivityLog"),
+      apiRequest("getCatalog"),
+      apiRequest("getFabrics")
+    ]);
+
+    const backup = {
+      exportedAt: new Date().toISOString(),
+      inventory:         products.products || [],
+      deduct_history:    history.records || [],
+      stock_in_history:  stockIn.records || [],
+      store_inventory:   storeInv.products || [],
+      activity_log:      activity.data || [],
+      catalog:           catalog.catalog || [],
+      fabrics:           fabrics.fabrics || []
+    };
+
+    const json = JSON.stringify(backup, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url  = URL.createObjectURL(blob);
+
+    const dateStr = new Date().toISOString().slice(0,10);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `inventory-backup-${dateStr}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showSuccess("Backup downloaded! Check your Downloads folder.");
+  } catch(err) {
+    console.error("Backup export error:", err);
+    showMessage("Backup failed: " + (err.message || "Unknown error"), "error");
   }
 }
 
