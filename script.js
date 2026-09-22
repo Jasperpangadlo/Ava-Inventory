@@ -2,6 +2,53 @@ let stockChart = null;
 let weeklyStockChart = null;
 let salesTrendChart = null;
 let allProducts = [];
+let filteredProducts = [];
+let productsPage = 1;
+const PRODUCTS_PAGE_SIZE = 50;
+
+let historyPage = 1;
+const HISTORY_PAGE_SIZE = 50;
+
+// ── Generic pagination control renderer ─────────────────────────────────────
+function renderPaginationControls(containerId, totalItems, currentPage, pageSize, onPageChangeFn){
+  const container = document.getElementById(containerId);
+  if(!container) return;
+
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+
+  if(totalItems === 0){
+    container.innerHTML = "";
+    return;
+  }
+
+  const startItem = (currentPage - 1) * pageSize + 1;
+  const endItem   = Math.min(currentPage * pageSize, totalItems);
+
+  container.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 4px;flex-wrap:wrap;">
+      <span style="color:#6b7280;font-size:13px;">
+        Showing ${startItem}–${endItem} of ${totalItems}
+      </span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button
+          ${currentPage <= 1 ? "disabled" : ""}
+          onclick="${onPageChangeFn}(${currentPage - 1})"
+          style="padding:6px 12px;border-radius:8px;border:1px solid #d1d5db;background:${currentPage<=1?"#f3f4f6":"#fff"};color:${currentPage<=1?"#9ca3af":"#374151"};cursor:${currentPage<=1?"not-allowed":"pointer"};font-weight:600;font-size:13px;">
+          ← Prev
+        </button>
+        <span style="font-size:13px;color:#374151;font-weight:600;">
+          Page ${currentPage} of ${totalPages}
+        </span>
+        <button
+          ${currentPage >= totalPages ? "disabled" : ""}
+          onclick="${onPageChangeFn}(${currentPage + 1})"
+          style="padding:6px 12px;border-radius:8px;border:1px solid #d1d5db;background:${currentPage>=totalPages?"#f3f4f6":"#fff"};color:${currentPage>=totalPages?"#9ca3af":"#374151"};cursor:${currentPage>=totalPages?"not-allowed":"pointer"};font-weight:600;font-size:13px;">
+          Next →
+        </button>
+      </div>
+    </div>
+  `;
+}
 let storeProducts = [];
 let historyCache = [];
 let stockInCache = [];
@@ -195,7 +242,7 @@ function addNotification(type, title, message, data = {}){
   const id = Date.now();
   const icons = { warning: "⚠️", error: "❌", success: "✅", info: "ℹ️" };
 
-  _notifications.unshift({ id, type, title, message, data, time: new Date() });
+  _notifications.unshift({ id, type, title, message, data, time: new Date(), read: false });
 
   // Keep max 50
   if(_notifications.length > 50) _notifications = _notifications.slice(0, 50);
@@ -215,7 +262,7 @@ function addNotification(type, title, message, data = {}){
 
 function updateNotifBadge(){
   const badge = document.getElementById("notifBadge");
-  const count = _notifications.length;
+  const count = _notifications.filter(n => !n.read).length;
   if(!badge) return;
   if(count > 0){
     badge.style.display = "flex";
@@ -271,7 +318,14 @@ function clearAllNotifs(){
 function toggleNotifPanel(){
   const panel = document.getElementById("notifPanel");
   if(!panel) return;
-  panel.style.display = panel.style.display === "none" ? "block" : "none";
+  const opening = panel.style.display === "none";
+  panel.style.display = opening ? "block" : "none";
+
+  if(opening){
+    // ⚡ Mark all as read once the user actually sees them
+    _notifications.forEach(n => n.read = true);
+    updateNotifBadge();
+  }
 }
 
 // Close panel when clicking outside
@@ -613,76 +667,22 @@ async function loadProducts() {
   productByBarcode.clear();
   products.forEach(p => productByBarcode.set(String(p.barcode).trim(), p));
 
-  let totalStock = 0;
-  let lowStock = 0;
-  let outStock = 0;
-  let html = "";
-
   if (products.length === 0) {
     table.innerHTML =
     emptyStateRow(8, { icon:"📦", title:"Wala pang products", desc:"Mag-add ng bagong product gamit ang Add Stock tab.", color:"es-blue" });
+    const pag = document.getElementById("productsPagination");
+    if(pag) pag.innerHTML = "";
     return;
   }
 
+  // ── Stats/summary cards are always computed from the FULL list, not just the current page ──
+  let totalStock = 0, lowStock = 0, outStock = 0;
   products.forEach(item => {
     const stock = Number(item.stock) || 0;
-
     totalStock += stock;
-
-    let statusText = "In Stock";
-    let statusClass = "ok";
-
-    if (stock === 0) {
-      statusText = "Out";
-      statusClass = "out";
-      outStock++;
-    } else if (stock <= 5) {
-      statusText = "Low Stock";
-      statusClass = "low";
-      lowStock++;
-    }
-
-    const price = Number(item.price) || 0;
-    const stockNum = Number(item.stock) || 0;
-
-    // Color dot mapping
-    const colorMap = {
-      "brown":"#92400e","black":"#111827","white":"#f9fafb","red":"#ef4444",
-      "blue":"#3b82f6","green":"#10b981","yellow":"#f59e0b","pink":"#ec4899",
-      "purple":"#8b5cf6","gray":"#6b7280","grey":"#6b7280","navy":"#1e3a5f",
-      "beige":"#d4b896","orange":"#f97316","light blue":"#38bdf8",
-      "light brown":"#c4a162","dark blue":"#1d4ed8","olive":"#6b7c3c"
-    };
-    const colorKey   = String(item.color || "").toLowerCase();
-    const colorHex   = colorMap[colorKey] || "#9ca3af";
-    const textColor  = ["white","beige","yellow","light blue"].includes(colorKey) ? "#374151" : "#fff";
-
-    html += `
-      <tr class="pr-row">
-        <td class="pr-barcode">${item.barcode}</td>
-        <td class="pr-product-name">${item.product}</td>
-        <td><span class="pr-category-tag">${item.category || "-"}</span></td>
-        <td>
-          <div class="pr-color-cell">
-            <span class="pr-color-dot" style="background:${colorHex};color:${textColor};" title="${item.color}"></span>
-            ${item.color || "-"}
-          </div>
-        </td>
-        <td><span class="pr-size-tag">${item.size || "-"}</span></td>
-        <td class="pr-stock-cell">
-          <span class="pr-stock-num ${statusClass === "out" ? "pr-stock-out" : statusClass === "low" ? "pr-stock-low" : "pr-stock-ok"}">${item.stock}</span>
-        </td>
-        <td class="pr-price">₱${Number(item.price || 0).toLocaleString("en-PH")}</td>
-        <td>
-          <span class="pr-status-badge pr-status-${statusClass}">
-            ${statusClass === "out" ? "❌ Out" : statusClass === "low" ? "⚠️ Low" : "✅ In Stock"}
-          </span>
-        </td>
-      </tr>
-    `;
+    if (stock === 0) outStock++;
+    else if (stock <= 5) lowStock++;
   });
-
-  table.innerHTML = html;
 
   document.getElementById("totalProducts").textContent = products.length;
   document.getElementById("totalStock").textContent = totalStock;
@@ -1063,72 +1063,119 @@ colorFilter.value = currentColor;
 
 function filterProducts(){
 
-populateFilters(allProducts);
+  populateFilters(allProducts);
 
-const keyword =
-document.getElementById("searchInput").value.toLowerCase();
+  const keyword =
+  document.getElementById("searchInput").value.toLowerCase();
 
-const category =
-document.getElementById("categoryFilter").value.toLowerCase();
+  const category =
+  document.getElementById("categoryFilter").value.toLowerCase();
 
-const color =
-document.getElementById("colorFilter").value.toLowerCase();
+  const color =
+  document.getElementById("colorFilter").value.toLowerCase();
 
-const stockStatus =
-document.getElementById("stockFilter").value;
+  const stockStatus =
+  document.getElementById("stockFilter").value;
 
-const rows =
-document.querySelectorAll("#productTable tr");
+  filteredProducts = allProducts.filter(item => {
+    const barcode     = String(item.barcode || "").toLowerCase();
+    const product     = String(item.product || "").toLowerCase();
+    const rowCategory = String(item.category || "").toLowerCase();
+    const rowColor    = String(item.color || "").toLowerCase().trim();
+    const size        = String(item.size || "").toLowerCase();
+    const stock       = Number(item.stock) || 0;
 
-rows.forEach(row=>{
+    const searchMatch =
+      barcode.includes(keyword) ||
+      product.includes(keyword) ||
+      rowColor.includes(keyword) ||
+      size.includes(keyword);
 
-const cells = row.querySelectorAll("td");
+    const categoryMatch = !category || rowCategory === category;
+    const colorMatch = !color || rowColor.includes(color) || color.includes(rowColor);
 
-if(cells.length < 8) return;
+    let statusMatch = true;
+    if(stockStatus === "in")  statusMatch = stock > 5;
+    if(stockStatus === "low") statusMatch = stock > 0 && stock <= 5;
+    if(stockStatus === "out") statusMatch = stock === 0;
 
-const barcode = cells[0].textContent.toLowerCase();
-const product = cells[1].textContent.toLowerCase();
-const rowCategory = cells[2].textContent.toLowerCase();
-const rowColor = cells[3].textContent.toLowerCase().trim();
-const size = cells[4].textContent.toLowerCase();
-const stock = Number(cells[5].textContent) || 0;
+    return searchMatch && categoryMatch && colorMatch && statusMatch;
+  });
 
-const searchMatch =
-barcode.includes(keyword) ||
-product.includes(keyword) ||
-rowColor.includes(keyword) ||
-size.includes(keyword);
-
-const categoryMatch =
-!category || rowCategory === category;
-
-const colorMatch =
-!color || rowColor.includes(color) || color.includes(rowColor);
-
-let statusMatch = true;
-
-if(stockStatus === "in"){
-statusMatch = stock > 5;
+  productsPage = 1;
+  renderProductsPage();
 }
 
-if(stockStatus === "low"){
-statusMatch = stock > 0 && stock <= 5;
+function goToProductsPage(page){
+  productsPage = page;
+  renderProductsPage();
 }
 
-if(stockStatus === "out"){
-statusMatch = stock === 0;
-}
+function renderProductsPage(){
+  const table = document.getElementById("productTable");
+  if(!table) return;
 
-const show =
-searchMatch &&
-categoryMatch &&
-colorMatch &&
-statusMatch;
+  if(filteredProducts.length === 0){
+    table.innerHTML = emptyStateRow(8, { icon:"🔍", title:"Walang nahanap", desc:"Subukan ang ibang keyword o filter.", color:"es-purple" });
+    const pag = document.getElementById("productsPagination");
+    if(pag) pag.innerHTML = "";
+    return;
+  }
 
-row.style.display = show ? "" : "none";
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PAGE_SIZE));
+  if(productsPage > totalPages) productsPage = totalPages;
+  if(productsPage < 1) productsPage = 1;
 
-});
+  const start = (productsPage - 1) * PRODUCTS_PAGE_SIZE;
+  const pageItems = filteredProducts.slice(start, start + PRODUCTS_PAGE_SIZE);
 
+  const colorMap = {
+    "brown":"#92400e","black":"#111827","white":"#f9fafb","red":"#ef4444",
+    "blue":"#3b82f6","green":"#10b981","yellow":"#f59e0b","pink":"#ec4899",
+    "purple":"#8b5cf6","gray":"#6b7280","grey":"#6b7280","navy":"#1e3a5f",
+    "beige":"#d4b896","orange":"#f97316","light blue":"#38bdf8",
+    "light brown":"#c4a162","dark blue":"#1d4ed8","olive":"#6b7c3c"
+  };
+
+  let html = "";
+  pageItems.forEach(item => {
+    const stock = Number(item.stock) || 0;
+    let statusClass = "ok";
+    if(stock === 0) statusClass = "out";
+    else if(stock <= 5) statusClass = "low";
+
+    const colorKey  = String(item.color || "").toLowerCase();
+    const colorHex  = colorMap[colorKey] || "#9ca3af";
+    const textColor = ["white","beige","yellow","light blue"].includes(colorKey) ? "#374151" : "#fff";
+
+    html += `
+      <tr class="pr-row">
+        <td class="pr-barcode">${item.barcode}</td>
+        <td class="pr-product-name">${item.product}</td>
+        <td><span class="pr-category-tag">${item.category || "-"}</span></td>
+        <td>
+          <div class="pr-color-cell">
+            <span class="pr-color-dot" style="background:${colorHex};color:${textColor};" title="${item.color}"></span>
+            ${item.color || "-"}
+          </div>
+        </td>
+        <td><span class="pr-size-tag">${item.size || "-"}</span></td>
+        <td class="pr-stock-cell">
+          <span class="pr-stock-num ${statusClass === "out" ? "pr-stock-out" : statusClass === "low" ? "pr-stock-low" : "pr-stock-ok"}">${item.stock}</span>
+        </td>
+        <td class="pr-price">₱${Number(item.price || 0).toLocaleString("en-PH")}</td>
+        <td>
+          <span class="pr-status-badge pr-status-${statusClass}">
+            ${statusClass === "out" ? "❌ Out" : statusClass === "low" ? "⚠️ Low" : "✅ In Stock"}
+          </span>
+        </td>
+      </tr>
+    `;
+  });
+
+  table.innerHTML = html;
+
+  renderPaginationControls("productsPagination", filteredProducts.length, productsPage, PRODUCTS_PAGE_SIZE, "goToProductsPage");
 }
 
 function autoFillProduct() {
@@ -1163,6 +1210,8 @@ function autoFillProduct() {
 }
 
 
+let historyFilteredRecords = [];
+
 async function loadHistory() {
 
   const table =
@@ -1180,11 +1229,6 @@ async function loadHistory() {
     new Date(b.datetime) - new Date(a.datetime)
   );
 
-  if (records.length === 0) {
-    table.innerHTML = emptyStateRow(9, { icon:"📜", title:"Walang history pa", desc:"Mag-appear ang records dito kapag may stock out o stock in na.", color:"es-purple" });
-    return;
-  }
-
   // Update summary cards (Stock Out lang ang binibilang sa Total Value, para tumpak ang "sales" metric)
   const totalMovements = records.length;
   const totalQty   = records.reduce((s,i)=>s+(Number(i.qty)||0), 0);
@@ -1197,9 +1241,37 @@ async function loadHistory() {
   if(elQty) elQty.textContent = totalQty.toLocaleString();
   if(elVal) elVal.textContent = "₱" + totalValue.toLocaleString();
 
+  historyFilteredRecords = records;
+  historyPage = 1;
+  renderHistoryPage();
+}
+
+function goToHistoryPage(page){
+  historyPage = page;
+  renderHistoryPage();
+}
+
+function renderHistoryPage(){
+  const table = document.getElementById("historyTable");
+  if(!table) return;
+
+  if(historyFilteredRecords.length === 0){
+    table.innerHTML = emptyStateRow(9, { icon:"📜", title:"Walang history pa", desc:"Mag-appear ang records dito kapag may stock out o stock in na.", color:"es-purple" });
+    const pag = document.getElementById("historyPagination");
+    if(pag) pag.innerHTML = "";
+    return;
+  }
+
+  const totalPages = Math.max(1, Math.ceil(historyFilteredRecords.length / HISTORY_PAGE_SIZE));
+  if(historyPage > totalPages) historyPage = totalPages;
+  if(historyPage < 1) historyPage = 1;
+
+  const start = (historyPage - 1) * HISTORY_PAGE_SIZE;
+  const pageItems = historyFilteredRecords.slice(start, start + HISTORY_PAGE_SIZE);
+
   let html = "";
 
-  records.forEach(item => {
+  pageItems.forEach(item => {
     const remarks = String(item.remarks || "");
     const remarkLower = remarks.toLowerCase();
     let remarkBadge;
@@ -1236,6 +1308,7 @@ async function loadHistory() {
 
   table.innerHTML = html;
 
+  renderPaginationControls("historyPagination", historyFilteredRecords.length, historyPage, HISTORY_PAGE_SIZE, "goToHistoryPage");
 }
 
 function filterHistory() {
@@ -1243,7 +1316,14 @@ function filterHistory() {
   const dateFrom  = document.getElementById("historyDateFrom")?.value || "";
   const dateTo    = document.getElementById("historyDateTo")?.value || "";
 
-  const filtered = historyCache.filter(item => {
+  // ⚡ Search across BOTH Stock Out and Stock In records
+  const outRecords = historyCache.map(r => ({ ...r, _type: "OUT" }));
+  const inRecords  = stockInCache.map(r => ({ ...r, _type: "IN" }));
+  const allRecords = [...outRecords, ...inRecords].sort((a, b) =>
+    new Date(b.datetime) - new Date(a.datetime)
+  );
+
+  const filtered = allRecords.filter(item => {
     const text = [item.datetime, item.barcode, item.product, item.color, item.size, item.remarks]
       .join(" ").toLowerCase();
     if (keyword && !text.includes(keyword)) return false;
@@ -1255,40 +1335,9 @@ function filterHistory() {
     return true;
   });
 
-  // Re-render with filtered data (reuse loadHistory render logic inline)
-  const table = document.getElementById("historyTable");
-  if (!table) return;
-  if (filtered.length === 0) {
-    table.innerHTML = emptyStateRow(9, { icon:"🔍", title:"Walang nahanap", desc:"Subukan ang ibang search term o date range.", color:"es-amber" });
-    return;
-  }
-  let html = "";
-  filtered.forEach(item => {
-    const remarks = String(item.remarks || "");
-    const remarkLower = remarks.toLowerCase();
-    let remarkBadge;
-    if(remarkLower.includes("online"))
-      remarkBadge = `<span class="hi-remark-online">🌐 ${remarks}</span>`;
-    else if(remarkLower.includes("walk"))
-      remarkBadge = `<span class="hi-remark-walkin">🚶 ${remarks}</span>`;
-    else if(remarkLower.includes("transfer") || remarkLower.includes("store"))
-      remarkBadge = `<span class="hi-remark-transfer">🚚 ${remarks}</span>`;
-    else
-      remarkBadge = `<span class="hi-remark-default">${remarks}</span>`;
-    html += `
-      <tr>
-        <td>${item.datetime}</td>
-        <td><span class="hi-barcode-pill">${item.barcode}</span></td>
-        <td><b>${item.product}</b></td>
-        <td>${item.color}</td>
-        <td><span class="hi-size-badge">${item.size}</span></td>
-        <td>${item.qty}</td>
-        <td>₱${item.price}</td>
-        <td class="hi-total">₱${item.total}</td>
-        <td>${remarkBadge}</td>
-      </tr>`;
-  });
-  table.innerHTML = html;
+  historyFilteredRecords = filtered;
+  historyPage = 1;
+  renderHistoryPage();
 }
 
 let currentTab = "dashboard";
@@ -5622,3 +5671,22 @@ function emptyStateRow(cols, config) {
       </td>
     </tr>`;
 }
+
+// ── Debounce search/filter inputs ───────────────────────────────────────────
+// Waits a short moment after the user stops typing before actually filtering,
+// instead of re-filtering + re-rendering the whole table on every keystroke.
+function debounce(fn, delay = 250){
+  let timer = null;
+  return function(...args){
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+if(typeof filterProducts === "function")      filterProducts      = debounce(filterProducts, 250);
+if(typeof filterHistory === "function")       filterHistory       = debounce(filterHistory, 250);
+if(typeof filterStoreProducts === "function") filterStoreProducts = debounce(filterStoreProducts, 250);
+if(typeof filterSoldItems === "function")     filterSoldItems     = debounce(filterSoldItems, 250);
+if(typeof filterPosHistory === "function")    filterPosHistory    = debounce(filterPosHistory, 250);
+if(typeof filterPosStocks === "function")     filterPosStocks     = debounce(filterPosStocks, 250);
+if(typeof filterActivityLog === "function")   filterActivityLog   = debounce(filterActivityLog, 250);
