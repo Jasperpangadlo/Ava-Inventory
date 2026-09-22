@@ -2007,12 +2007,17 @@ function logoutUser(){
   document.getElementById("logoutModal").style.display = "flex";
 }
 
-function confirmLogout(){
+async function confirmLogout(){
   document.getElementById("logoutModal").style.display = "none";
 
   const user = localStorage.getItem("avaUser") || "Unknown";
   if(typeof logActivity === "function"){
     logActivity("user", "Logout", `${user} logged out`);
+  }
+
+  // ⚡ End the REAL Supabase session too — not just the local flags
+  if(typeof sb !== "undefined" && sb.auth){
+    await sb.auth.signOut();
   }
 
   localStorage.removeItem("avaLoggedIn");
