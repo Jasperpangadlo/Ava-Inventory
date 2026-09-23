@@ -4947,6 +4947,13 @@ tbody tr:hover {
 .pr-row:hover { background: #f8faff; }
 .pr-row:last-child td { border-bottom: none; }
 
+/* ⚡ Subtle left-border accent so problem rows are visible at a glance,
+   without disturbing the existing row/hover styles above. */
+.pr-row-low  { border-left: 3px solid #f59e0b; }
+.pr-row-out  { border-left: 3px solid #ef4444; }
+.pr-row-low  td:first-child,
+.pr-row-out  td:first-child { padding-left: 13px; }
+
 .pr-barcode { color: #6366f1; font-weight: 700; font-size: 12px; font-family: monospace; }
 .pr-product-name { font-weight: 700; color: #1e1b4b; }
 .pr-price { font-weight: 700; color: #059669; }
