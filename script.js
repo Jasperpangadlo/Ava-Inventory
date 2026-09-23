@@ -1176,7 +1176,7 @@ function renderProductsPage(){
     const textColor = ["white","beige","yellow","light blue"].includes(colorKey) ? "#374151" : "#fff";
 
     html += `
-      <tr class="pr-row">
+      <tr class="pr-row ${statusClass === "out" ? "pr-row-out" : statusClass === "low" ? "pr-row-low" : ""}">
         <td class="pr-barcode">${item.barcode}</td>
         <td class="pr-product-name">${item.product}</td>
         <td><span class="pr-category-tag">${item.category || "-"}</span></td>
