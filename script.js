@@ -4950,6 +4950,11 @@ async function loadPosHistory(){
   _posHistoryData = history.filter(item => {
     const remarks = String(item.remarks || "").toLowerCase();
     const storeLower = store.toLowerCase();
+
+    // ⚡ Exclude stock transfer/return movements — this view is for actual
+    // sales (Walk-in / Online) only, not warehouse-to-store stock transfers.
+    if(remarks.includes("transfer:") || remarks.includes("return:")) return false;
+
     // Match kung nasa remarks ang store name (hal. "Podium - Walk-in")
     // O kung Warehouse ang pinagmulan (dapat visible sa lahat ng store)
     const matchStore = remarks.includes(storeLower) || remarks.includes("warehouse");
