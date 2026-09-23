@@ -1553,6 +1553,7 @@ qty
 );
 
 if(
+result.success === false ||
 String(result.message)
 .toLowerCase()
 .includes("not enough")
@@ -1709,6 +1710,22 @@ store,
 qty
 }
 );
+
+if(result.success === false){
+
+setButtonError(
+btn,
+"✕ Failed"
+);
+
+showMessage(
+result.message,
+"error"
+);
+
+return;
+
+}
 
 setButtonSuccess(
 btn,
