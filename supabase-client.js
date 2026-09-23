@@ -354,7 +354,7 @@ async function apiRequest(action, payload = {}) {
 
         const storeStock = Number(storeItem.stock) || 0;
         if (storeStock < qty) {
-          return { success: false, message: `Not enough stock at ${store} (only ${storeStock} available).` };
+          return { success: false, message: `Not enough stock at ${store}.`;
         }
 
         // 2) Deduct from the store
