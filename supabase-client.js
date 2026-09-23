@@ -273,7 +273,7 @@ async function apiRequest(action, payload = {}) {
 
         const whStock = Number(whItem.stock) || 0;
         if (whStock < qty) {
-          return { message: `Not enough stock in warehouse (only ${whStock} available).` };
+          return { message: `Not enough stock in warehouse.` };
         }
 
         // 2) Deduct from warehouse
