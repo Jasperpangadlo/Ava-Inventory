@@ -257,6 +257,153 @@ async function apiRequest(action, payload = {}) {
         return data;
       }
 
+      case "sendToStore": {
+        const barcode = String(payload.barcode).trim();
+        const store   = payload.store;
+        const qty     = Number(payload.qty) || 0;
+
+        // 1) Confirm the warehouse actually has enough stock
+        const { data: whItem, error: whErr } = await sb
+          .from("inventory")
+          .select("*")
+          .eq("barcode", barcode)
+          .maybeSingle();
+        if (whErr) return { message: "Error: " + whErr.message };
+        if (!whItem) return { message: "Product not found: " + barcode };
+
+        const whStock = Number(whItem.stock) || 0;
+        if (whStock < qty) {
+          return { message: `Not enough stock in warehouse (only ${whStock} available).` };
+        }
+
+        // 2) Deduct from warehouse
+        const { error: deductErr } = await sb
+          .from("inventory")
+          .update({ stock: whStock - qty })
+          .eq("barcode", barcode);
+        if (deductErr) return { message: "Error updating warehouse stock: " + deductErr.message };
+
+        // 3) Add to the destination store (additive if it already carries this barcode)
+        const { data: storeItem, error: storeFetchErr } = await sb
+          .from("store_inventory")
+          .select("*")
+          .eq("barcode", barcode)
+          .eq("store", store)
+          .maybeSingle();
+        if (storeFetchErr) return { message: "Error reading store stock: " + storeFetchErr.message };
+
+        const newStoreStock = (storeItem ? Number(storeItem.stock) || 0 : 0) + qty;
+
+        let storeUpsertErr;
+        if (storeItem) {
+          const { error } = await sb
+            .from("store_inventory")
+            .update({ stock: newStoreStock })
+            .eq("barcode", barcode)
+            .eq("store", store);
+          storeUpsertErr = error;
+        } else {
+          const { error } = await sb
+            .from("store_inventory")
+            .insert({
+              barcode,
+              store,
+              product: whItem.product,
+              category: whItem.category,
+              color: whItem.color,
+              size: whItem.size,
+              price: whItem.price,
+              stock: newStoreStock
+            });
+          storeUpsertErr = error;
+        }
+        if (storeUpsertErr) return { message: "Error updating store stock: " + storeUpsertErr.message };
+
+        // 4) Log it so it shows up in History
+        await sb.from("deduct_history").insert({
+          datetime: new Date().toISOString(),
+          barcode,
+          product: whItem.product,
+          color: whItem.color,
+          size: whItem.size,
+          quantity_out: qty,
+          price: whItem.price,
+          total: Number(whItem.price || 0) * qty,
+          remark: `Transfer: Warehouse → ${store}`
+        });
+
+        cacheInvalidate("getProducts", "getHistory", "getStoreInventory", "getStoreProducts:" + store);
+        return { message: `Sent ${qty} unit(s) of ${whItem.product} to ${store}!` };
+      }
+
+      case "returnToWarehouse": {
+        const barcode = String(payload.barcode).trim();
+        const store   = payload.store;
+        const qty     = Number(payload.qty) || 0;
+
+        // 1) Confirm the store actually has enough stock to return
+        const { data: storeItem, error: storeErr } = await sb
+          .from("store_inventory")
+          .select("*")
+          .eq("barcode", barcode)
+          .eq("store", store)
+          .maybeSingle();
+        if (storeErr) return { message: "Error: " + storeErr.message };
+        if (!storeItem) return { message: `${barcode} is not currently stocked at ${store}.` };
+
+        const storeStock = Number(storeItem.stock) || 0;
+        if (storeStock < qty) {
+          return { message: `Not enough stock at ${store} (only ${storeStock} available).` };
+        }
+
+        // 2) Deduct from the store
+        const { error: deductErr } = await sb
+          .from("store_inventory")
+          .update({ stock: storeStock - qty })
+          .eq("barcode", barcode)
+          .eq("store", store);
+        if (deductErr) return { message: "Error updating store stock: " + deductErr.message };
+
+        // 3) Add back to the warehouse
+        const { data: whItem, error: whFetchErr } = await sb
+          .from("inventory")
+          .select("*")
+          .eq("barcode", barcode)
+          .maybeSingle();
+        if (whFetchErr) return { message: "Error reading warehouse stock: " + whFetchErr.message };
+
+        const newWhStock = (whItem ? Number(whItem.stock) || 0 : 0) + qty;
+
+        const { error: whUpsertErr } = await sb
+          .from("inventory")
+          .upsert({
+            barcode,
+            product: storeItem.product,
+            category: storeItem.category,
+            color: storeItem.color,
+            size: storeItem.size,
+            price: storeItem.price,
+            stock: newWhStock
+          }, { onConflict: "barcode" });
+        if (whUpsertErr) return { message: "Error updating warehouse stock: " + whUpsertErr.message };
+
+        // 4) Log it so it shows up in History
+        await sb.from("deduct_history").insert({
+          datetime: new Date().toISOString(),
+          barcode,
+          product: storeItem.product,
+          color: storeItem.color,
+          size: storeItem.size,
+          quantity_out: qty,
+          price: storeItem.price,
+          total: Number(storeItem.price || 0) * qty,
+          remark: `Return: ${store} → Warehouse`
+        });
+
+        cacheInvalidate("getProducts", "getHistory", "getStoreInventory", "getStoreProducts:" + store);
+        return { message: `Returned ${qty} unit(s) of ${storeItem.product} to Warehouse!` };
+      }
+
       case "logActivity": {
         const { error } = await sb.from("activity_log").insert({
           datetime: new Date().toISOString(),
