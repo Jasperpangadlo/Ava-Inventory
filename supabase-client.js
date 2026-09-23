@@ -273,7 +273,7 @@ async function apiRequest(action, payload = {}) {
 
         const whStock = Number(whItem.stock) || 0;
         if (whStock < qty) {
-          return { message: `Not enough stock in warehouse.` };
+          return { message: `Not enough stock in warehouse (only ${whStock} available).` };
         }
 
         // 2) Deduct from warehouse
@@ -313,7 +313,8 @@ async function apiRequest(action, payload = {}) {
               color: whItem.color,
               size: whItem.size,
               price: whItem.price,
-              stock: newStoreStock
+              stock: newStoreStock,
+              date_sent: new Date().toISOString()
             });
           storeUpsertErr = error;
         }
