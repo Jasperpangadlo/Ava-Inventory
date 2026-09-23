@@ -229,8 +229,10 @@ async function apiRequest(action, payload = {}) {
       }
 
       case "getSalesStats": {
-        // Only count genuine sales (remark format "<Store> - Walk-in"/"Warehouse - Online"),
-        // never transfers, returns, or test entries that merely mention the store name.
+        // Counts today's genuine sales for this store (remark format "<Store> - Walk-in/Online").
+        // Note: Warehouse-sourced walk-in sales ("Warehouse - Walk-in") have no store
+        // identifier in their remark, so they can't be safely attributed to a specific
+        // store here — counting them for every store would double/triple-count them.
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
         const { data, error } = await sb
@@ -240,9 +242,16 @@ async function apiRequest(action, payload = {}) {
           .ilike("remark", `${payload.store} - %`);
         if (error) throw error;
 
-        const salesToday = data.reduce((sum, r) => sum + Number(r.total || 0), 0);
-        const itemsSold = data.reduce((sum, r) => sum + Number(r.quantity_out || 0), 0);
-        return { salesToday, transToday: data.length, itemsSold };
+        // ⚡ Defensive filter — the prefix match above should already exclude these,
+        // but this guards against future remark-format changes.
+        const salesOnly = data.filter(r => {
+          const remark = String(r.remark || "").toLowerCase();
+          return !remark.includes("transfer:") && !remark.includes("return:");
+        });
+
+        const salesToday = salesOnly.reduce((sum, r) => sum + Number(r.total || 0), 0);
+        const itemsSold = salesOnly.reduce((sum, r) => sum + Number(r.quantity_out || 0), 0);
+        return { salesToday, transToday: salesOnly.length, itemsSold };
       }
 
       case "stockOut": {
@@ -369,7 +378,7 @@ async function apiRequest(action, payload = {}) {
 
         const storeStock = Number(storeItem.stock) || 0;
         if (storeStock < qty) {
-          return { success: false, message: `Not enough stock at ${store}.`};
+          return { success: false, message: `Not enough stock at ${store} (only ${storeStock} available).` };
         }
 
         // 2) Deduct from the store
