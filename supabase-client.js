@@ -35,6 +35,20 @@ function cacheInvalidate(...keys) {
   keys.forEach(k => _cache.delete(k));
 }
 
+// Sorts rows by product name, then color, then logical size order (XS→XL)
+const SIZE_ORDER = { xs: 0, s: 1, m: 2, l: 3, xl: 4, xxl: 5 };
+function sortBySize(rows) {
+  return [...rows].sort((a, b) => {
+    const p = String(a.product || "").localeCompare(String(b.product || ""));
+    if (p !== 0) return p;
+    const c = String(a.color || "").localeCompare(String(b.color || ""));
+    if (c !== 0) return c;
+    const ra = SIZE_ORDER[String(a.size || "").toLowerCase()] ?? 99;
+    const rb = SIZE_ORDER[String(b.size || "").toLowerCase()] ?? 99;
+    return ra - rb;
+  });
+}
+
 // Exposed globally so the "Refresh Data" button can force a clean re-fetch
 // for everyone, in case another user/device changed something.
 window.clearApiCache = () => cacheInvalidate();
@@ -99,7 +113,7 @@ async function apiRequest(action, payload = {}) {
         const cached = cacheGet("getProducts");
         if (cached) return cached;
         const data = await fetchAllRows("inventory");
-        const result = { products: data };
+        const result = { products: sortBySize(data) };
         cacheSet("getProducts", result);
         return result;
       }
@@ -193,7 +207,7 @@ async function apiRequest(action, payload = {}) {
         const cached = cacheGet("getStoreInventory");
         if (cached) return cached;
         const data = await fetchAllRows("store_inventory");
-        const products = data.map(p => ({ ...p, location: p.store }));
+        const products = sortBySize(data).map(p => ({ ...p, location: p.store }));
         const result = { products };
         cacheSet("getStoreInventory", result);
         return result;
@@ -208,21 +222,22 @@ async function apiRequest(action, payload = {}) {
           .select("*")
           .eq("store", payload.store);
         if (error) throw error;
-        const products = data.map(p => ({ ...p, storeQty: p.stock }));
+        const products = sortBySize(data).map(p => ({ ...p, storeQty: p.stock }));
         const result = { products };
         cacheSet(cacheKey, result);
         return result;
       }
 
       case "getSalesStats": {
-        // Sums today's deduct_history rows whose remark mentions this store
+        // Only count genuine sales (remark format "<Store> - Walk-in"/"Warehouse - Online"),
+        // never transfers, returns, or test entries that merely mention the store name.
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
         const { data, error } = await sb
           .from("deduct_history")
           .select("*")
           .gte("datetime", startOfDay.toISOString())
-          .ilike("remark", `%${payload.store}%`);
+          .ilike("remark", `${payload.store} - %`);
         if (error) throw error;
 
         const salesToday = data.reduce((sum, r) => sum + Number(r.total || 0), 0);
