@@ -8,6 +8,7 @@ const SUPABASE_URL = "https://aiczonqwwfxvikowmzcr.supabase.co"; // your project
 const SUPABASE_ANON_KEY = "sb_publishable_Z-sNfyMvnXcaLunFpfV4aQ_oHZipoj-"; // Project Settings > API
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let _retryingAfterRefresh = false;
 
 // ── Simple in-memory cache ──────────────────────────────────────────────
 // Avoids re-fetching from Supabase every time a tab is reopened.
@@ -513,6 +514,36 @@ async function apiRequest(action, payload = {}) {
         return {};
     }
   } catch (err) {
+    const status = err?.status || err?.code;
+    const msg = String(err?.message || "").toLowerCase();
+    const looksLikeExpiredSession =
+      status === 401 || msg.includes("jwt") || msg.includes("expired") || msg.includes("invalid_token");
+
+    if (looksLikeExpiredSession && action !== "login" && !_retryingAfterRefresh) {
+      _retryingAfterRefresh = true;
+      try {
+        const { data: refreshed, error: refreshErr } = await sb.auth.refreshSession();
+        _retryingAfterRefresh = false;
+        if (!refreshErr && refreshed?.session) {
+          // Got a fresh token — retry the original request once
+          return await apiRequest(action, payload);
+        }
+      } catch (e) {
+        _retryingAfterRefresh = false;
+      }
+
+      // Refresh failed too — the session is genuinely gone (e.g. left open all day).
+      // Clear local state and send the user back to the login screen with a clear reason.
+      console.error("Session expired and could not be refreshed:", err);
+      showConnectionBanner("Your session has expired. Please log in again.", "error");
+      localStorage.removeItem("avaLoggedIn");
+      localStorage.removeItem("avaUser");
+      localStorage.removeItem("avaRole");
+      localStorage.removeItem("avaStore");
+      setTimeout(() => window.location.reload(), 1800);
+      throw err;
+    }
+
     console.error("apiRequest error:", action, err);
     showConnectionBanner("Server error. Please refresh.", "error");
     throw err;
