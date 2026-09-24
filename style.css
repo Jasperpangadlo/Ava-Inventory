@@ -3314,12 +3314,16 @@ tbody tr:hover {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .pos-history-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
   background: white;
   padding: 16px 22px;
   border-radius: 16px;
