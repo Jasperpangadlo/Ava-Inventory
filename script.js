@@ -4948,16 +4948,25 @@ async function loadPosHistory(){
 
   // Filter by store and date
   _posHistoryData = history.filter(item => {
-    const remarks = String(item.remarks || "").toLowerCase();
+    const remarks = String(item.remarks || "").toLowerCase().trim();
     const storeLower = store.toLowerCase();
 
-    // ⚡ Exclude stock transfer/return movements — this view is for actual
-    // sales (Walk-in / Online) only, not warehouse-to-store stock transfers.
-    if(remarks.includes("transfer:") || remarks.includes("return:")) return false;
+    // ⚡ ALLOWLIST approach: only genuine sales remarks pass through — they always
+    // end in "- walk-in" or "- online". Everything else (transfers, returns, or
+    // any legacy/odd remark format like "Warehouse - Rockwell") is excluded,
+    // regardless of exact wording.
+    const isGenuineSale = remarks.endsWith("- walk-in") || remarks.endsWith("- online");
+    if(!isGenuineSale) return false;
+
+    // ⚡ Extra explicit safeguard: never show anything that mentions BOTH
+    // "warehouse" and the store name together (e.g. "Podium-Warehouse",
+    // "Warehouse-Podium") — these are always transfer/return movements.
+    const mentionsBoth = remarks.includes("warehouse") && remarks.includes(storeLower);
+    if(mentionsBoth) return false;
 
     // Match kung nasa remarks ang store name (hal. "Podium - Walk-in")
     // O kung Warehouse ang pinagmulan (dapat visible sa lahat ng store)
-    const matchStore = remarks.includes(storeLower) || remarks.includes("warehouse");
+    const matchStore = remarks.startsWith(storeLower) || remarks.startsWith("warehouse");
 
     if(!matchStore) return false;
 
