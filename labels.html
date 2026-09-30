@@ -70,7 +70,8 @@ body{
 }
 
     #barcodeSelect,
-#qty {
+#qty,
+#price {
 
   text-align:center;
   height:32px;
@@ -80,7 +81,7 @@ body{
 
     .controls{
 display:grid;
-grid-template-columns: 250px 100px auto auto auto auto 320px;
+grid-template-columns: 250px 100px 100px auto auto auto auto 320px;
 gap:8px;
 align-items:start;
 margin-bottom:15px;
@@ -102,6 +103,14 @@ margin-top:2px;
 text-align:center;
 }
 
+.label-price{
+font-size:12px;
+font-weight:bold;
+color:#000;
+margin-top:1px;
+text-align:center;
+}
+
     
   </style>
 </head>
@@ -117,6 +126,8 @@ text-align:center;
   <datalist id="products"></datalist>
   
   <input id="qty" type="number" min="1" value="1">
+
+  <input id="price" type="number" min="0" step="0.01" placeholder="Price (₱)">
 
 <button onclick="addItem()">Add</button>
 <button onclick="generateLabels()">Generate</button>
@@ -1329,8 +1340,9 @@ let cart=[];
 function addItem(){
  const item=document.getElementById("barcodeSelect").value;
  const qty=Number(document.getElementById("qty").value);
+ const price=document.getElementById("price").value.trim();
 
- cart.push({item,qty});
+ cart.push({item,qty,price});
 
  renderCart();
 }
@@ -1355,7 +1367,7 @@ function renderCart(){
    ">
 
    <span>
-   ${name} — ${x.qty} pcs
+   ${name} — ${x.qty} pcs${x.price ? ` — ₱${x.price}` : ""}
    </span>
 
    <button
@@ -1404,6 +1416,7 @@ function generateLabels(){
        <svg class="barcode-svg"></svg>
        <div class="name">${name}</div>
        <div class="barcode-code">${code}</div>
+       ${x.price ? `<div class="label-price">₱${x.price}</div>` : ""}
      `;
      labels.appendChild(div);
 
@@ -1433,6 +1446,8 @@ document.getElementById("barcodeSelect").value="";
 
 document.getElementById("qty").value=1;
 
+document.getElementById("price").value="";
+
 }
 </script>
 
@@ -1458,6 +1473,7 @@ document.getElementById("qty").value=1;
         <th style="padding:8px 12px;">Product</th>
         <th style="padding:8px 12px;">Barcode</th>
         <th style="padding:8px 12px;text-align:center;">Qty</th>
+        <th style="padding:8px 12px;text-align:center;">Price</th>
         <th style="padding:8px 12px;text-align:center;">Action</th>
       </tr>
     </thead>
@@ -1486,7 +1502,8 @@ function addToHistory(cartItems){
       datetime: now,
       name: name || code,
       code,
-      qty: x.qty
+      qty: x.qty,
+      price: x.price || ""
     });
   });
   // Keep only last 200 records
@@ -1515,6 +1532,7 @@ function renderHistory(){
       <td style="padding:8px 12px;font-weight:600;">${h.name}</td>
       <td style="padding:8px 12px;color:#7B5EA7;font-family:monospace;">${h.code}</td>
       <td style="padding:8px 12px;text-align:center;font-weight:700;">${h.qty}</td>
+      <td style="padding:8px 12px;text-align:center;">${h.price ? "₱"+h.price : "—"}</td>
       <td style="padding:8px 12px;text-align:center;">
         <button onclick="reprintItem(${i})"
           style="background:#E8522A;color:white;border:none;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:11px;">
@@ -1553,6 +1571,7 @@ function reprintItem(index){
       <svg class="barcode-svg"></svg>
       <div class="name">${h.name}</div>
       <div class="barcode-code">${h.code}</div>
+      ${h.price ? `<div class="label-price">₱${h.price}</div>` : ""}
     `;
     labels.appendChild(div);
 
