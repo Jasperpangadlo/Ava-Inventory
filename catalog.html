@@ -466,6 +466,59 @@
     .cat-qty.zero   { color: #ef4444; }
     .cat-qty.low    { color: #f59e0b; }
     .cat-qty.ok     { color: #10b981; }
+    .cat-qty-clickable {
+      cursor: pointer;
+      text-decoration: underline;
+      text-decoration-style: dotted;
+      text-underline-offset: 3px;
+    }
+    .cat-qty-clickable:hover { opacity: 0.7; }
+
+    /* History modal */
+    .cat-history-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: lb-fade-in 0.2s ease;
+    }
+    .cat-history-inner {
+      background: #fff;
+      border-radius: 16px;
+      max-width: 440px;
+      width: 100%;
+      max-height: 80vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: lb-scale-in 0.22s cubic-bezier(0.22,1,0.36,1);
+    }
+    .cat-history-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .cat-history-title { font-weight: 700; font-size: 15px; color: #374151; }
+    .cat-history-sub { font-size: 12.5px; color: #9ca3af; margin-top: 2px; }
+    .cat-history-close {
+      border: none; background: #f3f4f6; width: 30px; height: 30px;
+      border-radius: 50%; cursor: pointer; font-size: 15px; color: #374151;
+    }
+    .cat-history-body { overflow-y: auto; padding: 10px 20px 20px; }
+    .cat-history-row {
+      display: flex; justify-content: space-between; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: 13.5px;
+    }
+    .cat-history-row:last-child { border-bottom: none; }
+    .cat-history-qty { font-weight: 700; color: #ef4444; white-space: nowrap; }
+    .cat-history-date { color: #9ca3af; font-size: 11.5px; white-space: nowrap; margin-top: 2px; }
+    .cat-history-empty { text-align: center; color: #9ca3af; padding: 30px 0; font-size: 13.5px; }
 
     /* Row total */
     .cat-row-total {
@@ -803,6 +856,20 @@
   </div>
 </main>
 
+<!-- ── Sales History Modal ───────────────────────────────────────────────── -->
+<div id="catHistoryModal" class="cat-history-modal" style="display:none;" onclick="if(event.target===this) closeProductHistory()">
+  <div class="cat-history-inner">
+    <div class="cat-history-header">
+      <div>
+        <div class="cat-history-title" id="catHistoryTitle">—</div>
+        <div class="cat-history-sub" id="catHistorySub"></div>
+      </div>
+      <button class="cat-history-close" onclick="closeProductHistory()">✕</button>
+    </div>
+    <div class="cat-history-body" id="catHistoryBody"></div>
+  </div>
+</div>
+
 <!-- ── Lightbox ───────────────────────────────────────────────────────────── -->
 <div id="catLightbox" class="cat-lightbox" style="display:none;" onclick="closeLightbox(event)">
   <div class="cat-lightbox-inner">
@@ -834,8 +901,15 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwymQ1xaCN5yW3WczU-TPGgF2dnn2l25YyStRm0ED1oM3CurdCctabBAS3YOWRTo2nj9Q/exec";
+
+// Used ONLY for the "click a quantity to see sales history" feature below —
+// product/fabric data above still comes from Apps Script (WEB_APP_URL), untouched.
+const _SB_URL = "https://aiczonqwwfxvikowmzcr.supabase.co";
+const _SB_ANON_KEY = "sb_publishable_Z-sNfyMvnXcaLunFpfV4aQ_oHZipoj-";
+const _sbHistory = supabase.createClient(_SB_URL, _SB_ANON_KEY);
 
 let _catalogData   = [];
 let _filteredData  = [];
@@ -1052,7 +1126,13 @@ function renderCatalog(catalog){
           const highlight = sizeFilter && sz === sizeFilter
             ? "style='background:rgba(237,229,244,.5);'"
             : "";
-          return `<td ${highlight}><span class="cat-qty ${cls}">${qty > 0 ? qty : "—"}</span></td>`;
+          const safeStyle = (product.style || "").replace(/'/g, "\\'");
+          const safeColor = (c.color || "").replace(/'/g, "\\'");
+          const clickAttr = qty > 0
+            ? ` onclick="showProductHistory('${safeStyle}','${safeColor}','${sz}')"`
+            : "";
+          const qtyCls = qty > 0 ? `cat-qty ${cls} cat-qty-clickable` : `cat-qty ${cls}`;
+          return `<td ${highlight}><span class="${qtyCls}"${clickAttr}>${qty > 0 ? qty : "—"}</span></td>`;
         }).join("");
 
         return `
@@ -1127,6 +1207,66 @@ function printCatalog(){
   window.print();
 }
 
+// ── Sales history (click a quantity number to see its movement history) ───
+function _formatHistDate(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  const pad = n => String(n).padStart(2, "0");
+  return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+async function showProductHistory(style, color, size) {
+  const modal  = document.getElementById("catHistoryModal");
+  const titleEl = document.getElementById("catHistoryTitle");
+  const subEl   = document.getElementById("catHistorySub");
+  const bodyEl  = document.getElementById("catHistoryBody");
+
+  titleEl.textContent = style;
+  subEl.textContent = `${color} · ${size}`;
+  bodyEl.innerHTML = `<div class="cat-history-empty">Loading…</div>`;
+  modal.style.display = "flex";
+  document.body.style.overflow = "hidden";
+
+  try {
+    const { data, error } = await _sbHistory
+      .from("deduct_history")
+      .select("*")
+      .eq("product", style)
+      .eq("color", color)
+      .eq("size", size)
+      .not("remark", "ilike", "%add stock%")
+      .not("remark", "ilike", "%stock in%")
+      .order("datetime", { ascending: false })
+      .limit(50);
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      bodyEl.innerHTML = `<div class="cat-history-empty">Wala pang history para dito.</div>`;
+      return;
+    }
+
+    bodyEl.innerHTML = data.map(r => `
+      <div class="cat-history-row">
+        <div>
+          <div>${r.remark || "—"}</div>
+          <div class="cat-history-date">${_formatHistDate(r.datetime)}</div>
+        </div>
+        <div class="cat-history-qty">-${r.quantity_out}</div>
+      </div>
+    `).join("");
+  } catch (err) {
+    console.error("showProductHistory error:", err);
+    bodyEl.innerHTML = `<div class="cat-history-empty">Hindi na-load ang history.</div>`;
+  }
+}
+
+function closeProductHistory() {
+  document.getElementById("catHistoryModal").style.display = "none";
+  document.body.style.overflow = "";
+}
+
 // ── Lightbox ──────────────────────────────────────────────────────────────
 function openLightbox(src, caption) {
   const lb  = document.getElementById("catLightbox");
@@ -1147,7 +1287,7 @@ function closeLightbox(e) {
 }
 
 document.addEventListener("keydown", e => {
-  if(e.key === "Escape") closeLightbox();
+  if(e.key === "Escape") { closeLightbox(); closeProductHistory(); }
 });
 
 // ── Tab Switching ─────────────────────────────────────────────────────────────
