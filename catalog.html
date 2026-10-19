@@ -904,40 +904,6 @@
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwymQ1xaCN5yW3WczU-TPGgF2dnn2l25YyStRm0ED1oM3CurdCctabBAS3YOWRTo2nj9Q/exec";
 
-// Used ONLY for the "click a quantity to see sales history" feature below —
-// pulls straight from the "Sales" tab (gid 1503497242) of the Data Base Google Sheet.
-// IMPORTANT: the sheet must be shared as "Anyone with the link — Viewer"
-// (File → Share → General access) or this fetch will fail with a 404/401.
-const _SALES_SHEET_ID = "1mqD-aM6QLYpA8fSFcozOyix0YN2oV7FDaly5TQsBKsQ";
-const _SALES_SHEET_GID = "1503497242";
-const _SALES_CSV_URL =
-  `https://docs.google.com/spreadsheets/d/${_SALES_SHEET_ID}/gviz/tq?tqx=out:csv&gid=${_SALES_SHEET_GID}`;
-
-// Minimal CSV parser (handles quoted fields with embedded commas)
-function _parseCsv(text) {
-  const rows = [];
-  let row = [], field = "", inQuotes = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i], next = text[i + 1];
-    if (inQuotes) {
-      if (ch === '"' && next === '"') { field += '"'; i++; }
-      else if (ch === '"') { inQuotes = false; }
-      else { field += ch; }
-    } else {
-      if (ch === '"') inQuotes = true;
-      else if (ch === ',') { row.push(field); field = ""; }
-      else if (ch === '\n' || ch === '\r') {
-        if (ch === '\r' && next === '\n') i++;
-        row.push(field); field = "";
-        if (row.length > 1 || row[0] !== "") rows.push(row);
-        row = [];
-      } else field += ch;
-    }
-  }
-  if (field !== "" || row.length) { row.push(field); rows.push(row); }
-  return rows;
-}
-
 let _catalogData   = [];
 let _filteredData  = [];
 
@@ -1243,46 +1209,6 @@ function _formatHistDate(iso) {
   return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-let _salesRowsCache = null; // all rows from the Sales sheet, fetched once then reused
-
-async function _loadSalesRows() {
-  if (_salesRowsCache) return _salesRowsCache;
-  const res = await fetch(_SALES_CSV_URL);
-  if (!res.ok) throw new Error("Could not reach the Sales sheet (HTTP " + res.status + ")");
-  const text = await res.text();
-  const rows = _parseCsv(text);
-  if (!rows.length) { _salesRowsCache = []; return _salesRowsCache; }
-
-  // First row = headers: Date/Time, Barcode, Product, Color, Size, Quantity Out, Price, Total, Remark
-  const header = rows[0].map(h => h.trim().toLowerCase());
-  const idx = {
-    datetime: header.indexOf("date/time"),
-    barcode:  header.indexOf("barcode"),
-    product:  header.indexOf("product"),
-    color:    header.indexOf("color"),
-    size:     header.indexOf("size"),
-    qty:      header.indexOf("quantity out"),
-    price:    header.indexOf("price"),
-    total:    header.indexOf("total"),
-    remark:   header.indexOf("remark"),
-  };
-
-  _salesRowsCache = rows.slice(1)
-    .filter(r => r.length > 1 && (r[idx.product] || "").trim() !== "")
-    .map(r => ({
-      datetime: r[idx.datetime] || "",
-      barcode:  r[idx.barcode] || "",
-      product:  (r[idx.product] || "").trim(),
-      color:    (r[idx.color] || "").trim(),
-      size:     (r[idx.size] || "").trim(),
-      qty:      r[idx.qty] || "0",
-      price:    r[idx.price] || "",
-      total:    r[idx.total] || "",
-      remark:   r[idx.remark] || "",
-    }));
-  return _salesRowsCache;
-}
-
 async function showProductHistory(style, color, size) {
   const modal  = document.getElementById("catHistoryModal");
   const titleEl = document.getElementById("catHistoryTitle");
@@ -1296,24 +1222,22 @@ async function showProductHistory(style, color, size) {
   document.body.style.overflow = "hidden";
 
   try {
-    const rows = await _loadSalesRows();
-    const matches = rows
-      .filter(r =>
-        r.product.toLowerCase() === style.toLowerCase() &&
-        r.color.toLowerCase() === color.toLowerCase() &&
-        r.size.toLowerCase() === size.toLowerCase())
-      .sort((a, b) => new Date(b.datetime) - new Date(a.datetime))
-      .slice(0, 50);
+    const payload = encodeURIComponent(JSON.stringify({ product: style, color, size }));
+    const url = `${WEB_APP_URL}?action=getSalesHistory&data=${payload}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const json = await res.json();
+    const records = json.records || [];
 
-    if (matches.length === 0) {
+    if (records.length === 0) {
       bodyEl.innerHTML = `<div class="cat-history-empty">Wala pang sales history para dito.</div>`;
       return;
     }
 
-    bodyEl.innerHTML = matches.map(r => `
+    bodyEl.innerHTML = records.map(r => `
       <div class="cat-history-row">
         <div>
-          <div>${r.remark || "—"}</div>
+          <div>${r.remarks || "—"}</div>
           <div class="cat-history-date">${r.datetime || ""}</div>
         </div>
         <div class="cat-history-qty">-${r.qty}</div>
