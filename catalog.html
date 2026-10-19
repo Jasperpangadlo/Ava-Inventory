@@ -905,12 +905,13 @@
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwymQ1xaCN5yW3WczU-TPGgF2dnn2l25YyStRm0ED1oM3CurdCctabBAS3YOWRTo2nj9Q/exec";
 
 // Used ONLY for the "click a quantity to see sales history" feature below —
-// pulls straight from the "Sales" tab of the Data Base Google Sheet.
-// (The sheet must be shared as "Anyone with the link — Viewer" for this to work.)
+// pulls straight from the "Sales" tab (gid 1503497242) of the Data Base Google Sheet.
+// IMPORTANT: the sheet must be shared as "Anyone with the link — Viewer"
+// (File → Share → General access) or this fetch will fail with a 404/401.
 const _SALES_SHEET_ID = "1mqD-aM6QLYpA8fSFcozOyix0YN2oV7FDaly5TQsBKsQ";
-const _SALES_SHEET_NAME = "Sales";
+const _SALES_SHEET_GID = "1503497242";
 const _SALES_CSV_URL =
-  `https://docs.google.com/spreadsheets/d/${_SALES_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(_SALES_SHEET_NAME)}`;
+  `https://docs.google.com/spreadsheets/d/${_SALES_SHEET_ID}/gviz/tq?tqx=out:csv&gid=${_SALES_SHEET_GID}`;
 
 // Minimal CSV parser (handles quoted fields with embedded commas)
 function _parseCsv(text) {
