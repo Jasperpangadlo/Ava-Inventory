@@ -379,7 +379,25 @@ function checkStockAlerts(products){
 // ── Receipt / Invoice ─────────────────────────────────────────────────────────
 let _receiptCounter = Number(localStorage.getItem("avaReceiptNo") || 1000);
 
-function showReceipt(items, store){
+// ── POS Discount (Podium & Glorietta only) ────────────────────────────────────
+const DISCOUNT_STORES = ["podium", "glorietta"];
+
+function storeHasDiscount(store){
+  return DISCOUNT_STORES.includes(String(store || "").trim().toLowerCase());
+}
+
+// Returns { pct, label } from the dropdown. Value format: "20" or "20|Senior/PWD"
+function getPosDiscount(){
+  const store = localStorage.getItem("avaStore") || "Podium";
+  if(!storeHasDiscount(store)) return { pct: 0, label: "" };
+  const sel = document.getElementById("posDiscountSelect");
+  if(!sel) return { pct: 0, label: "" };
+  const [pctStr, name] = String(sel.value || "0").split("|");
+  const pct = Math.min(100, Math.max(0, Number(pctStr) || 0));
+  return { pct, label: name || (pct ? pct + "%" : "") };
+}
+
+function showReceipt(items, store, discount){
   const now       = new Date();
   const receiptNo = ++_receiptCounter;
   localStorage.setItem("avaReceiptNo", receiptNo);
@@ -415,8 +433,26 @@ function showReceipt(items, store){
     `;
   }).join("");
 
+  const fmt = n => n.toLocaleString("en-PH", {minimumFractionDigits:2});
+  const pct = discount && discount.pct ? discount.pct : 0;
+  const discAmt = Math.round(grandTotal * pct) / 100;
+  const finalTotal = grandTotal - discAmt;
+
+  const subRow  = document.getElementById("rcptSubtotalRow");
+  const discRow = document.getElementById("rcptDiscountRow");
+  if(pct > 0){
+    document.getElementById("rcptSubtotal").textContent = "₱" + fmt(grandTotal);
+    document.getElementById("rcptDiscountLabel").textContent = "Discount (" + discount.label + (discount.label.includes("%") ? "" : " " + pct + "%") + "):";
+    document.getElementById("rcptDiscount").textContent = "-₱" + fmt(discAmt);
+    if(subRow)  subRow.style.display  = "flex";
+    if(discRow) discRow.style.display = "flex";
+  } else {
+    if(subRow)  subRow.style.display  = "none";
+    if(discRow) discRow.style.display = "none";
+  }
+
   document.getElementById("rcptTotalItems").textContent = totalQty + " pcs";
-  document.getElementById("rcptGrandTotal").textContent = "₱" + grandTotal.toLocaleString("en-PH", {minimumFractionDigits:2});
+  document.getElementById("rcptGrandTotal").textContent = "₱" + fmt(finalTotal);
 
   // Show modal
   document.getElementById("receiptModal").style.display = "flex";
@@ -573,6 +609,16 @@ function downloadReceiptPDF(){
   doc.text("Total Items:", 4, y);
   doc.text(items, 76, y, {align:"right"});
   y += 5;
+
+  const subRowEl = document.getElementById("rcptSubtotalRow");
+  if(subRowEl && subRowEl.style.display !== "none"){
+    doc.text("Subtotal:", 4, y);
+    doc.text(document.getElementById("rcptSubtotal")?.textContent || "", 76, y, {align:"right"});
+    y += 5;
+    doc.text(document.getElementById("rcptDiscountLabel")?.textContent || "Discount:", 4, y);
+    doc.text(document.getElementById("rcptDiscount")?.textContent || "", 76, y, {align:"right"});
+    y += 5;
+  }
 
   doc.setFillColor(...AVA_PLUM);
   doc.rect(4, y-3, 72, 8, "F");
@@ -4895,6 +4941,7 @@ function showPosScreen(){
   // Hide admin layout
   document.querySelector(".layout").style.display = "none";
 
+  updatePosTotals();
   loadPosStocks();
   loadPosSalesStats();
 
@@ -5245,12 +5292,25 @@ function clearPosCart(){
 }
 
 function updatePosTotals(){
-  const totalItems  = posCart.reduce((s, i) => s + i.qty, 0);
-  const totalAmount = posCart.reduce((s, i) => s + (i.price * i.qty), 0);
+  const totalItems = posCart.reduce((s, i) => s + i.qty, 0);
+  const subtotal   = posCart.reduce((s, i) => s + (i.price * i.qty), 0);
+
+  const store = localStorage.getItem("avaStore") || "Podium";
+  const { pct } = getPosDiscount();
+  const discAmt = Math.round(subtotal * pct) / 100;
+  const total   = subtotal - discAmt;
+
+  const fmt = n => n.toLocaleString("en-PH", {minimumFractionDigits:2});
 
   document.getElementById("posTotalItems").textContent  = totalItems;
-  document.getElementById("posTotalAmount").textContent =
-    totalAmount.toLocaleString("en-PH", {minimumFractionDigits:2});
+  document.getElementById("posTotalAmount").textContent = fmt(total);
+
+  const box = document.getElementById("posDiscountBox");
+  if(box) box.style.display = storeHasDiscount(store) ? "block" : "none";
+  const subEl = document.getElementById("posSubtotal");
+  const disEl = document.getElementById("posDiscountAmt");
+  if(subEl) subEl.textContent = fmt(subtotal);
+  if(disEl) disEl.textContent = fmt(discAmt);
 }
 
 async function posCheckout(){
@@ -5274,6 +5334,7 @@ async function posCheckout(){
   }
 
   const store     = localStorage.getItem("avaStore") || "Podium";
+  const discount  = getPosDiscount();
   const btn       = document.getElementById("posCheckoutBtn");
   const origText  = btn.innerHTML;
   btn.innerHTML   = "Processing...";
@@ -5297,8 +5358,10 @@ async function posCheckout(){
 
   if(!hasError){
     // Show receipt before clearing cart
-    showReceipt(posCart, store);
+    showReceipt(posCart, store, discount);
     posCart = [];
+    const discSel = document.getElementById("posDiscountSelect");
+    if(discSel) discSel.value = "0";
     renderPosCart();
     await loadPosStocks();
     await loadPosSalesStats();
