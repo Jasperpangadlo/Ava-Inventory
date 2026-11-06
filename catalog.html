@@ -1336,6 +1336,9 @@ function buildBranchPanels(){
         <select class="cat-filter-select" id="${p}ColorFilter" onchange="filterBranch('${key}')">
           <option value="">All Colors</option>
         </select>
+        <select class="cat-filter-select" id="${p}CollectionFilter" onchange="filterBranch('${key}')">
+          <option value="">All Collections</option>
+        </select>
         <select class="cat-filter-select" id="${p}SizeFilter" onchange="filterBranch('${key}')">
           <option value="" selected>All Sizes</option>
           <option value="XS">XS</option><option value="S">S</option><option value="M">M</option>
@@ -1378,6 +1381,14 @@ async function loadBranch(key){
     sel.value = cur;
     if(!sel.value) sel.selectedIndex = 0;
 
+    const csel  = document.getElementById(p+"CollectionFilter");
+    const ccur  = csel.value || "";
+    const collections = [...new Set(b.data.map(x => x.collection).filter(Boolean))].sort();
+    csel.innerHTML = `<option value="">All Collections</option>` +
+      collections.map(c => `<option value="${c}">${c}</option>`).join("");
+    csel.value = ccur;
+    if(!csel.value) csel.selectedIndex = 0;
+
     filterBranch(key);
   } catch(err) {
     document.getElementById(p+"Grid").innerHTML = `
@@ -1394,6 +1405,7 @@ function filterBranch(key){
   const b = BRANCHES[key], p = b.p;
   const kw    = document.getElementById(p+"Search").value.toLowerCase();
   const color = document.getElementById(p+"ColorFilter").value.toLowerCase();
+  const collection = document.getElementById(p+"CollectionFilter").value.toLowerCase();
   const size  = document.getElementById(p+"SizeFilter").value;
   const sort  = document.getElementById(p+"SortFilter").value || "az";
 
@@ -1404,6 +1416,7 @@ function filterBranch(key){
                       (product.collection || "").toLowerCase().includes(kw);
     if(!nameMatch) return false;
     if(color && !product.colors.some(c => c.color.toLowerCase() === color)) return false;
+    if(collection && (product.collection || "").toLowerCase() !== collection) return false;
     if(size && !product.colors.some(c => (Number(c[size]) || 0) > 0)) return false;
     return true;
   });
