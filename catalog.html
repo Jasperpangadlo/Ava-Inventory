@@ -812,6 +812,8 @@
 <div class="cat-tabs">
   <button class="cat-tab-btn active" onclick="switchTab('products',this)">🗂️ Products</button>
   <button class="cat-tab-btn" onclick="switchTab('fabrics',this)">🧵 Fabrics</button>
+  <button class="cat-tab-btn" onclick="switchTab('glorieta',this)">🏬 Glorieta</button>
+  <button class="cat-tab-btn" onclick="switchTab('podium',this)">🏢 Podium</button>
 </div>
 
 <div class="cat-toolbar">
@@ -900,6 +902,9 @@
     <div class="cat-loading"><div class="cat-spinner"></div><p>Loading fabrics...</p></div>
   </div>
 </div>
+
+<!-- ── Branch Panels (Glorieta, Podium) are built in JS ───────────────────── -->
+<div id="branchPanels"></div>
 
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwymQ1xaCN5yW3WczU-TPGgF2dnn2l25YyStRm0ED1oM3CurdCctabBAS3YOWRTo2nj9Q/exec";
@@ -993,9 +998,10 @@ function filterCatalog(){
 }
 
 // ── Render catalog ───────────────────────────────────────────────────────────
-function renderCatalog(catalog){
-  const main  = document.getElementById("catMain");
-  const count = document.getElementById("catCount");
+function renderCatalog(catalog, cfg){
+  cfg = cfg || {};
+  const main  = document.getElementById(cfg.mainId  || "catMain");
+  const count = document.getElementById(cfg.countId || "catCount");
 
   count.textContent = `${catalog.length} style${catalog.length !== 1 ? "s" : ""}`;
 
@@ -1009,8 +1015,8 @@ function renderCatalog(catalog){
   }
 
   const sizes      = ["XS","S","M","L","XL"];
-  const colorFilter = document.getElementById("catColorFilter").value.toLowerCase();
-  const sizeFilter  = document.getElementById("catSizeFilter").value;
+  const colorFilter = document.getElementById(cfg.colorId || "catColorFilter").value.toLowerCase();
+  const sizeFilter  = document.getElementById(cfg.sizeId  || "catSizeFilter").value;
 
   main.innerHTML = `<div class="cat-grid">${
     catalog.map(product => {
@@ -1122,7 +1128,7 @@ function renderCatalog(catalog){
           const safeStyle = (product.style || "").replace(/'/g, "\\'");
           const safeColor = (c.color || "").replace(/'/g, "\\'");
           const clickAttr = qty > 0
-            ? ` onclick="showProductHistory('${safeStyle}','${safeColor}','${sz}')"`
+            ? ` onclick="showProductHistory('${safeStyle}','${safeColor}','${sz}','${cfg.branch || ""}')"`
             : "";
           const qtyCls = qty > 0 ? `cat-qty ${cls} cat-qty-clickable` : `cat-qty ${cls}`;
           return `<td ${highlight}><span class="${qtyCls}"${clickAttr}>${qty > 0 ? qty : "—"}</span></td>`;
@@ -1194,8 +1200,11 @@ function printCatalog(){
   const dateStr = now.toLocaleDateString("en-PH", {
     year: "numeric", month: "long", day: "numeric"
   });
+  const br    = BRANCHES[_activeTab];
+  const list  = br ? br.filtered : _filteredData;
+  const label = br ? br.label + " · " : "";
   document.getElementById("printDate").textContent =
-    `Printed: ${dateStr} · ${_filteredData.length} style${_filteredData.length !== 1 ? "s" : ""}`;
+    `Printed: ${dateStr} · ${label}${list.length} style${list.length !== 1 ? "s" : ""}`;
 
   window.print();
 }
@@ -1209,7 +1218,7 @@ function _formatHistDate(iso) {
   return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-async function showProductHistory(style, color, size) {
+async function showProductHistory(style, color, size, branch) {
   const modal  = document.getElementById("catHistoryModal");
   const titleEl = document.getElementById("catHistoryTitle");
   const subEl   = document.getElementById("catHistorySub");
@@ -1222,7 +1231,7 @@ async function showProductHistory(style, color, size) {
   document.body.style.overflow = "hidden";
 
   try {
-    const payload = encodeURIComponent(JSON.stringify({ product: style, color, size }));
+    const payload = encodeURIComponent(JSON.stringify({ product: style, color, size, branch: branch || "" }));
     const url = `${WEB_APP_URL}?action=getSalesHistory&data=${payload}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error("HTTP " + res.status);
@@ -1288,18 +1297,125 @@ function switchTab(tab, btn){
   const productToolbar = document.querySelector(".cat-toolbar");
   const productMain    = document.getElementById("catMain");
   const fabricsMain    = document.getElementById("fabricsMain");
+  productToolbar.style.display = tab === "products" ? "flex"  : "none";
+  productMain.style.display    = tab === "products" ? "block" : "none";
+  fabricsMain.style.display    = tab === "fabrics"  ? "block" : "none";
+  document.querySelectorAll(".branch-panel").forEach(p => p.style.display = "none");
 
-  if(tab === "products"){
-    productToolbar.style.display = "flex";
-    productMain.style.display    = "block";
-    fabricsMain.style.display    = "none";
-    if(!_catalogData.length) loadCatalog();
-  } else {
-    productToolbar.style.display = "none";
-    productMain.style.display    = "none";
-    fabricsMain.style.display    = "block";
-    if(!_fabricData.length) loadFabrics();
+  if(tab === "products" && !_catalogData.length)  loadCatalog();
+  if(tab === "fabrics"  && !_fabricData.length)   loadFabrics();
+  if(BRANCHES[tab]){
+    document.getElementById("branchPanel-" + tab).style.display = "block";
+    if(!BRANCHES[tab].data.length) loadBranch(tab);
   }
+}
+
+// ── Branch Tabs (Glorieta, Podium) ────────────────────────────────────────────
+// To add another branch later: add an entry here + a tab button + an Apps Script action.
+const BRANCHES = {
+  glorieta: { label: "Glorieta", action: "getGlorietaStock", p: "g",   data: [], filtered: [] },
+  podium:   { label: "Podium",   action: "getPodiumStock",   p: "pod", data: [], filtered: [] }
+};
+
+function branchCfg(key){
+  const b = BRANCHES[key];
+  return { mainId: b.p+"Grid", countId: b.p+"Count",
+           colorId: b.p+"ColorFilter", sizeId: b.p+"SizeFilter", branch: b.label };
+}
+
+function buildBranchPanels(){
+  document.getElementById("branchPanels").innerHTML = Object.keys(BRANCHES).map(key => {
+    const b = BRANCHES[key], p = b.p;
+    return `
+    <div id="branchPanel-${key}" class="branch-panel" style="display:none;">
+      <div class="cat-toolbar">
+        <div class="cat-search">
+          <span>🔍</span>
+          <input id="${p}Search" placeholder="Search style or color..." oninput="filterBranch('${key}')">
+        </div>
+        <select class="cat-filter-select" id="${p}ColorFilter" onchange="filterBranch('${key}')">
+          <option value="">All Colors</option>
+        </select>
+        <select class="cat-filter-select" id="${p}SizeFilter" onchange="filterBranch('${key}')">
+          <option value="" selected>All Sizes</option>
+          <option value="XS">XS</option><option value="S">S</option><option value="M">M</option>
+          <option value="L">L</option><option value="XL">XL</option>
+        </select>
+        <select class="cat-filter-select" id="${p}SortFilter" onchange="filterBranch('${key}')">
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
+          <option value="stock-asc">Stock: Low → High</option>
+          <option value="stock-desc">Stock: High → Low</option>
+        </select>
+        <div class="cat-count" id="${p}Count">Loading...</div>
+      </div>
+      <div id="${p}Grid">
+        <div class="cat-loading"><div class="cat-spinner"></div><p>Loading ${b.label} stock...</p></div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+async function loadBranch(key){
+  const b = BRANCHES[key], p = b.p;
+  document.getElementById(p+"Grid").innerHTML =
+    `<div class="cat-loading"><div class="cat-spinner"></div><p>Loading ${b.label} stock...</p></div>`;
+  document.getElementById(p+"Count").textContent = "Loading...";
+
+  try {
+    const res  = await fetch(`${WEB_APP_URL}?action=${b.action}`);
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+
+    b.data     = data.catalog || [];
+    b.filtered = [...b.data];
+
+    const sel = document.getElementById(p+"ColorFilter");
+    const cur = sel.value || "";
+    const colors = [...new Set(b.data.flatMap(x => x.colors.map(c => c.color)).filter(Boolean))].sort();
+    sel.innerHTML = `<option value="">All Colors</option>` +
+      colors.map(c => `<option value="${c}">${c}</option>`).join("");
+    sel.value = cur;
+    if(!sel.value) sel.selectedIndex = 0;
+
+    filterBranch(key);
+  } catch(err) {
+    document.getElementById(p+"Grid").innerHTML = `
+      <div class="cat-empty">
+        <h3>Could not load ${b.label} stock</h3>
+        <p>Check your internet connection or Apps Script deployment.<br><br>
+        <small style="color:#ef4444">${err.message}</small></p>
+      </div>`;
+    document.getElementById(p+"Count").textContent = "Error";
+  }
+}
+
+function filterBranch(key){
+  const b = BRANCHES[key], p = b.p;
+  const kw    = document.getElementById(p+"Search").value.toLowerCase();
+  const color = document.getElementById(p+"ColorFilter").value.toLowerCase();
+  const size  = document.getElementById(p+"SizeFilter").value;
+  const sort  = document.getElementById(p+"SortFilter").value || "az";
+
+  b.filtered = b.data.filter(product => {
+    const nameMatch = product.style.toLowerCase().includes(kw) ||
+                      (product.code || "").toLowerCase().includes(kw) ||
+                      product.colors.some(c => c.color.toLowerCase().includes(kw)) ||
+                      (product.collection || "").toLowerCase().includes(kw);
+    if(!nameMatch) return false;
+    if(color && !product.colors.some(c => c.color.toLowerCase() === color)) return false;
+    if(size && !product.colors.some(c => (Number(c[size]) || 0) > 0)) return false;
+    return true;
+  });
+
+  const sizes = ["XS","S","M","L","XL"];
+  const getTotal = x => x.colors.reduce((s,c) => sizes.reduce((ss,sz) => ss+(Number(c[sz])||0), s), 0);
+  if(sort === "az")              b.filtered.sort((x,y) => x.style.localeCompare(y.style));
+  else if(sort === "za")         b.filtered.sort((x,y) => y.style.localeCompare(x.style));
+  else if(sort === "stock-asc")  b.filtered.sort((x,y) => getTotal(x) - getTotal(y));
+  else if(sort === "stock-desc") b.filtered.sort((x,y) => getTotal(y) - getTotal(x));
+
+  renderCatalog(b.filtered, branchCfg(key));
 }
 
 // ── Fabric Functions ──────────────────────────────────────────────────────────
@@ -1399,6 +1515,7 @@ function renderFabrics(fabrics){
 }
 
 // ── Init ─────────────────────────────────────────────────────────────────────
+buildBranchPanels();
 loadCatalog();
 </script>
 <!-- ── QR Code Modal ──────────────────────────────────────────────────────── -->
