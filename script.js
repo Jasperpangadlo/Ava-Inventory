@@ -1459,7 +1459,7 @@ async function showTab(tabId){
     history:        () => loadHistory(),
     store:          () => loadStoreProducts(),
     "sold-items":   () => loadSoldItems(),
-    reports:        () => Promise.all([loadDailyReports(), loadBestSellers(), loadSalesTrendChart()]),
+    reports:        async () => { await loadHistoryCache(); await Promise.all([loadDailyReports(), loadBestSellers(), loadSalesTrendChart()]); },
     dashboard:      () => Promise.all([loadWeeklyStockChart(), updateStoreSalesToday(), loadTransactionTimeline()]),
     "activity-log": () => loadActivityLog()
   };
@@ -2685,7 +2685,7 @@ const date = reportDate.value;
 if(!document.getElementById("addStockReport")) return;
 
 // Use date range filter if set, otherwise fall back to single date
-const history = getFilteredHistory();
+const history = [...getFilteredHistory(), ...getFilteredStockIn()];
 
 const addStock = document.getElementById("addStockReport");
 const warehouseToStore = document.getElementById("warehouseToStoreReport");
@@ -2770,10 +2770,13 @@ if(remarks.includes("store 3")&&remarks.includes("walk")) store3Sales[product]=(
 if(remarks.includes("add stock")){
   addStockHtml+=row; summary.addStock.qty+=qty; summary.addStock.total+=total;
 }
-else if(remarks.startsWith("warehouse")&&remarks.includes("store")){
+else if(!remarks.includes("online") && !remarks.includes("walk") && !remarks.includes("return") &&
+        (getTransferDirection(remarks) === "toStore" ||
+         (getTransferDirection(remarks) === null && remarks.includes("transfer")))){
   warehouseToStoreHtml+=row; summary.warehouseToStore.qty+=qty; summary.warehouseToStore.total+=total;
 }
-else if(remarks.startsWith("store")&&remarks.includes("warehouse")){
+else if(!remarks.includes("walk") && !remarks.includes("online") &&
+        (remarks.includes("return") || getTransferDirection(remarks) === "toWarehouse")){
   storeToWarehouseHtml+=row; summary.storeToWarehouse.qty+=qty; summary.storeToWarehouse.total+=total;
   // Track returns per product
   returnData[product] = (returnData[product]||0)+qty;
@@ -3062,10 +3065,43 @@ function getFilteredHistory(){
   const { from, to } = _activeDateRange;
   if(!from && !to) return history;
   return history.filter(item=>{
-    const itemDate = new Date(item.datetime || item.date).toISOString().split("T")[0];
+    const parsed = parseDatetime(item.datetime || item.date);
+    if(isNaN(parsed)) return false;
+    const itemDate = formatDate(parsed); // local date (PH time), not UTC
     if(from && itemDate < from) return false;
     if(to   && itemDate > to)   return false;
     return true;
+  });
+}
+
+// Direction of a transfer by position: "Transfer: Warehouse → Glorietta" = toStore,
+// "Transfer: Glorietta → Warehouse" = toWarehouse. Returns null if it can't tell.
+function getTransferDirection(remarks){
+  const r = String(remarks || "").toLowerCase();
+  const w = r.indexOf("warehouse");
+  if(w === -1) return null;
+  const s = r.search(/podium|glorietta|store/);
+  if(s === -1) return null;
+  return w < s ? "toStore" : "toWarehouse";
+}
+
+// Stock In records (Add Stock) live in a separate cache, filtered by the same date range
+function getFilteredStockIn(){
+  const list = stockInCache || [];
+  const { from, to } = _activeDateRange;
+  return list.filter(item=>{
+    if(!from && !to) return true;
+    const parsed = parseDatetime(item.datetime || item.date);
+    if(isNaN(parsed)) return false;
+    const itemDate = formatDate(parsed);
+    if(from && itemDate < from) return false;
+    if(to   && itemDate > to)   return false;
+    return true;
+  }).map(r=>{
+    const rem = String(r.remarks || "").toLowerCase();
+    // Keep the original remarks if it clearly says transfer/return; otherwise it's an Add Stock
+    const special = rem.includes("return") || rem.includes("transfer") || rem.includes("warehouse");
+    return { ...r, remarks: special ? r.remarks : "Add Stock" };
   });
 }
 
@@ -5018,8 +5054,7 @@ async function loadPosHistory(){
     if(!matchStore) return false;
 
     if(date){
-      const itemDate = new Date(item.datetime || item.date)
-        .toISOString().split("T")[0];
+      const itemDate = formatDate(parseDatetime(item.datetime || item.date));
       return itemDate === date;
     }
 
