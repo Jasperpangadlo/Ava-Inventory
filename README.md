@@ -1,1 +1,1 @@
-jayden ugok
+jayden tae
