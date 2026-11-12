@@ -220,6 +220,7 @@ document.addEventListener("keydown", e => {
 
 // ── Auto Refresh ──────────────────────────────────────────────────────────────
 let _autoRefreshTimer = null;
+let _autoRefreshBusy  = false;
 
 function setAutoRefresh(seconds){
   clearInterval(_autoRefreshTimer);
@@ -229,8 +230,19 @@ function setAutoRefresh(seconds){
   if(secs <= 0) return;
 
   _autoRefreshTimer = setInterval(async ()=>{
-    showConnectionBanner("🔄 Auto-refreshing data...", "success");
-    await refreshAllData();
+    // Background tabs get throttled/suspended by the browser. Skip those ticks —
+    // otherwise they all fire at once the moment the user comes back.
+    if(document.hidden) return;
+    if(_autoRefreshBusy) return;
+    _autoRefreshBusy = true;
+    try {
+      showConnectionBanner("🔄 Auto-refreshing data...", "success");
+      await refreshAllData();
+    } catch(e) {
+      console.warn("Auto-refresh failed:", e);
+    } finally {
+      _autoRefreshBusy = false;
+    }
   }, secs * 1000);
 }
 // ─────────────────────────────────────────────────────────────────────────────
@@ -375,6 +387,127 @@ function checkStockAlerts(products){
   });
 }
 // ─────────────────────────────────────────────────────────────────────────────
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// UI STATE PERSISTENCE (sessionStorage)
+// If the browser discards/reloads the tab, restore: current tab, Sales cart,
+// Add-Stock cart, POS cart and their related dropdowns. Cleared on explicit logout.
+// ══════════════════════════════════════════════════════════════════════════════
+const UI_STATE_KEY = "avaUiState";
+
+function saveUiState(){
+  try{
+    const user = localStorage.getItem("avaUser");
+    if(!user || localStorage.getItem("avaLoggedIn") !== "true") return;
+    sessionStorage.setItem(UI_STATE_KEY, JSON.stringify({
+      user,
+      tab         : currentTab,
+      salesCart   : salesCart,
+      stockCart   : stockCart,
+      posCart     : posCart,
+      deductFrom  : document.getElementById("deductFrom")?.value,
+      salesType   : document.getElementById("salesType")?.value,
+      posDiscount : document.getElementById("posDiscountSelect")?.value
+    }));
+  }catch(e){ /* storage full / unavailable — silently ignore */ }
+}
+
+// Returns the saved state ONLY if it belongs to the currently logged-in user.
+function readUiState(){
+  try{
+    const raw = sessionStorage.getItem(UI_STATE_KEY);
+    if(!raw) return null;
+    const state = JSON.parse(raw);
+    if(!state || state.user !== localStorage.getItem("avaUser")) return null;
+    return state;
+  }catch(e){ return null; }
+}
+
+function clearUiState(){
+  try{ sessionStorage.removeItem(UI_STATE_KEY); }catch(e){}
+}
+
+// Admin side: restore the Sales cart + Add-Stock cart (and the dropdowns that
+// decide WHERE the sales cart will be deducted from).
+function applyRestoredAdminState(state){
+  if(!state) return;
+
+  const hasSales = Array.isArray(state.salesCart) && state.salesCart.length > 0;
+  const hasStock = Array.isArray(state.stockCart) && state.stockCart.length > 0;
+
+  // Restore the dropdowns FIRST so a restored cart can never be deducted
+  // from the wrong location by accident (default would be the first option).
+  const deductEl = document.getElementById("deductFrom");
+  const typeEl   = document.getElementById("salesType");
+  if(state.deductFrom && deductEl) deductEl.value = state.deductFrom;
+  if(state.salesType  && typeEl)   typeEl.value   = state.salesType;
+
+  if(hasSales) salesCart = state.salesCart;
+  if(hasStock) stockCart = state.stockCart;
+
+  if(hasSales) renderSalesCart();
+  if(hasStock){ renderStockCart(); updatePreview(); }
+}
+
+// POS side: restore the cart AFTER the store stock is loaded, re-validating
+// every line against current stock (stock may have changed while away).
+function restorePosCartFromState(state){
+  if(!state || !Array.isArray(state.posCart) || state.posCart.length === 0) return;
+
+  const restored = [];
+  state.posCart.forEach(item => {
+    const found = posStoreProducts.find(p => String(p.barcode).trim() === String(item.barcode).trim());
+    const available = found ? Number(found.storeQty || found.qty || 0) : 0;
+    if(available <= 0) return;                       // no longer in stock — drop it
+    restored.push({
+      ...item,
+      price  : Number(found.price || item.price || 0),
+      maxQty : available,
+      qty    : Math.min(Math.max(1, Number(item.qty) || 1), available)
+    });
+  });
+
+  posCart = restored;
+
+  const discSel = document.getElementById("posDiscountSelect");
+  if(discSel && state.posDiscount) discSel.value = state.posDiscount;
+
+  renderPosCart();
+
+  if(restored.length < state.posCart.length){
+    showMessage("Some items in your cart were removed because they're no longer in stock.", "warning");
+  }
+}
+
+// Used when the session is truly gone (expired refresh token). Goes back to the
+// login screen WITHOUT reloading the page. Carts stay saved so the same user
+// gets them back after logging in again.
+function forceReturnToLogin(){
+  clearInterval(_autoRefreshTimer);
+  _autoRefreshTimer = null;
+  _autoRefreshBusy  = false;
+  const sel = document.getElementById("autoRefreshSelect");
+  if(sel) sel.value = "0";
+
+  // Save the latest state BEFORE the flags are removed (saveUiState needs them)
+  saveUiState();
+
+  localStorage.removeItem("avaLoggedIn");
+  localStorage.removeItem("avaUser");
+  localStorage.removeItem("avaRole");
+  localStorage.removeItem("avaStore");
+
+  const posScreen = document.getElementById("posScreen");
+  if(posScreen) posScreen.style.display = "none";
+  const layout = document.querySelector(".layout");
+  if(layout) layout.style.display = "none";
+
+  const loginScreen = document.getElementById("loginScreen");
+  if(loginScreen) loginScreen.style.display = "flex";
+  const pw = document.getElementById("password");
+  if(pw) pw.value = "";
+}
 
 // ── Receipt / Invoice ─────────────────────────────────────────────────────────
 let _receiptCounter = Number(localStorage.getItem("avaReceiptNo") || 1000);
@@ -927,6 +1060,7 @@ function addToSalesCart(){
 }
 
 function renderSalesCart(){
+  saveUiState();
   const tbody = document.getElementById("salesCartTable");
   if(!tbody) return;
 
@@ -966,6 +1100,7 @@ function updateSoCartUI(){
 
 function updateCartQty(index, value){
   salesCart[index].qty = Math.max(1, Number(value));
+  saveUiState();
 }
 
 function removeCartItem(index){
@@ -1418,6 +1553,7 @@ let currentTab = "dashboard";
 async function showTab(tabId){
 
   currentTab = tabId;
+  saveUiState();
 
   const tabs =
   document.querySelectorAll(".tab-content");
@@ -2288,6 +2424,7 @@ document.getElementById("barcode").focus();
 }
 
 function renderStockCart() {
+  saveUiState();
   const tbody =
   document.getElementById("stockCartTable");
 
@@ -4893,7 +5030,7 @@ async function waitForSupabaseSession(){
         sub.subscription.unsubscribe();
         resolve(null);
       }
-    }, 800);
+    }, 4000);
   });
 }
 
@@ -4905,10 +5042,22 @@ window.onload = async () => {
   const session = await waitForSupabaseSession();
   const hasValidSession = !!session;
 
+  // ⚡ No session but also no internet (e.g. device just woke up): this is NOT the
+  // same as "logged out". Keep the login flags, tell the user, and retry once
+  // the connection is back — instead of wiping everything and kicking them out.
+  if(!hasValidSession && !navigator.onLine && localStorage.getItem("avaLoggedIn") === "true"){
+    showConnectionBanner("You are offline. Reconnecting when your internet is back...", "error");
+    window.addEventListener("online", () => window.onload(), { once: true });
+    return;
+  }
+
+  // Read the saved UI state BEFORE anything below overwrites it
+  const savedState = readUiState();
+
   if(localStorage.getItem("avaLoggedIn") === "true" && hasValidSession){
     document.getElementById("loginScreen").style.display = "none";
     if(localStorage.getItem("avaRole") === "user"){
-      showPosScreen();
+      showPosScreen(savedState);
       return;
     }
   } else {
@@ -4946,7 +5095,12 @@ window.onload = async () => {
   setInterval(updateClock,1000);
 
 await loadHistoryCache();
-await showTab("dashboard");
+
+  // Restore carts + the tab the user was on (falls back to Dashboard)
+  applyRestoredAdminState(savedState);
+  const savedTab = savedState && savedState.tab;
+  const tabEl    = savedTab && document.getElementById(savedTab);
+  await showTab(tabEl && tabEl.classList.contains("tab-content") ? savedTab : "dashboard");
 
 };
 
@@ -4958,7 +5112,7 @@ await showTab("dashboard");
 let posCart = [];
 let posStoreProducts = [];
 
-function showPosScreen(){
+function showPosScreen(restoreState){
   const store = localStorage.getItem("avaStore") || "Podium";
   const user  = localStorage.getItem("avaUser")  || "";
 
@@ -4978,7 +5132,9 @@ function showPosScreen(){
   document.querySelector(".layout").style.display = "none";
 
   updatePosTotals();
-  loadPosStocks();
+  loadPosStocks().then(() => {
+    if(restoreState) restorePosCartFromState(restoreState);
+  });
   loadPosSalesStats();
 
   setTimeout(()=>{
@@ -4987,7 +5143,8 @@ function showPosScreen(){
   }, 200);
 
   updatePosClock();
-  setInterval(updatePosClock, 1000);
+  clearInterval(window._posClockTimer);
+  window._posClockTimer = setInterval(updatePosClock, 1000);
 }
 
 // ── POS Tab Switching ────────────────────────────────────────────────────────
@@ -5268,6 +5425,7 @@ function addToPosCart(){
 }
 
 function renderPosCart(){
+  saveUiState();
   const tbody = document.getElementById("posCartTable");
   if(!tbody) return;
 
@@ -5438,14 +5596,20 @@ btn.innerHTML = "Processing...";
 
     document.getElementById("loginScreen").style.display = "none";
 
+    // Only returns state saved by this same user (e.g. after a session expiry)
+    const savedState = readUiState();
+
     if(result.role === "user"){
-      showPosScreen();
+      showPosScreen(savedState);
     } else {
       // Show admin layout after login
       const layout = document.querySelector(".layout");
       if(layout) layout.style.display = "grid";
       await loadHistoryCache();
-      await showTab("dashboard");
+      applyRestoredAdminState(savedState);
+      const savedTab = savedState && savedState.tab;
+      const tabEl    = savedTab && document.getElementById(savedTab);
+      await showTab(tabEl && tabEl.classList.contains("tab-content") ? savedTab : "dashboard");
     }
 
 } else {
@@ -5925,6 +6089,12 @@ function emptyStateRow(cols, config) {
       </td>
     </tr>`;
 }
+
+// Persist the dropdowns that decide where a cart is deducted / discounted
+["deductFrom", "salesType", "posDiscountSelect"].forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.addEventListener("change", saveUiState);
+});
 
 // ── Debounce search/filter inputs ───────────────────────────────────────────
 // Waits a short moment after the user stops typing before actually filtering,
