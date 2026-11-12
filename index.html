@@ -5,12 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Inventory System</title>
 
-  <script>
-  const cssVersion = Date.now();
-  document.write(
-  '<link rel="stylesheet" href="style.css?v=' + cssVersion + '">'
-  );
-  </script>
+  <!-- ⚠️ Every deploy: bump ?v= here AND on script.js below AND CACHE_NAME in service-worker.js -->
+  <link rel="stylesheet" href="style.css?v=104">
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- SheetJS for Excel export -->
@@ -1906,12 +1902,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
-<script>
-const version = Date.now();
-document.write(
-'<script src="script.js?v=' + version + '"><\/script>'
-);
-</script>
+<script src="script.js?v=104"></script>
 
 <!-- ══ CAMERA BARCODE SCANNER MODAL ═══════════════════════════════════════ -->
 <div id="cameraScannerModal" class="cam-overlay" style="display:none;">
@@ -2045,6 +2036,8 @@ async function confirmLogout(){
   if(typeof sb !== "undefined" && sb.auth){
     await sb.auth.signOut();
   }
+
+  if(typeof clearUiState === "function") clearUiState();
 
   localStorage.removeItem("avaLoggedIn");
   localStorage.removeItem("avaUser");
