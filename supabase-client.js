@@ -8,7 +8,48 @@ const SUPABASE_URL = "https://aiczonqwwfxvikowmzcr.supabase.co"; // your project
 const SUPABASE_ANON_KEY = "sb_publishable_Z-sNfyMvnXcaLunFpfV4aQ_oHZipoj-"; // Project Settings > API
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let _retryingAfterRefresh = false;
+
+// ── Shared session refresh ───────────────────────────────────────────────
+// Several API calls often fail together (e.g. Promise.all on tab return).
+// They all share ONE refresh attempt instead of racing each other.
+// Resolves to: "ok" | "network" (temporary problem — keep the user logged in)
+//              | "expired" (session is genuinely gone)
+let _refreshPromise = null;
+
+function refreshSessionOnce() {
+  if (_refreshPromise) return _refreshPromise;
+
+  _refreshPromise = (async () => {
+    try {
+      const { data, error } = await sb.auth.refreshSession();
+      if (!error && data?.session) return "ok";
+
+      const msg = String(error?.message || "").toLowerCase();
+      const isNetwork =
+        !navigator.onLine ||
+        error?.name === "AuthRetryableFetchError" ||
+        msg.includes("fetch") ||
+        msg.includes("network");
+
+      return isNetwork ? "network" : "expired";
+    } catch (e) {
+      // fetch itself threw (offline, DNS, device just woke up) — not an auth failure
+      return "network";
+    }
+  })().finally(() => {
+    // allow a fresh attempt next time
+    setTimeout(() => { _refreshPromise = null; }, 0);
+  });
+
+  return _refreshPromise;
+}
+
+// When the user comes back to the tab, let Supabase recover/refresh the
+// token FIRST, before any timers (e.g. Auto Refresh) fire their requests.
+document.addEventListener("visibilitychange", async () => {
+  if (document.visibilityState !== "visible") return;
+  try { await sb.auth.getSession(); } catch (e) { /* silent */ }
+});
 
 // ── Simple in-memory cache ──────────────────────────────────────────────
 // Avoids re-fetching from Supabase every time a tab is reopened.
@@ -84,7 +125,7 @@ function formatDatetime(iso) {
          `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-async function apiRequest(action, payload = {}) {
+async function apiRequest(action, payload = {}, _isRetry = false) {
   try {
     switch (action) {
 
@@ -519,28 +560,33 @@ async function apiRequest(action, payload = {}) {
     const looksLikeExpiredSession =
       status === 401 || msg.includes("jwt") || msg.includes("expired") || msg.includes("invalid_token");
 
-    if (looksLikeExpiredSession && action !== "login" && !_retryingAfterRefresh) {
-      _retryingAfterRefresh = true;
-      try {
-        const { data: refreshed, error: refreshErr } = await sb.auth.refreshSession();
-        _retryingAfterRefresh = false;
-        if (!refreshErr && refreshed?.session) {
-          // Got a fresh token — retry the original request once
-          return await apiRequest(action, payload);
-        }
-      } catch (e) {
-        _retryingAfterRefresh = false;
+    if (looksLikeExpiredSession && action !== "login" && !_isRetry) {
+      const outcome = await refreshSessionOnce();
+
+      if (outcome === "ok") {
+        // Got a fresh token — retry the original request once
+        return await apiRequest(action, payload, true);
       }
 
-      // Refresh failed too — the session is genuinely gone (e.g. left open all day).
-      // Clear local state and send the user back to the login screen with a clear reason.
+      if (outcome === "network") {
+        // Temporary problem (device just woke up, no internet yet, etc.).
+        // Do NOT log the user out and do NOT reload — just tell them and let them retry.
+        showConnectionBanner("Connection issue. Please check your internet and try again.", "warning");
+        throw err;
+      }
+
+      // outcome === "expired": the session is genuinely gone.
       console.error("Session expired and could not be refreshed:", err);
       showConnectionBanner("Your session has expired. Please log in again.", "error");
-      localStorage.removeItem("avaLoggedIn");
-      localStorage.removeItem("avaUser");
-      localStorage.removeItem("avaRole");
-      localStorage.removeItem("avaStore");
-      setTimeout(() => window.location.reload(), 1800);
+      if (typeof forceReturnToLogin === "function") {
+        forceReturnToLogin();          // back to login screen, no page reload
+      } else {
+        localStorage.removeItem("avaLoggedIn");
+        localStorage.removeItem("avaUser");
+        localStorage.removeItem("avaRole");
+        localStorage.removeItem("avaStore");
+        setTimeout(() => window.location.reload(), 1800);
+      }
       throw err;
     }
 
