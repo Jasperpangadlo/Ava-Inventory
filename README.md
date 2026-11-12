@@ -1,1 +1,1 @@
-sarap mo totnakin wilma
+sana matotnak kita wilma
