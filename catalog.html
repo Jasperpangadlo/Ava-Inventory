@@ -802,7 +802,7 @@
     </div>
   </div>
   <div class="cat-header-right">
-    <button class="cat-refresh-btn" onclick="loadCatalog()">↻ Refresh</button>
+    <button class="cat-refresh-btn" onclick="refreshCurrent()">↻ Refresh</button>
     <button class="cat-refresh-btn" onclick="showQRCode()" style="background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35);">📱 QR Code</button>
     <button class="cat-print-btn" onclick="printCatalog()">🖨️ Print</button>
   </div>
@@ -1564,6 +1564,13 @@ function renderFabrics(fabrics){
         </table>
       </div>`;
   }).join("");
+}
+
+// ── Refresh the tab that is currently open ───────────────────────────────────
+function refreshCurrent(){
+  if (BRANCHES[_activeTab])          loadBranch(_activeTab);
+  else if (_activeTab === "fabrics") loadFabrics();
+  else                               loadCatalog();
 }
 
 // ── Init ─────────────────────────────────────────────────────────────────────
