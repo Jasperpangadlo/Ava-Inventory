@@ -1313,14 +1313,16 @@ function switchTab(tab, btn){
 // ── Branch Tabs (Glorieta, Podium) ────────────────────────────────────────────
 // To add another branch later: add an entry here + a tab button + an Apps Script action.
 const BRANCHES = {
-  glorieta: { label: "Glorieta", action: "getGlorietaStock", p: "g",   data: [], filtered: [] },
-  podium:   { label: "Podium",   action: "getPodiumStock",   p: "pod", data: [], filtered: [] }
+  // salesKey = the branch name as it is written in the Sales sheet's Remark column
+  // ("Glorietta - Walk-in Sales"), used when looking up sales history.
+  glorieta: { label: "Glorieta", salesKey: "Glorietta", action: "getGlorietaStock", p: "g",   data: [], filtered: [] },
+  podium:   { label: "Podium",   salesKey: "Podium",    action: "getPodiumStock",   p: "pod", data: [], filtered: [] }
 };
 
 function branchCfg(key){
   const b = BRANCHES[key];
   return { mainId: b.p+"Grid", countId: b.p+"Count",
-           colorId: b.p+"ColorFilter", sizeId: b.p+"SizeFilter", branch: b.label };
+           colorId: b.p+"ColorFilter", sizeId: b.p+"SizeFilter", branch: b.salesKey || b.label };
 }
 
 function buildBranchPanels(){
