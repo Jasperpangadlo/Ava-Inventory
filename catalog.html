@@ -784,6 +784,7 @@
     }
     .cat-lightbox-close:hover { transform: scale(1.1); }
   </style>
+<style>@media print { .branch-notice { display:none !important; } }</style>
 </head>
 
 <body>
@@ -1354,6 +1355,7 @@ function buildBranchPanels(){
         </select>
         <div class="cat-count" id="${p}Count">Loading...</div>
       </div>
+      <div id="${p}Notice" class="branch-notice"></div>
       <div id="${p}Grid">
         <div class="cat-loading"><div class="cat-spinner"></div><p>Loading ${b.label} stock...</p></div>
       </div>
@@ -1374,6 +1376,7 @@ async function loadBranch(key){
 
     b.data     = data.catalog || [];
     b.filtered = [...b.data];
+    renderBranchNotice(key, data.deduction);
 
     const sel = document.getElementById(p+"ColorFilter");
     const cur = sel.value || "";
@@ -1400,7 +1403,41 @@ async function loadBranch(key){
         <small style="color:#ef4444">${err.message}</small></p>
       </div>`;
     document.getElementById(p+"Count").textContent = "Error";
+    renderBranchNotice(key, null);
   }
+}
+
+// Shows whether sales are being auto-deducted, and lists any sales that could not be matched.
+function renderBranchNotice(key, d){
+  const el = document.getElementById(BRANCHES[key].p + "Notice");
+  if(!el) return;
+  if(!d){ el.innerHTML = ""; return; }
+
+  const esc = s => String(s).replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+  const box = (bg, border, color, html) =>
+    `<div style="margin:12px 0;padding:10px 14px;border-radius:10px;background:${bg};border:1px solid ${border};color:${color};font-size:13px;line-height:1.5;">${html}</div>`;
+
+  let html = "";
+  if(d.error) html += box("#fef2f2","#fecaca","#991b1b","⚠ " + esc(d.error));
+
+  if(d.active){
+    html += box("#f0fdf4","#bbf7d0","#166534",
+      `✓ Awtomatikong ibinabawas ang mga benta mula <b>${esc(d.since)}</b> (${Number(d.deductedPcs) || 0} pcs).`);
+
+    const issues = [
+      ...(d.unmatched || []).map(u => `${u.product} · ${u.color} · ${u.size} ×${u.qty} — ${u.reason}`),
+      ...(d.oversold  || []).map(o => `${o.product} · ${o.color} · ${o.size} — kulang ng ${o.short} pc sa stock count`)
+    ];
+    if(issues.length){
+      const shown = issues.slice(0, 25).map(t => `<li>${esc(t)}</li>`).join("");
+      const more  = issues.length > 25 ? `<li>…at ${issues.length - 25} pa</li>` : "";
+      html += box("#fffbeb","#fde68a","#92400e",
+        `⚠ ${issues.length} benta ang hindi lubos na naibawas.
+         <details style="margin-top:4px;"><summary style="cursor:pointer;">Tingnan ang listahan</summary>
+         <ul style="margin:6px 0 0 18px;padding:0;">${shown}${more}</ul></details>`);
+    }
+  }
+  el.innerHTML = html;
 }
 
 function filterBranch(key){
