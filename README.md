@@ -1,1 +1,1 @@
-sana matotnak kita wilma
+tangina mo
