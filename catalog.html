@@ -1128,10 +1128,9 @@ function renderCatalog(catalog, cfg){
             : "";
           const safeStyle = (product.style || "").replace(/'/g, "\\'");
           const safeColor = (c.color || "").replace(/'/g, "\\'");
-          const clickAttr = qty > 0
-            ? ` onclick="showProductHistory('${safeStyle}','${safeColor}','${sz}','${cfg.branch || ""}')"`
-            : "";
-          const qtyCls = qty > 0 ? `cat-qty ${cls} cat-qty-clickable` : `cat-qty ${cls}`;
+          // Clickable kahit 0 / walang laman, para makita pa rin ang sales history
+          const clickAttr = ` onclick="showProductHistory('${safeStyle}','${safeColor}','${sz}','${cfg.branch || ""}')"`;
+          const qtyCls = `cat-qty ${cls} cat-qty-clickable`;
           return `<td ${highlight}><span class="${qtyCls}"${clickAttr}>${qty > 0 ? qty : "—"}</span></td>`;
         }).join("");
 
