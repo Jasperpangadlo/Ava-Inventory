@@ -1004,7 +1004,17 @@ function renderCatalog(catalog, cfg){
   const main  = document.getElementById(cfg.mainId  || "catMain");
   const count = document.getElementById(cfg.countId || "catCount");
 
-  count.textContent = `${catalog.length} style${catalog.length !== 1 ? "s" : ""}`;
+  // Total pcs ng lahat ng styles na nakikita (sumusunod sa color/size filter, tulad ng bawat card)
+  const _sizesAll   = ["XS","S","M","L","XL"];
+  const _colorF     = document.getElementById(cfg.colorId || "catColorFilter").value.toLowerCase();
+  const _sizeF      = document.getElementById(cfg.sizeId  || "catSizeFilter").value;
+  const totalPcs = catalog.reduce((sum, p) => {
+    let rows = p.colors;
+    if(_colorF) rows = rows.filter(c => c.color.toLowerCase() === _colorF);
+    if(_sizeF)  rows = rows.filter(c => (Number(c[_sizeF]) || 0) > 0);
+    return sum + rows.reduce((s, c) => s + _sizesAll.reduce((ss, sz) => ss + (Number(c[sz]) || 0), 0), 0);
+  }, 0);
+  count.textContent = `${catalog.length} style${catalog.length !== 1 ? "s" : ""} · ${totalPcs.toLocaleString()} pcs`;
 
   if(!catalog.length){
     main.innerHTML = `
